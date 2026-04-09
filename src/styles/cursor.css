@@ -1,0 +1,29 @@
+.cursor {
+  width: 12px;
+  height: 12px;
+  background: var(--crimson);
+  border-radius: 50%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: width .2s, height .2s;
+  mix-blend-mode: multiply;
+}
+
+.cursor-ring {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--orange);
+  border-radius: 50%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  transition: transform .15s ease, width .2s, height .2s, border-color .2s;
+  opacity: .5;
+}
