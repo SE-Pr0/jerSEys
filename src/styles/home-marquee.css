@@ -9,6 +9,7 @@
 
 .marquee-track {
   display: flex;
+  align-items: center;
   gap: 80px;
   animation: marqueeScroll 22s linear infinite;
   white-space: nowrap;
@@ -41,6 +42,7 @@
   border-radius: 50%;
   opacity: .5;
   flex-shrink: 0;
+  align-self: center;
 }
 
 @keyframes marqueeScroll {

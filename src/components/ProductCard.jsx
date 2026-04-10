@@ -15,6 +15,7 @@ const ProductCard = ({
 }) => {
   const badgeClass = badge === 'new' ? 'card-new-tag' : badge === 'hot' ? 'card-hot-tag' : '';
   const badgeLabel = badge === 'new' ? 'New' : badge === 'hot' ? 'Hot' : '';
+  const isInteractive = typeof onAction === 'function';
 
   const backgroundStyle = image
     ? {
@@ -24,13 +25,33 @@ const ProductCard = ({
       }
     : undefined;
 
+  const handleCardKeyDown = (event) => {
+    if (!isInteractive || (event.key !== 'Enter' && event.key !== ' ')) {
+      return;
+    }
+
+    event.preventDefault();
+    onAction();
+  };
+
+  const handleActionClick = (event) => {
+    event.stopPropagation();
+    onAction?.();
+  };
+
   return (
-    <div className="jersey-card">
+    <div
+      className="jersey-card"
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+      onClick={onAction}
+      onKeyDown={handleCardKeyDown}
+    >
       <div className="jersey-img-wrap" style={backgroundStyle}>
         <div className="card-sport-tag">{sport}</div>
         {badgeClass && <div className={badgeClass}>{badgeLabel}</div>}
         <div className="card-overlay">
-          <button type="button" className="card-quick-add" onClick={() => onAction?.()}>
+          <button type="button" className="card-quick-add" onClick={handleActionClick}>
             {actionLabel}
           </button>
         </div>

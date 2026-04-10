@@ -1,7 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import brazilKit from '../../../assets/images/Brazil Nike Floating.png';
 import '../../styles/home-hero.css';
+import { getShopProductById } from '../../services/productService';
+
+const heroProductId = 'brazil-brazil-2026-home-22';
+const heroProduct = getShopProductById(heroProductId);
+
+const formatPrice = (value) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(value);
 
 const CountUpStat = ({ target, suffix = '', duration = 1800, start = false }) => {
   const [count, setCount] = useState(0);
@@ -41,8 +51,13 @@ const CountUpStat = ({ target, suffix = '', duration = 1800, start = false }) =>
 };
 
 const HeroSection = () => {
+  const navigate = useNavigate();
   const statsRef = useRef(null);
   const [statsVisible, setStatsVisible] = useState(false);
+
+  const openHeroProduct = () => {
+    navigate(`/shop/${heroProductId}`);
+  };
 
   useEffect(() => {
     const node = statsRef.current;
@@ -118,7 +133,18 @@ const HeroSection = () => {
           <div className="hero-visual-ring2" />
           <div className="hero-visual-ring" />
           <div className="hero-jersey-showcase">
-            <div className="jersey-card-hero">
+            <div
+              className="jersey-card-hero"
+              role="button"
+              tabIndex={0}
+              onClick={openHeroProduct}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  openHeroProduct();
+                }
+              }}
+            >
               <div className="jersey-card-img">
                 <img
                   src={brazilKit}
@@ -129,9 +155,9 @@ const HeroSection = () => {
                 <div className="floating-badge badge-hot">Hot</div>
               </div>
               <div className="jersey-card-info">
-                <div className="jersey-card-sport">Football Kit</div>
-                <div className="jersey-card-name">Brazil Home Shirt World Cup 2026</div>
-                <div className="jersey-card-price">$89.99</div>
+                <div className="jersey-card-sport">{heroProduct?.sportLabel || 'Football Kit'}</div>
+                <div className="jersey-card-name">{heroProduct?.name || 'Brazil 2026 Home'}</div>
+                <div className="jersey-card-price">{formatPrice(heroProduct?.price || 39.99)}</div>
               </div>
             </div>
           </div>
