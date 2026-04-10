@@ -1,0 +1,126 @@
+.home-catalog {
+  padding-bottom: 88px;
+}
+
+.home-catalog-header {
+  padding-top: 0;
+}
+
+.home-catalog-intro {
+  max-width: 620px;
+  margin: -8px 0 28px;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+
+.home-catalog-controls {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.2fr) auto;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 26px;
+}
+
+.home-catalog-search .search-bar {
+  margin-bottom: 0;
+}
+
+.home-catalog-search .search-input {
+  min-height: 48px;
+}
+
+.home-catalog-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-start;
+}
+
+.home-catalog-filter {
+  min-width: 132px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-dark);
+  background: var(--bg2);
+  color: var(--text-3);
+  font-family: var(--font-accent);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  transition: all var(--transition-fast);
+  cursor: none;
+}
+
+.home-catalog-filter.active,
+.home-catalog-filter:hover {
+  background: var(--crimson);
+  border-color: var(--crimson);
+  color: var(--white);
+}
+
+.home-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.home-catalog-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.home-catalog-load-more-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 22px;
+  border: 1px solid var(--border-dark);
+  background: transparent;
+  color: var(--text-1);
+  font-family: var(--font-accent);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all var(--transition-fast);
+  cursor: none;
+}
+
+.home-catalog-load-more-btn:hover {
+  border-color: var(--crimson);
+  color: var(--crimson);
+}
+
+@media (max-width: 1100px) {
+  .home-catalog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .home-catalog {
+    padding-bottom: 64px;
+  }
+
+  .home-catalog-controls {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .home-catalog-filters {
+    flex-direction: column;
+  }
+
+  .home-catalog-filter,
+  .home-catalog-load-more-btn {
+    width: 100%;
+  }
+
+  .home-catalog-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-catalog-intro {
+    margin-bottom: 22px;
+  }
+}

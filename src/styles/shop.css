@@ -51,6 +51,8 @@
   text-transform: uppercase;
   color: var(--orange);
   margin-bottom: 14px;
+  opacity: 0;
+  animation: fadeUp .8s ease .15s forwards;
 }
 
 .shop-title {
@@ -58,11 +60,15 @@
   font-size: clamp(56px, 7vw, 110px);
   line-height: 0.9;
   letter-spacing: -1px;
-  max-width: 620px;
+  max-width: 680px;
+  opacity: 0;
+  animation: fadeUp .85s ease .3s forwards;
 }
 
 .shop-title span {
   color: var(--crimson);
+  display: block;
+  margin-top: 10px;
 }
 
 .shop-subtitle {
@@ -71,6 +77,8 @@
   font-size: 15px;
   line-height: 1.6;
   color: var(--text-2);
+  opacity: 0;
+  animation: fadeUp .8s ease .45s forwards;
 }
 
 .shop-stat-row {
@@ -79,6 +87,8 @@
   gap: 14px;
   margin-top: 24px;
   max-width: 720px;
+  opacity: 0;
+  animation: fadeUp .85s ease .6s forwards;
 }
 
 .shop-stat-card {
@@ -112,6 +122,8 @@
   gap: 14px;
   flex-wrap: wrap;
   margin-top: 22px;
+  opacity: 0;
+  animation: fadeUp .85s ease .75s forwards;
 }
 
 .shop-hero-actions .cta-primary {
@@ -149,6 +161,8 @@
   box-shadow: var(--shadow-md);
   overflow: visible;
   min-height: 0;
+  opacity: 0;
+  animation: fadeIn 1s ease .35s forwards;
 }
 
 .shop-spotlight-media {
@@ -306,6 +320,8 @@
   background: var(--bg2);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+  opacity: 0;
+  animation: fadeUp .9s ease .2s forwards;
 }
 
 .shop-panel-title {
@@ -540,18 +556,22 @@
 }
 
 .shop-catalog {
-  margin-top: 28px;
+  margin-top: 0;
   scroll-margin-top: 104px;
 }
 
 .shop-results-header {
-  padding-bottom: 28px;
+  padding: 16px 0 26px;
+  opacity: 0;
+  animation: fadeUp .9s ease .25s forwards;
 }
 
 .shop-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
+  opacity: 0;
+  animation: fadeUp .95s ease .35s forwards;
 }
 
 .jersey-card-body {

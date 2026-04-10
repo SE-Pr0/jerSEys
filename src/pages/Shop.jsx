@@ -83,6 +83,40 @@ const parseInputPrice = (value, fallback) => {
   return Number.isNaN(parsed) ? fallback : parsed;
 };
 
+const CountUpValue = ({ target, duration = 2200, delay = 650 }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let frameId;
+    let timeoutId;
+
+    const startAnimation = () => {
+      const startTime = performance.now();
+
+      const tick = (now) => {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const easedProgress = 1 - Math.pow(1 - progress, 4);
+        setCount(Math.round(target * easedProgress));
+
+        if (progress < 1) {
+          frameId = requestAnimationFrame(tick);
+        }
+      };
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    timeoutId = window.setTimeout(startAnimation, delay);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      cancelAnimationFrame(frameId);
+    };
+  }, [target, duration, delay]);
+
+  return count;
+};
+
 const Shop = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [mainCategory, setMainCategory] = useState('all');
@@ -215,21 +249,27 @@ const Shop = () => {
           <div className="shop-hero-copy">
             <div className="shop-eyebrow">Official Team Store</div>
             <h1 className="shop-title">
-              FIND THE
-              <span> NEXT KIT</span>
+              FIND YOUR
+              <span> NEXT JERSEY</span>
             </h1>
             <p className="shop-subtitle">Fresh drops, classic shirts, and statement jerseys in one place.</p>
             <div className="shop-stat-row">
               <div className="shop-stat-card">
-                <span className="shop-stat-value">{summary.clubCount}</span>
+                <span className="shop-stat-value">
+                  <CountUpValue target={summary.clubCount} />
+                </span>
                 <span className="shop-stat-label">Clubs</span>
               </div>
               <div className="shop-stat-card">
-                <span className="shop-stat-value">{summary.countryCount}</span>
+                <span className="shop-stat-value">
+                  <CountUpValue target={summary.countryCount} />
+                </span>
                 <span className="shop-stat-label">Countries</span>
               </div>
               <div className="shop-stat-card">
-                <span className="shop-stat-value">{summary.inStockCount}</span>
+                <span className="shop-stat-value">
+                  <CountUpValue target={summary.inStockCount} />
+                </span>
                 <span className="shop-stat-label">In Stock</span>
               </div>
             </div>
