@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import Shop from './pages/Shop';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Profile from './pages/Profile';
+import OrderHistory from './pages/OrderHistory';
 import NotFound from './pages/NotFound';
 
 const Router = () => {
@@ -15,6 +17,8 @@ const Router = () => {
         <Route path="shop" element={<Shop />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="order-history" element={<OrderHistory />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
