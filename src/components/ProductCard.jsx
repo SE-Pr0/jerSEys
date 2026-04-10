@@ -10,7 +10,8 @@ const ProductCard = ({
   sizes = [],
   badge,
   image,
-  onAddToCart,
+  actionLabel = 'Add to Cart',
+  onAction,
 }) => {
   const badgeClass = badge === 'new' ? 'card-new-tag' : badge === 'hot' ? 'card-hot-tag' : '';
   const badgeLabel = badge === 'new' ? 'New' : badge === 'hot' ? 'Hot' : '';
@@ -29,12 +30,8 @@ const ProductCard = ({
         <div className="card-sport-tag">{sport}</div>
         {badgeClass && <div className={badgeClass}>{badgeLabel}</div>}
         <div className="card-overlay">
-          <button
-            type="button"
-            className="card-quick-add"
-            onClick={() => onAddToCart?.(name)}
-          >
-            Add to Cart
+          <button type="button" className="card-quick-add" onClick={() => onAction?.()}>
+            {actionLabel}
           </button>
         </div>
       </div>

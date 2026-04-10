@@ -1,23 +1,32 @@
 import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import '../styles/navbar.css';
 
 const Navbar = () => {
   return (
     <nav>
-      <a href="#" className="nav-logo">
+      <Link to="/" className="nav-logo">
         jer<span>SE</span>ys
-      </a>
+      </Link>
       <ul className="nav-links">
-        <li><a href="#jerseys">Shop</a></li>
-        <li><a href="#customize">Customize</a></li>
-        <li><a href="#trade">Trade</a></li>
-        <li><a href="#">About</a></li>
+        <li>
+          <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : undefined)}>
+            Home
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/shop" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+            Shop
+          </NavLink>
+        </li>
+        <li><a href="/shop#shop-catalog">Catalog</a></li>
+        <li><a href="/shop#shop-insights">Insights</a></li>
       </ul>
       <div className="nav-actions">
         <a href="#" className="nav-btn btn-ghost">Sign In</a>
         <a href="#" className="nav-btn btn-solid">Register</a>
         <div className="cart-icon">
-          🛒
+          Cart
           <div className="cart-badge">0</div>
         </div>
       </div>

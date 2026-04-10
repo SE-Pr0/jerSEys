@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import brazilKit from '../../../assets/images/Brazil Nike Floating.png';
 import '../../styles/home-hero.css';
 
@@ -76,21 +77,24 @@ const HeroSection = () => {
         <div className="hero-text">
           <div className="hero-eyebrow">New Season Drop 2026</div>
           <h1 className="hero-title">
-            YOUR<br />
-            <span className="line-red">GAME.</span><br />
+            YOUR
+            <br />
+            <span className="line-red">GAME.</span>
+            <br />
             <span className="line-outline">YOUR KIT.</span>
           </h1>
           <p className="hero-sub">
-            Browse, customize, and trade premium football and basketball jerseys. Authentic kits from top clubs — personalized to perfection.
+            Browse, customize, and trade premium football and basketball jerseys. Authentic kits from top clubs,
+            styled to feel as sharp as match day.
           </p>
           <div className="hero-ctas">
-            <a href="#jerseys" className="cta-primary">
+            <Link to="/shop" className="cta-primary">
               Shop Now
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
-            </a>
-            <a href="#customize" className="cta-secondary">⚙ Design Yours</a>
+            </Link>
+            <a href="/shop#shop-insights" className="cta-secondary">Explore The Drop</a>
           </div>
           <div
             ref={statsRef}
@@ -122,7 +126,7 @@ const HeroSection = () => {
                   className="hero-jersey-image"
                 />
                 <div className="floating-badge badge-new">New</div>
-                <div className="floating-badge badge-hot">🔥 Hot</div>
+                <div className="floating-badge badge-hot">Hot</div>
               </div>
               <div className="jersey-card-info">
                 <div className="jersey-card-sport">Football Kit</div>
