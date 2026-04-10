@@ -70,21 +70,50 @@ const Profile = () => {
 
   return (
     <PageShell className="profile-page">
-      <PageHeader
-        eyebrow="Account Hub"
-        title="Your Profile"
-        description="Manage your details, shipping preferences, and jersey settings from one place."
-        actions={
-          <>
-            <Button variant="secondary" to="/shop">
-              Browse Jerseys
-            </Button>
-            <Button type="submit" form="profile-form" disabled={!hasChanges}>
-              Save Changes
-            </Button>
-          </>
-        }
-      />
+      <div className="profile-top-section">
+        <PageHeader
+          eyebrow="Account Hub"
+          title={(
+            <>
+              Your
+              <br />
+              <span>Profile</span>
+            </>
+          )}
+          description={(
+            <>
+              Manage your details, shipping preferences,
+              <br />
+              and jersey settings from one place.
+            </>
+          )}
+        />
+
+        <Card className="profile-card profile-member-card">
+          <div className="profile-member-panel">
+            <div className="profile-avatar" aria-hidden="true">
+              {profile.firstName[0]}
+              {profile.lastName[0]}
+            </div>
+            <div>
+              <p className="profile-kicker">Member profile</p>
+              <h2>
+                {profile.firstName} {profile.lastName}
+              </h2>
+              <p className="profile-member-copy">Member since {memberSince}</p>
+            </div>
+          </div>
+
+          <div className="profile-highlights">
+            {profileHighlights.map((item) => (
+              <div key={item.label} className="profile-highlight">
+                <strong>{item.value}</strong>
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
 
       <div className="profile-grid">
         <div className="profile-main-column">
@@ -159,6 +188,12 @@ const Profile = () => {
                 </FormField>
               </div>
 
+              <div className="profile-form-actions">
+                <Button type="submit" disabled={!hasChanges}>
+                  Save Changes
+                </Button>
+              </div>
+
               {saveMessage ? <p className="profile-save-message">{saveMessage}</p> : null}
             </form>
           </Card>
@@ -212,31 +247,6 @@ const Profile = () => {
         </div>
 
         <div className="profile-side-column">
-          <Card className="profile-card">
-            <div className="profile-member-panel">
-              <div className="profile-avatar" aria-hidden="true">
-                {profile.firstName[0]}
-                {profile.lastName[0]}
-              </div>
-              <div>
-                <p className="profile-kicker">Member profile</p>
-                <h2>
-                  {profile.firstName} {profile.lastName}
-                </h2>
-                <p className="profile-member-copy">Member since {memberSince}</p>
-              </div>
-            </div>
-
-            <div className="profile-highlights">
-              {profileHighlights.map((item) => (
-                <div key={item.label} className="profile-highlight">
-                  <strong>{item.value}</strong>
-                  <span>{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-
           <Card className="profile-card">
             <div className="profile-section-heading">
               <div>
