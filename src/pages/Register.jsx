@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
@@ -18,10 +18,27 @@ const initialValues = {
 };
 
 const PASSWORD_REQUIREMENTS =
-  'Use at least 8 characters, including 1 uppercase, 1 lowercase, and 1 special character from .!@#$%^&*.';
+  'Use at least 8 characters, including 1 uppercase, 1 lowercase, 1 number, and 1 special character from .!@#$%^&*.';
 
-const isPasswordValid = (password) =>
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[.!@#$%^&*]).{8,}$/.test(password);
+const PASSWORD_PATTERN = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[.!@#$%^&*]).{8,}$';
+
+const getPasswordError = (password) => {
+  if (!password) {
+    return 'Password is required.';
+  }
+
+  if (
+    password.length < 8 ||
+    !/[A-Z]/.test(password) ||
+    !/[a-z]/.test(password) ||
+    !/\d/.test(password) ||
+    !/[.!@#$%^&*]/.test(password)
+  ) {
+    return PASSWORD_REQUIREMENTS;
+  }
+
+  return '';
+};
 
 const PasswordVisibilityIcon = ({ isVisible }) => (
   <svg
@@ -55,16 +72,6 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [showPasswords, setShowPasswords] = useState(false);
 
-  const passwordHint = useMemo(() => {
-    if (!values.password) {
-      return PASSWORD_REQUIREMENTS;
-    }
-
-    return isPasswordValid(values.password)
-      ? 'Strong start. Confirm it below to finish creating your account.'
-      : PASSWORD_REQUIREMENTS;
-  }, [values.password]);
-
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -97,11 +104,10 @@ const Register = () => {
       nextErrors.email = 'Enter a valid email address.';
     }
 
-    if (!values.password) {
-      nextErrors.password = 'Password is required.';
-    } else if (!isPasswordValid(values.password)) {
-      nextErrors.password =
-        'Password must be at least 8 characters and include 1 uppercase, 1 lowercase, and 1 special character from .!@#$%^&*.';
+    const passwordError = getPasswordError(values.password);
+
+    if (passwordError) {
+      nextErrors.password = passwordError;
     }
 
     if (!values.confirmPassword) {
@@ -176,7 +182,6 @@ const Register = () => {
           <FormField
             label="Password"
             htmlFor="password"
-            hint={!errors.password ? passwordHint : undefined}
             error={errors.password}
           >
             <div className="auth-password-field">
@@ -189,6 +194,9 @@ const Register = () => {
                 value={values.password}
                 onChange={handleChange}
                 autoComplete="new-password"
+                minLength={8}
+                pattern={PASSWORD_PATTERN}
+                title={PASSWORD_REQUIREMENTS}
               />
               <button
                 type="button"
@@ -216,6 +224,9 @@ const Register = () => {
               value={values.confirmPassword}
               onChange={handleChange}
               autoComplete="new-password"
+              minLength={8}
+              pattern={PASSWORD_PATTERN}
+              title={PASSWORD_REQUIREMENTS}
             />
           </FormField>
 
