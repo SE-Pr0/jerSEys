@@ -17,6 +17,12 @@ const initialValues = {
   confirmPassword: '',
 };
 
+const PASSWORD_REQUIREMENTS =
+  'Use at least 8 characters, including 1 uppercase, 1 lowercase, and 1 special character from .!@#$%^&*.';
+
+const isPasswordValid = (password) =>
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[.!@#$%^&*]).{8,}$/.test(password);
+
 const PasswordVisibilityIcon = ({ isVisible }) => (
   <svg
     viewBox="0 0 24 24"
@@ -51,12 +57,12 @@ const Register = () => {
 
   const passwordHint = useMemo(() => {
     if (!values.password) {
-      return 'Use at least 8 characters for a secure password.';
+      return PASSWORD_REQUIREMENTS;
     }
 
-    return values.password.length >= 8
+    return isPasswordValid(values.password)
       ? 'Strong start. Confirm it below to finish creating your account.'
-      : 'Password should be at least 8 characters long.';
+      : PASSWORD_REQUIREMENTS;
   }, [values.password]);
 
   const handleChange = (event) => {
@@ -93,8 +99,9 @@ const Register = () => {
 
     if (!values.password) {
       nextErrors.password = 'Password is required.';
-    } else if (values.password.length < 8) {
-      nextErrors.password = 'Password must be at least 8 characters.';
+    } else if (!isPasswordValid(values.password)) {
+      nextErrors.password =
+        'Password must be at least 8 characters and include 1 uppercase, 1 lowercase, and 1 special character from .!@#$%^&*.';
     }
 
     if (!values.confirmPassword) {
