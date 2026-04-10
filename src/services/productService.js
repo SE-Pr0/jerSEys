@@ -1,4 +1,5 @@
-import scrapedKits from '../data/mrfootball-men-kits.json';
+import footballKits from '../data/mrfootball-men-kits.json';
+import basketballJerseys from '../data/projersey-nba-men-jerseys.json';
 
 const NATIONAL_TEAM_NAMES = new Set([
   'argentina',
@@ -74,7 +75,9 @@ const buildBadge = (kit, index) => {
 
 const dedupeSizes = (sizes) => [...new Set((sizes || []).map(normalizeSize))];
 
-const catalog = scrapedKits.map((kit, index) => {
+const rawCatalog = [...footballKits, ...basketballJerseys];
+
+const catalog = rawCatalog.map((kit, index) => {
   const category = isNationalTeam(kit) ? 'national' : 'club';
   const sizes = dedupeSizes(kit.sizes);
 

@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import Router from './router';
 import CustomCursor from './components/CustomCursor';
 import Loader from './components/Loader';
+import ScrollToTop from './components/ScrollToTop';
 import Toast from './components/Toast';
 
 const App = () => {
@@ -22,6 +23,7 @@ const App = () => {
       {isLoading && <Loader />}
       <Toast />
       <BrowserRouter>
+        <ScrollToTop />
         <Router />
       </BrowserRouter>
     </>
