@@ -300,6 +300,30 @@
   gap: 12px;
 }
 
+.profile-member-card .profile-order-history-link {
+  justify-self: start;
+  min-height: 44px;
+  padding: 6px 0;
+  color: var(--crimson);
+  font-size: 15px;
+  letter-spacing: 2.6px;
+  align-items: center;
+}
+
+.profile-member-card .profile-order-history-link:hover {
+  color: #A01122;
+  transform: translateX(4px);
+}
+
+.profile-order-history-arrow {
+  display: inline-flex;
+  align-items: center;
+  height: 1em;
+  font-size: 28px;
+  line-height: 1;
+  transform: translateY(-3px);
+}
+
 .profile-highlight {
   display: grid;
   gap: 6px;

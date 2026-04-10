@@ -337,6 +337,11 @@ const Profile = () => {
               </div>
             ))}
           </div>
+
+          <Button className="profile-order-history-link" variant="ghost" to="/order-history">
+            <span>See Order History</span>
+            <span className="profile-order-history-arrow" aria-hidden="true">→</span>
+          </Button>
         </Card>
       </div>
 

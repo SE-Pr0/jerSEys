@@ -62,27 +62,49 @@ const OrderHistory = () => {
 
   return (
     <PageShell className="order-history-page">
-      <PageHeader
-        eyebrow="Purchase Archive"
-        title="Order History"
-        description="Track past purchases, check the latest fulfillment status, and revisit the jerseys you have already ordered."
-        actions={
-          <>
+      <div className="order-history-top-section">
+        <PageHeader
+          eyebrow="Purchase Archive"
+          title={(
+            <>
+              Your
+              <br />
+              <span>Orders</span>
+            </>
+          )}
+          description={(
+            <>
+              Track past purchases, check fulfillment,
+              <br />
+              and revisit every jersey already in your rotation.
+            </>
+          )}
+        />
+
+        <Card className="order-history-card order-history-overview-card">
+          <div className="order-history-section-heading">
+            <div>
+              <p className="order-history-kicker">Account activity</p>
+              <h2>Order history</h2>
+            </div>
+          </div>
+
+          <div className="order-history-summary">
+            {orderSummary.map((item) => (
+              <div key={item.label} className="order-history-stat">
+                <strong>{item.value}</strong>
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="order-history-overview-actions">
             <Button variant="secondary" to="/shop">
               Shop Again
             </Button>
             <Button>Download Invoice</Button>
-          </>
-        }
-      />
-
-      <div className="order-history-summary">
-        {orderSummary.map((item) => (
-          <Card key={item.label} className="order-history-stat">
-            <strong>{item.value}</strong>
-            <span>{item.label}</span>
-          </Card>
-        ))}
+          </div>
+        </Card>
       </div>
 
       <Card className="order-history-filters">
