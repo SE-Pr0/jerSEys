@@ -42,7 +42,9 @@ const Navbar = () => {
       <div className="nav-actions">
         {user ? (
           <>
-            <span className="nav-btn btn-ghost">{user.username}</span>
+            <Link to="/profile" className="nav-btn btn-ghost">
+              {user.username}
+            </Link>
             <button type="button" className="nav-btn btn-solid" onClick={clearStoredUser}>Sign Out</button>
           </>
         ) : (
