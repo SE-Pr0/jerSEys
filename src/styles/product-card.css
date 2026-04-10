@@ -1,0 +1,153 @@
+.jersey-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg2);
+  cursor: none;
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.jersey-card:hover {
+  z-index: 2;
+  transform: scale(1.02);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+}
+
+.jersey-card:hover .jersey-img-wrap {
+  filter: brightness(0.93);
+}
+
+.jersey-img-wrap {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #F5EEE6, #EDE8F0);
+  transition: filter .3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.jersey-img-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(192,21,42,0.04) 0%, rgba(27,59,138,0.04) 100%);
+}
+
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(255,255,255,0.95) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity .3s;
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+}
+
+.jersey-card:hover .card-overlay {
+  opacity: 1;
+}
+
+.card-quick-add {
+  width: 100%;
+  background: var(--crimson);
+  color: #fff;
+  font-family: var(--font-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 12px;
+  border: none;
+  cursor: none;
+  transform: translateY(20px);
+  transition: transform .3s;
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+
+.jersey-card:hover .card-quick-add {
+  transform: translateY(0);
+}
+
+.card-title {
+  font-family: var(--font-head);
+  font-size: 18px;
+  letter-spacing: .5px;
+  color: var(--text-1);
+  margin-bottom: 10px;
+}
+
+.card-price {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--crimson);
+}
+
+.card-price-old {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-3);
+  text-decoration: line-through;
+  margin-left: 8px;
+}
+
+.size-dot {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  color: var(--text-3);
+  border: 1px solid var(--border);
+  padding: 3px 6px;
+  border-radius: 1px;
+  transition: all .2s;
+  cursor: none;
+}
+
+.size-dot:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+.card-sport-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(8px);
+  font-family: var(--font-accent);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--orange);
+  padding: 4px 10px;
+  border-radius: 2px;
+  border: 1px solid rgba(244,123,32,0.2);
+}
+
+.card-new-tag,
+.card-hot-tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: var(--font-accent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 2px;
+}
+
+.card-new-tag {
+  background: var(--green);
+  color: #fff;
+}
+
+.card-hot-tag {
+  background: var(--orange);
+  color: #fff;
+}

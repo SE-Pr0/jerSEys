@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&display=swap');
+
+:root {
+  --orange:      #F47B20;
+  --orange-lt:   #FFF0E4;
+  --yellow:      #D4920A;
+  --crimson:     #C0152A;
+  --crimson-lt:  #FDECEA;
+  --royal-blue:  #1B3B8A;
+  --blue-lt:     #EAF0FC;
+  --green:       #2A9E39;
+  --green-lt:    #EAF6EC;
+  --bg:          #F8F6F3;
+  --bg2:         #FFFFFF;
+  --bg3:         #F0EDE8;
+  --border:      #E4E0D8;
+  --border-dark: #CCC8C0;
+  --text-1:      #18140E;
+  --text-2:      #52504A;
+  --text-3:      #9A968E;
+  --white:       #FFFFFF;
+  --shadow-sm:   0 10px 24px rgba(24,20,14,0.06);
+  --shadow-md:   0 18px 40px rgba(24,20,14,0.10);
+  --shadow-lg:   0 26px 60px rgba(24,20,14,0.14);
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --space-1:     4px;
+  --space-2:     8px;
+  --space-3:     12px;
+  --space-4:     16px;
+  --space-5:     24px;
+  --space-6:     32px;
+  --space-7:     48px;
+  --space-8:     64px;
+  --page-max:    1400px;
+  --page-narrow: 960px;
+  --transition-fast: .2s ease;
+  --transition-base: .3s ease;
+  --font-display:'Anton', sans-serif;
+  --font-head:   'Bebas Neue', sans-serif;
+  --font-body:   'Space Grotesk', sans-serif;
+  --font-accent: 'Oswald', sans-serif;
+}
