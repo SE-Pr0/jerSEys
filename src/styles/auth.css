@@ -1,0 +1,93 @@
+.auth-page {
+  padding-top: 20px;
+  padding-bottom: 32px;
+}
+
+.auth-card {
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.auth-card.ui-card.is-padded {
+  padding: 20px 20px 18px;
+}
+
+.auth-card .ui-page-header {
+  justify-items: center;
+  text-align: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.auth-card .ui-page-title {
+  font-size: clamp(28px, 3.6vw, 40px);
+  line-height: 0.96;
+  margin-bottom: 16px;
+}
+
+.auth-card .ui-page-description {
+  max-width: 340px;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.auth-card .ui-form {
+  gap: 12px;
+}
+
+.auth-card .ui-form-field {
+  gap: 4px;
+}
+
+.auth-card .ui-form-label {
+  font-size: 10px;
+  letter-spacing: 1.6px;
+}
+
+.auth-card .ui-input {
+  min-height: 40px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.auth-card .ui-form-hint,
+.auth-card .ui-form-error {
+  font-size: 12px;
+}
+
+.auth-card .ui-button.is-block {
+  min-height: 40px;
+  padding: 10px 18px;
+  font-size: 10px;
+}
+
+.auth-card .ui-inline-stack {
+  justify-content: center;
+}
+
+.auth-alt-link {
+  display: flex;
+  justify-content: center;
+}
+
+.auth-alt-link .ui-button {
+  min-height: 30px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 10px;
+}
+
+@media (max-width: 768px) {
+  .auth-page {
+    padding-top: 12px;
+    padding-bottom: 20px;
+  }
+
+  .auth-card {
+    max-width: 100%;
+  }
+
+  .auth-card.ui-card.is-padded {
+    padding: 18px 16px 16px;
+  }
+}
