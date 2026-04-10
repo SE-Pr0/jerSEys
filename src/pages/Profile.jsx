@@ -8,14 +8,19 @@ import {
   StateBlock,
 } from '../components/ui';
 import '../styles/profile.css';
+import { getStoredUser, setStoredUser } from '../utils/auth';
 
-const initialProfile = {
-  firstName: 'Maya',
-  lastName: 'Haddad',
-  email: 'maya.haddad@example.com',
-  phone: '+961 70 555 214',
-  jerseySize: 'Medium',
-  favoriteSport: 'Football',
+const createInitialProfile = () => {
+  const storedUser = getStoredUser();
+
+  return {
+    username: storedUser?.username || '',
+    fullName: storedUser?.fullName || '',
+    email: storedUser?.email || '',
+    phone: storedUser?.phone || '',
+    jerseySize: storedUser?.jerseySize || '',
+    favoriteSport: storedUser?.favoriteSport || '',
+  };
 };
 
 const savedAddress = {
@@ -33,7 +38,7 @@ const profileHighlights = [
 ];
 
 const Profile = () => {
-  const [profile, setProfile] = useState(initialProfile);
+  const [profile, setProfile] = useState(createInitialProfile);
   const [hasChanges, setHasChanges] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [preferences, setPreferences] = useState({
@@ -45,10 +50,27 @@ const Profile = () => {
   const memberSince = useMemo(() => 'August 2024', []);
 
   const handleChange = (field) => (event) => {
-    setProfile((current) => ({
-      ...current,
-      [field]: event.target.value,
-    }));
+    const nextValue = event.target.value;
+
+    setProfile((current) => {
+      const nextProfile = {
+        ...current,
+        [field]: nextValue,
+      };
+
+      setStoredUser({
+        ...getStoredUser(),
+        username: nextProfile.username.trim(),
+        fullName: nextProfile.fullName.trim(),
+        email: nextProfile.email.trim(),
+        phone: nextProfile.phone.trim(),
+        jerseySize: nextProfile.jerseySize,
+        favoriteSport: nextProfile.favoriteSport,
+      });
+
+      return nextProfile;
+    });
+
     setHasChanges(true);
     setSaveMessage('');
   };
@@ -64,9 +86,26 @@ const Profile = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setStoredUser({
+      ...getStoredUser(),
+      username: profile.username.trim(),
+      fullName: profile.fullName.trim(),
+      email: profile.email.trim(),
+      phone: profile.phone.trim(),
+      jerseySize: profile.jerseySize,
+      favoriteSport: profile.favoriteSport,
+    });
     setHasChanges(false);
     setSaveMessage('Profile details updated successfully.');
   };
+
+  const displayName = profile.fullName.trim() || profile.username.trim() || 'Member';
+  const avatarLetters = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || '')
+    .join('');
 
   return (
     <PageShell className="profile-page">
@@ -92,14 +131,11 @@ const Profile = () => {
         <Card className="profile-card profile-member-card">
           <div className="profile-member-panel">
             <div className="profile-avatar" aria-hidden="true">
-              {profile.firstName[0]}
-              {profile.lastName[0]}
+              {avatarLetters || 'M'}
             </div>
             <div>
               <p className="profile-kicker">Member profile</p>
-              <h2>
-                {profile.firstName} {profile.lastName}
-              </h2>
+              <h2>{displayName}</h2>
               <p className="profile-member-copy">Member since {memberSince}</p>
             </div>
           </div>
@@ -128,20 +164,21 @@ const Profile = () => {
 
             <form id="profile-form" className="ui-form" onSubmit={handleSubmit}>
               <div className="ui-form-grid">
-                <FormField label="First name" htmlFor="profile-first-name">
+                <FormField label="Username" htmlFor="profile-username">
                   <input
-                    id="profile-first-name"
+                    id="profile-username"
                     className="ui-input"
-                    value={profile.firstName}
-                    onChange={handleChange('firstName')}
+                    value={profile.username}
+                    onChange={handleChange('username')}
                   />
                 </FormField>
-                <FormField label="Last name" htmlFor="profile-last-name">
+                <FormField label="Full name" htmlFor="profile-full-name">
                   <input
-                    id="profile-last-name"
+                    id="profile-full-name"
                     className="ui-input"
-                    value={profile.lastName}
-                    onChange={handleChange('lastName')}
+                    value={profile.fullName}
+                    onChange={handleChange('fullName')}
+                    placeholder="Add your full name"
                   />
                 </FormField>
                 <FormField label="Email address" htmlFor="profile-email">
@@ -160,6 +197,7 @@ const Profile = () => {
                     type="tel"
                     value={profile.phone}
                     onChange={handleChange('phone')}
+                    placeholder="Add your phone number"
                   />
                 </FormField>
                 <FormField label="Preferred jersey size" htmlFor="profile-size">
@@ -169,6 +207,7 @@ const Profile = () => {
                     value={profile.jerseySize}
                     onChange={handleChange('jerseySize')}
                   >
+                    <option value="">Select size</option>
                     <option>Small</option>
                     <option>Medium</option>
                     <option>Large</option>
@@ -182,6 +221,7 @@ const Profile = () => {
                     value={profile.favoriteSport}
                     onChange={handleChange('favoriteSport')}
                   >
+                    <option value="">Select sport</option>
                     <option>Football</option>
                     <option>Basketball</option>
                   </select>

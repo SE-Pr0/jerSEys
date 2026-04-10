@@ -104,6 +104,8 @@
   gap: var(--space-4);
   padding-top: 4px;
   padding-bottom: 4px;
+  opacity: 0;
+  animation: fadeUp .85s ease .28s forwards;
 }
 
 .profile-main-column .profile-card:nth-child(1) {
