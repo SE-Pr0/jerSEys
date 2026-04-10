@@ -50,6 +50,42 @@
   font-size: 14px;
 }
 
+.auth-password-field {
+  position: relative;
+}
+
+.auth-password-input {
+  padding-right: 44px;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-3);
+  transform: translateY(-50%);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.auth-password-toggle:hover {
+  color: var(--text-1);
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.auth-password-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
 .auth-card .ui-form-hint,
 .auth-card .ui-form-error {
   font-size: 12px;
