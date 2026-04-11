@@ -9,6 +9,10 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import OrderHistory from './pages/OrderHistory';
 import NotFound from './pages/NotFound';
+import TradeMarketplace    from './pages/TradeMarketplace';
+import TradeListingDetails from './pages/TradeListingDetails';
+import TradeRequests       from './pages/TradeRequests';
+import CreateTradeListing  from './pages/CreateTradeListing';
 
 const Router = () => {
   return (
@@ -21,6 +25,10 @@ const Router = () => {
         <Route path="register" element={<Register />} />
         <Route path="profile" element={<Profile />} />
         <Route path="order-history" element={<OrderHistory />} />
+        <Route path="trade"            element={<TradeMarketplace />} />
+        <Route path="trade/requests"   element={<TradeRequests />} />
+        <Route path="trade/create"     element={<CreateTradeListing />} />
+        <Route path="trade/:listingId" element={<TradeListingDetails />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
