@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Card, FormField, PageHeader, PageShell } from '../components/ui';
 import { useTrade } from '../context/TradeContext';
+import { getStoredUser } from '../utils/auth';
 import '../styles/trade.css';
 
 const TradeListingDetails = () => {
@@ -12,6 +13,13 @@ const TradeListingDetails = () => {
   const [offerJersey, setOfferJersey] = useState('');
   const [message, setMessage] = useState('');
   const [sent, setSent] = useState(false);
+  const [user, setUser] = useState(() => getStoredUser());
+
+  useEffect(() => {
+    const handler = () => setUser(getStoredUser());
+    window.addEventListener('jerseys-auth-change', handler);
+    return () => window.removeEventListener('jerseys-auth-change', handler);
+  }, []);
 
   const {
     image,
@@ -150,7 +158,15 @@ const TradeListingDetails = () => {
                     Instant purchase · No negotiation needed
                   </p>
                 </div>
-                {bought ? (
+                {!user ? (
+                  <div className="trade-auth-gate">
+                    <p className="trade-auth-gate-text">Sign in to purchase this jersey.</p>
+                    <div className="trade-auth-gate-actions">
+                      <Button to="/login">Sign In</Button>
+                      <Button variant="secondary" to="/register">Create Account</Button>
+                    </div>
+                  </div>
+                ) : bought ? (
                   <div className="trade-offer-sent" style={{ marginBottom: 0 }}>
                     <span className="trade-offer-sent-icon">✓</span>
                     <div>
@@ -174,7 +190,15 @@ const TradeListingDetails = () => {
                 {listingType === 'both' ? 'Or Make a Trade Offer' : 'Make an Offer'}
               </div>
 
-              {sent ? (
+              {!user ? (
+                <div className="trade-auth-gate">
+                  <p className="trade-auth-gate-text">Sign in to send a trade offer.</p>
+                  <div className="trade-auth-gate-actions">
+                    <Button to="/login">Sign In</Button>
+                    <Button variant="secondary" to="/register">Create Account</Button>
+                  </div>
+                </div>
+              ) : sent ? (
                 <div className="trade-offer-sent">
                   <span className="trade-offer-sent-icon">✓</span>
                   <div>
