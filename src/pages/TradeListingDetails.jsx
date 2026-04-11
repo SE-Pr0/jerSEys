@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Button, Card, FormField, PageHeader, PageShell } from '../components/ui';
+import { Button, Card, FormField, PageHeader, PageShell, StateBlock } from '../components/ui';
 import { useTrade } from '../context/TradeContext';
 import { getStoredUser } from '../utils/auth';
 import '../styles/trade.css';
@@ -8,18 +8,40 @@ import '../styles/trade.css';
 const TradeListingDetails = () => {
   const { listingId } = useParams();
   const { listings, addRequest } = useTrade();
-  const listing = listings.find((l) => l.id === listingId) || listings[0];
+  const listing = listings.find((l) => l.id === listingId);
 
   const [offerJersey, setOfferJersey] = useState('');
   const [message, setMessage] = useState('');
   const [sent, setSent] = useState(false);
   const [user, setUser] = useState(() => getStoredUser());
+  const [bought, setBought] = useState(false);
 
   useEffect(() => {
     const handler = () => setUser(getStoredUser());
     window.addEventListener('jerseys-auth-change', handler);
     return () => window.removeEventListener('jerseys-auth-change', handler);
   }, []);
+
+  if (!listing) {
+    return (
+      <PageShell className="trade-page">
+        <StateBlock
+          icon="?"
+          title="Trade listing not found"
+          description="That jersey listing may have been removed or the link is incorrect."
+          centered
+          actions={
+            <>
+              <Button variant="secondary" to="/trade">
+                Browse Marketplace
+              </Button>
+              <Button to="/trade/create">List Your Jersey</Button>
+            </>
+          }
+        />
+      </PageShell>
+    );
+  }
 
   const {
     image,
@@ -40,7 +62,6 @@ const TradeListingDetails = () => {
 
   const showPrice = price && listingType !== 'trade';
   const canTrade  = listingType === 'trade' || listingType === 'both';
-  const [bought, setBought] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();

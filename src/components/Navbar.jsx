@@ -36,8 +36,13 @@ const Navbar = () => {
             Shop
           </NavLink>
         </li>
-        <li><a href="/shop#shop-catalog">Catalog</a></li>
-        <li><a href="/shop#shop-insights">Insights</a></li>
+        <li>
+          <NavLink to="/trade" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+            Trade Marketplace
+          </NavLink>
+        </li>
+        <li><Link to="/shop#shop-catalog">Catalog</Link></li>
+        <li><Link to="/shop#shop-insights">Insights</Link></li>
       </ul>
       <div className="nav-actions">
         {user ? (

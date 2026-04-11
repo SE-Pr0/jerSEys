@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
@@ -26,6 +26,7 @@ const Router = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="order-history" element={<OrderHistory />} />
         <Route path="trade"            element={<TradeMarketplace />} />
+        <Route path="trade/marketplace" element={<Navigate to="/trade" replace />} />
         <Route path="trade/requests"   element={<TradeRequests />} />
         <Route path="trade/create"     element={<CreateTradeListing />} />
         <Route path="trade/:listingId" element={<TradeListingDetails />} />
