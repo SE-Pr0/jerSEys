@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const TradeCard = ({ listing }) => {
   const {
     id,
-    emoji,
+    image,
     jerseyName,
     club,
     size,
@@ -19,7 +19,12 @@ const TradeCard = ({ listing }) => {
   return (
     <article className="trade-card">
       <div className="trade-card-visual">
-        <span className="trade-card-emoji">{emoji}</span>
+        <img
+          src={image}
+          alt={jerseyName}
+          className="trade-card-img"
+          loading="lazy"
+        />
         <div className="trade-card-badge">
           <span className={`trade-badge trade-badge--${status}`}>
             {isAvailable ? '✓ Available' : '⏳ Pending'}

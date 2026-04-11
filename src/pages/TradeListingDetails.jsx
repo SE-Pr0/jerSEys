@@ -13,7 +13,7 @@ const TradeListingDetails = () => {
   const [sent, setSent] = useState(false);
 
   const {
-    emoji,
+    image,
     jerseyName,
     club,
     size,
@@ -47,7 +47,11 @@ const TradeListingDetails = () => {
           {/* Visual card */}
           <Card className="trade-details-visual" padded={false}>
             <div className="trade-details-emoji-wrap">
-              <span className="trade-details-emoji">{emoji}</span>
+              <img
+                src={image}
+                alt={jerseyName}
+                className="trade-details-img"
+              />
               <div className="trade-details-badge-wrap">
                 <span className={`trade-badge trade-badge--${status} trade-badge--lg`}>
                   {status === 'available' ? '✓ Available' : '⏳ In Negotiation'}

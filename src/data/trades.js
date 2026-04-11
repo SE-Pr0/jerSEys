@@ -1,7 +1,7 @@
 export const TRADE_LISTINGS = [
   {
     id: 'trade-001',
-    emoji: '⚽',
+    image: 'https://cdn.shopify.com/s/files/1/0621/2580/1653/files/11_e419aeb1-a3fa-4c51-a03a-def2d556e732.jpg?v=1753384643',
     jerseyName: 'Arsenal Away Kit',
     club: 'Arsenal FC',
     size: 'L',
@@ -20,7 +20,7 @@ export const TRADE_LISTINGS = [
   },
   {
     id: 'trade-002',
-    emoji: '🏀',
+    image: 'https://cdn.shopify.com/s/files/1/0378/6653/files/08-hardwood-classics-swingman-jersey_ss5_p-203412844_pv-1_u-s6dxq83ajwg372xfm7vi_v-sdjisrq9pytimfgu7mms.avif?v=1761347616',
     jerseyName: 'Celtics Icon Edition',
     club: 'Boston Celtics',
     size: 'XL',
@@ -39,7 +39,7 @@ export const TRADE_LISTINGS = [
   },
   {
     id: 'trade-003',
-    emoji: '⚽',
+    image: 'https://cdn.shopify.com/s/files/1/0621/2580/1653/files/747FB0F8-89D2-445E-9E19-BEDC56031EEC.jpg?v=1749895874',
     jerseyName: 'PSG Home Kit',
     club: 'Paris Saint-Germain',
     size: 'M',
@@ -58,7 +58,7 @@ export const TRADE_LISTINGS = [
   },
   {
     id: 'trade-004',
-    emoji: '⚽',
+    image: 'https://cdn.shopify.com/s/files/1/0621/2580/1653/files/4FBABB2E-AE41-4B55-9F54-245C4EE35CFC.jpg?v=1749201662',
     jerseyName: 'Real Madrid Home Kit',
     club: 'Real Madrid CF',
     size: 'M',
@@ -77,7 +77,7 @@ export const TRADE_LISTINGS = [
   },
   {
     id: 'trade-005',
-    emoji: '🏀',
+    image: 'https://cdn.shopify.com/s/files/1/0378/6653/products/Picsart_22-05-31_17-09-41-197.jpg?v=1742871956',
     jerseyName: 'Lakers City Edition',
     club: 'LA Lakers',
     size: 'L',
@@ -96,7 +96,7 @@ export const TRADE_LISTINGS = [
   },
   {
     id: 'trade-006',
-    emoji: '⚽',
+    image: 'https://cdn.shopify.com/s/files/1/0621/2580/1653/files/4_dd12b41f-2ac5-4c4a-a47c-b4952514331f.jpg?v=1773421000',
     jerseyName: 'Brazil Away Kit 2026',
     club: 'Brazil National',
     size: 'S',
