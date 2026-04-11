@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, FormField, PageHeader, PageShell, StateBlock } from '../components/ui';
 import { useTrade } from '../context/TradeContext';
@@ -35,6 +35,14 @@ const CreateTradeListing = () => {
   const [form, setForm]           = useState(defaultForm);
   const [submitted, setSubmitted] = useState(false);
   const [user, setUser]           = useState(() => getStoredUser());
+  const fileInputRef              = useRef(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setForm((prev) => ({ ...prev, imageUrl: objectUrl, imageFileName: file.name }));
+  };
 
   useEffect(() => {
     const handler = () => setUser(getStoredUser());
@@ -108,6 +116,7 @@ const CreateTradeListing = () => {
               onClick={() => {
                 setSubmitted(false);
                 setForm(defaultForm);
+                if (fileInputRef.current) fileInputRef.current.value = '';
               }}
             >
               List Another Jersey
@@ -195,34 +204,42 @@ const CreateTradeListing = () => {
             </FormField>
           </div>
 
-          <FormField
-            label="Jersey Image URL"
-            htmlFor="jersey-image"
-            hint="Paste a direct link to a photo of your jersey. This is required so buyers can see exactly what you're listing."
-            error={form.imageUrl && !/^https?:\/\/.+\..+/.test(form.imageUrl) ? 'Enter a valid image URL starting with http:// or https://' : undefined}
-          >
+          <FormField label="Jersey Photo" htmlFor="jersey-image">
             <input
+              ref={fileInputRef}
               id="jersey-image"
-              className="ui-input"
-              type="url"
-              placeholder="https://example.com/my-jersey.jpg"
-              value={form.imageUrl}
-              onChange={update('imageUrl')}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleImageChange}
               required
             />
+            {form.imageUrl ? (
+              <div className="trade-upload-preview">
+                <img src={form.imageUrl} alt="Jersey preview" className="trade-upload-thumb" />
+                <div className="trade-upload-preview-info">
+                  <span className="trade-upload-filename">{form.imageFileName}</span>
+                  <button
+                    type="button"
+                    className="trade-upload-change"
+                    onClick={() => fileInputRef.current.click()}
+                  >
+                    Change photo
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="trade-upload-area"
+                onClick={() => fileInputRef.current.click()}
+              >
+                <span className="trade-upload-icon">↑</span>
+                <span className="trade-upload-label">Attach a photo</span>
+                <span className="trade-upload-hint">JPG, PNG, WEBP</span>
+              </button>
+            )}
           </FormField>
-
-          {form.imageUrl && /^https?:\/\/.+\..+/.test(form.imageUrl) && (
-            <div className="trade-image-preview-wrap">
-              <img
-                src={form.imageUrl}
-                alt="Jersey preview"
-                className="trade-image-preview"
-                onError={(e) => { e.target.style.display = 'none'; }}
-                onLoad={(e)  => { e.target.style.display = 'block'; }}
-              />
-            </div>
-          )}
 
           <FormField label="Sport">
             <div className="trade-option-row">
