@@ -85,9 +85,15 @@
   color: var(--yellow);
 }
 
-.trade-badge--declined {
+.trade-badge--declined,
+.trade-badge--rejected {
   background: var(--crimson-lt);
   color: var(--crimson);
+}
+
+.trade-badge--completed {
+  background: var(--blue-lt);
+  color: var(--royal-blue);
 }
 
 .trade-badge--lg {
@@ -231,6 +237,23 @@
 .trade-tab.is-active .trade-tab-count {
   background: var(--crimson-lt);
   color: var(--crimson);
+}
+
+/* Image URL preview in create form */
+.trade-image-preview-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  height: 200px;
+  background: var(--bg3);
+}
+
+.trade-image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: none;
 }
 
 /* ---- TRADE CARD COMPONENT --------------------------------- */

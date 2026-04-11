@@ -3,9 +3,10 @@ import { Button, Card } from './ui';
 import { useTrade } from '../context/TradeContext';
 
 const STATUS_MAP = {
-  pending:  { label: 'Pending',      cls: 'pending'   },
-  accepted: { label: '✓ Accepted',   cls: 'available' },
-  declined: { label: '✗ Declined',   cls: 'declined'  },
+  pending:   { label: 'Pending',       cls: 'pending'   },
+  accepted:  { label: '✓ Accepted',    cls: 'available' },
+  rejected:  { label: '✗ Rejected',    cls: 'declined'  },
+  completed: { label: '★ Completed',   cls: 'completed' },
 };
 
 const TradeRequestCard = ({ request }) => {
@@ -66,8 +67,8 @@ const TradeRequestCard = ({ request }) => {
 
         {direction === 'incoming' && status === 'pending' && (
           <div className="trade-request-actions">
-            <Button variant="secondary" onClick={() => respondToRequest(id, 'declined')}>
-              Decline
+            <Button variant="secondary" onClick={() => respondToRequest(id, 'rejected')}>
+              Reject
             </Button>
             <Button onClick={() => respondToRequest(id, 'accepted')}>
               Accept Offer
@@ -75,13 +76,20 @@ const TradeRequestCard = ({ request }) => {
           </div>
         )}
 
+        {direction === 'incoming' && status === 'accepted' && (
+          <div className="trade-request-actions">
+            <Button onClick={() => respondToRequest(id, 'completed')}>
+              Mark as Completed
+            </Button>
+          </div>
+        )}
+
         {direction === 'outgoing' && (
           <span className="trade-request-status-label">
-            {status === 'pending'
-              ? 'Awaiting response…'
-              : status === 'accepted'
-              ? '✓ Trade accepted!'
-              : '✗ Offer declined'}
+            {status === 'pending'    ? 'Awaiting response…'
+           : status === 'accepted'   ? 'Accepted — arrange the swap!'
+           : status === 'completed'  ? '★ Trade completed'
+           : 'Offer rejected'}
           </span>
         )}
       </div>

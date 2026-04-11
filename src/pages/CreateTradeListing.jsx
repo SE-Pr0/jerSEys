@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, FormField, PageHeader, PageShell } from '../components/ui';
+import { Button, Card, FormField, PageHeader, PageShell, StateBlock } from '../components/ui';
 import { useTrade } from '../context/TradeContext';
+import { getStoredUser } from '../utils/auth';
 import '../styles/trade.css';
 
 const SPORTS   = ['Football', 'Basketball'];
@@ -25,13 +26,21 @@ const defaultForm = {
   lookingFor:   '',
   listingType:  'trade',
   price:        '',
+  imageUrl:     '',
 };
 
 const CreateTradeListing = () => {
   const { addListing } = useTrade();
   const navigate = useNavigate();
-  const [form, setForm]         = useState(defaultForm);
+  const [form, setForm]           = useState(defaultForm);
   const [submitted, setSubmitted] = useState(false);
+  const [user, setUser]           = useState(() => getStoredUser());
+
+  useEffect(() => {
+    const handler = () => setUser(getStoredUser());
+    window.addEventListener('jerseys-auth-change', handler);
+    return () => window.removeEventListener('jerseys-auth-change', handler);
+  }, []);
 
   const update = (field) => (e) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -44,6 +53,26 @@ const CreateTradeListing = () => {
     addListing(form);
     setSubmitted(true);
   };
+
+  /* ── Auth gate ── */
+  if (!user) {
+    return (
+      <PageShell narrow className="trade-page">
+        <StateBlock
+          icon="🔒"
+          title="Sign in to list a jersey"
+          description="You need a jerSEys account to create trade listings. It only takes a minute to register."
+          centered
+          actions={
+            <>
+              <Button to="/login">Sign In</Button>
+              <Button variant="secondary" to="/register">Create Account</Button>
+            </>
+          }
+        />
+      </PageShell>
+    );
+  }
 
   /* ── Success screen ── */
   if (submitted) {
@@ -165,6 +194,35 @@ const CreateTradeListing = () => {
               />
             </FormField>
           </div>
+
+          <FormField
+            label="Jersey Image URL"
+            htmlFor="jersey-image"
+            hint="Paste a direct link to a photo of your jersey. This is required so buyers can see exactly what you're listing."
+            error={form.imageUrl && !/^https?:\/\/.+\..+/.test(form.imageUrl) ? 'Enter a valid image URL starting with http:// or https://' : undefined}
+          >
+            <input
+              id="jersey-image"
+              className="ui-input"
+              type="url"
+              placeholder="https://example.com/my-jersey.jpg"
+              value={form.imageUrl}
+              onChange={update('imageUrl')}
+              required
+            />
+          </FormField>
+
+          {form.imageUrl && /^https?:\/\/.+\..+/.test(form.imageUrl) && (
+            <div className="trade-image-preview-wrap">
+              <img
+                src={form.imageUrl}
+                alt="Jersey preview"
+                className="trade-image-preview"
+                onError={(e) => { e.target.style.display = 'none'; }}
+                onLoad={(e)  => { e.target.style.display = 'block'; }}
+              />
+            </div>
+          )}
 
           <FormField label="Sport">
             <div className="trade-option-row">

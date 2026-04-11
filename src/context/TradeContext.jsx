@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { TRADE_LISTINGS, TRADE_REQUESTS } from '../data/trades';
+import { getStoredUser } from '../utils/auth';
 
 const TradeContext = createContext(null);
 
@@ -12,9 +13,10 @@ export const TradeProvider = ({ children }) => {
   const addListing = useCallback((formData) => {
     const newListing = {
       id: `trade-${Date.now()}`,
-      image: formData.sport === 'Basketball'
-        ? 'https://cdn.shopify.com/s/files/1/0378/6653/files/08-hardwood-classics-swingman-jersey_ss5_p-203412844_pv-1_u-s6dxq83ajwg372xfm7vi_v-sdjisrq9pytimfgu7mms.avif?v=1761347616'
-        : 'https://cdn.shopify.com/s/files/1/0621/2580/1653/files/11_e419aeb1-a3fa-4c51-a03a-def2d556e732.jpg?v=1753384643',
+      image: formData.imageUrl ||
+        (formData.sport === 'Basketball'
+          ? 'https://cdn.shopify.com/s/files/1/0378/6653/files/08-hardwood-classics-swingman-jersey_ss5_p-203412844_pv-1_u-s6dxq83ajwg372xfm7vi_v-sdjisrq9pytimfgu7mms.avif?v=1761347616'
+          : 'https://cdn.shopify.com/s/files/1/0621/2580/1653/files/11_e419aeb1-a3fa-4c51-a03a-def2d556e732.jpg?v=1753384643'),
       jerseyName:    formData.jerseyName,
       club:          formData.club,
       size:          formData.size,
@@ -24,7 +26,11 @@ export const TradeProvider = ({ children }) => {
       type:          'club',
       description:   formData.description,
       lookingFor:    formData.lookingFor,
-      seller:        { name: 'jad_alhassan', initial: 'J', color: '#1B3B8A' },
+      seller:        (() => {
+        const u = getStoredUser();
+        const name = u?.username || 'jad_alhassan';
+        return { name, initial: name[0].toUpperCase(), color: '#1B3B8A' };
+      })(),
       status:        'available',
       listingType:   formData.listingType || 'trade',
       price:         formData.price ? Number(formData.price) : null,
