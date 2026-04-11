@@ -17,8 +17,9 @@ const TradeCard = ({ listing }) => {
   } = listing;
 
   const isAvailable  = status === 'available';
-  const showPrice    = price && listingType !== 'trade';
-  const canTrade     = listingType === 'trade' || listingType === 'both';
+  const isTradeOnly  = listingType === 'trade';
+  const showPrice    = price && !isTradeOnly;
+  const canTrade     = isTradeOnly || listingType === 'both';
 
   return (
     <article className="trade-card">

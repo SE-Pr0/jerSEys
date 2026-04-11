@@ -298,28 +298,30 @@ const CreateTradeListing = () => {
             </div>
           </FormField>
 
-          {(form.listingType === 'sale' || form.listingType === 'both') && (
-            <FormField
-              label="Buy-It-Now Price"
-              htmlFor="jersey-price"
-              hint="Set a fair price in USD. Buyers can purchase directly at this price."
-            >
-              <div className="trade-price-input-wrap">
-                <span className="trade-price-symbol">$</span>
-                <input
-                  id="jersey-price"
-                  className="ui-input trade-price-input"
-                  type="number"
-                  min="1"
-                  max="9999"
-                  placeholder="e.g. 85"
-                  value={form.price}
-                  onChange={update('price')}
-                  required={form.listingType === 'sale' || form.listingType === 'both'}
-                />
-              </div>
-            </FormField>
-          )}
+          <FormField
+            label={form.listingType === 'trade' ? 'Estimated Worth' : 'Buy-It-Now Price'}
+            htmlFor="jersey-price"
+            hint={
+              form.listingType === 'trade'
+                ? 'Helps traders gauge the value of your jersey when considering an offer.'
+                : 'Set a fair price in USD. Buyers can purchase directly at this price.'
+            }
+          >
+            <div className="trade-price-input-wrap">
+              <span className="trade-price-symbol">$</span>
+              <input
+                id="jersey-price"
+                className="ui-input trade-price-input"
+                type="number"
+                min="1"
+                max="9999"
+                placeholder="e.g. 85"
+                value={form.price}
+                onChange={update('price')}
+                required
+              />
+            </div>
+          </FormField>
 
           {/* ── Section: Description ── */}
           <div className="trade-section-heading" style={{ marginTop: 'var(--space-3)' }}>
