@@ -1,13 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { Button, Card, PageHeader, PageShell, StateBlock } from '../components/ui';
 import TradeCard from '../components/TradeCard';
-import { TRADE_LISTINGS } from '../data/trades';
+import { useTrade } from '../context/TradeContext';
 import '../styles/trade.css';
 
 const SPORTS = ['All', 'Football', 'Basketball'];
 const STATUSES = ['All', 'Available', 'Pending'];
 
 const TradeMarketplace = () => {
+  const { listings: TRADE_LISTINGS } = useTrade();
   const [sport, setSport] = useState('All');
   const [status, setStatus] = useState('All');
   const [search, setSearch] = useState('');

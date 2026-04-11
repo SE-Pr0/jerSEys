@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Card } from './ui';
+import { useTrade } from '../context/TradeContext';
 
 const STATUS_MAP = {
   pending:  { label: 'Pending',      cls: 'pending'   },
@@ -8,8 +9,8 @@ const STATUS_MAP = {
 };
 
 const TradeRequestCard = ({ request }) => {
-  const [status, setStatus] = useState(request.status);
-  const { listing, offer, message, date, direction } = request;
+  const { respondToRequest } = useTrade();
+  const { id, listing, offer, message, date, direction, status } = request;
 
   const statusInfo = STATUS_MAP[status] || STATUS_MAP.pending;
 
@@ -65,10 +66,10 @@ const TradeRequestCard = ({ request }) => {
 
         {direction === 'incoming' && status === 'pending' && (
           <div className="trade-request-actions">
-            <Button variant="secondary" onClick={() => setStatus('declined')}>
+            <Button variant="secondary" onClick={() => respondToRequest(id, 'declined')}>
               Decline
             </Button>
-            <Button onClick={() => setStatus('accepted')}>
+            <Button onClick={() => respondToRequest(id, 'accepted')}>
               Accept Offer
             </Button>
           </div>

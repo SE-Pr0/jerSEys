@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Button, Card, PageHeader, PageShell, StateBlock } from '../components/ui';
 import TradeRequestCard from '../components/TradeRequestCard';
-import { TRADE_REQUESTS } from '../data/trades';
+import { useTrade } from '../context/TradeContext';
 import '../styles/trade.css';
 
 const TradeRequests = () => {
+  const { requests } = useTrade();
   const [activeTab, setActiveTab] = useState('incoming');
 
-  const incoming = TRADE_REQUESTS.filter((r) => r.direction === 'incoming');
-  const outgoing = TRADE_REQUESTS.filter((r) => r.direction === 'outgoing');
+  const incoming = requests.filter((r) => r.direction === 'incoming');
+  const outgoing = requests.filter((r) => r.direction === 'outgoing');
   const displayed = activeTab === 'incoming' ? incoming : outgoing;
 
   return (

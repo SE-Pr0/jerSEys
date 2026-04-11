@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Card, FormField, PageHeader, PageShell } from '../components/ui';
-import { TRADE_LISTINGS } from '../data/trades';
+import { useTrade } from '../context/TradeContext';
 import '../styles/trade.css';
 
 const TradeListingDetails = () => {
   const { listingId } = useParams();
-  const listing = TRADE_LISTINGS.find((l) => l.id === listingId) || TRADE_LISTINGS[0];
+  const { listings, addRequest } = useTrade();
+  const listing = listings.find((l) => l.id === listingId) || listings[0];
 
   const [offerJersey, setOfferJersey] = useState('');
   const [message, setMessage] = useState('');
@@ -29,6 +30,7 @@ const TradeListingDetails = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    addRequest(listing.id, offerJersey, message);
     setSent(true);
   };
 

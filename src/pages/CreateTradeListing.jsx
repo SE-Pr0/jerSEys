@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Card, FormField, PageHeader, PageShell } from '../components/ui';
+import { useTrade } from '../context/TradeContext';
 import '../styles/trade.css';
 
 const SPORTS   = ['Football', 'Basketball'];
@@ -18,6 +20,8 @@ const defaultForm = {
 };
 
 const CreateTradeListing = () => {
+  const { addListing } = useTrade();
+  const navigate = useNavigate();
   const [form, setForm]         = useState(defaultForm);
   const [submitted, setSubmitted] = useState(false);
 
@@ -29,6 +33,7 @@ const CreateTradeListing = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    addListing(form);
     setSubmitted(true);
   };
 
