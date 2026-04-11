@@ -26,8 +26,10 @@ export const TradeProvider = ({ children }) => {
       lookingFor:    formData.lookingFor,
       seller:        { name: 'jad_alhassan', initial: 'J', color: '#1B3B8A' },
       status:        'available',
+      listingType:   formData.listingType || 'trade',
+      price:         formData.price ? Number(formData.price) : null,
       listedDate:    new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: '2-digit' }),
-      estimatedValue: '$—',
+      estimatedValue: formData.price ? `$${formData.price}` : '$—',
     };
     setListings((prev) => [newListing, ...prev]);
     return newListing.id;

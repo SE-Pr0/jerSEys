@@ -11,10 +11,14 @@ const TradeCard = ({ listing }) => {
     conditionDetail,
     seller,
     status,
+    listingType,
+    price,
     estimatedValue,
   } = listing;
 
-  const isAvailable = status === 'available';
+  const isAvailable  = status === 'available';
+  const showPrice    = price && listingType !== 'trade';
+  const canTrade     = listingType === 'trade' || listingType === 'both';
 
   return (
     <article className="trade-card">
@@ -30,6 +34,9 @@ const TradeCard = ({ listing }) => {
             {isAvailable ? '✓ Available' : '⏳ Pending'}
           </span>
         </div>
+        {showPrice && isAvailable && (
+          <div className="trade-card-price-tag">${price}</div>
+        )}
       </div>
 
       <div className="trade-card-body">
@@ -49,11 +56,23 @@ const TradeCard = ({ listing }) => {
         </div>
 
         <div className="trade-card-footer">
-          <span className="trade-card-value">~{estimatedValue}</span>
+          {showPrice
+            ? <span className="trade-card-price">${price}</span>
+            : <span className="trade-card-value">~{estimatedValue}</span>
+          }
           {isAvailable ? (
-            <Link to={`/trade/${id}`} className="trade-card-offer-btn">
-              Make Offer →
-            </Link>
+            <div className="trade-card-actions">
+              {showPrice && (
+                <Link to={`/trade/${id}`} className="trade-card-buy-btn">
+                  Buy Now
+                </Link>
+              )}
+              {canTrade && (
+                <Link to={`/trade/${id}`} className="trade-card-offer-btn">
+                  {listingType === 'both' ? 'Offer' : 'Make Offer →'}
+                </Link>
+              )}
+            </div>
           ) : (
             <span className="trade-card-offer-btn is-disabled">In Negotiation</span>
           )}

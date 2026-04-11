@@ -24,9 +24,15 @@ const TradeListingDetails = () => {
     lookingFor,
     seller,
     status,
+    listingType,
+    price,
     listedDate,
     estimatedValue,
   } = listing;
+
+  const showPrice = price && listingType !== 'trade';
+  const canTrade  = listingType === 'trade' || listingType === 'both';
+  const [bought, setBought] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -63,8 +69,12 @@ const TradeListingDetails = () => {
 
             <div className="trade-details-visual-footer">
               <div className="trade-details-value-row">
-                <span className="trade-details-value-label">Est. Value</span>
-                <span className="trade-details-value">{estimatedValue}</span>
+                <span className="trade-details-value-label">
+                  {showPrice ? 'Buy Now Price' : 'Est. Value'}
+                </span>
+                <span className="trade-details-value">
+                  {showPrice ? `$${price}` : estimatedValue}
+                </span>
               </div>
               <div className="trade-details-value-row">
                 <span className="trade-details-value-label">Listed</span>
@@ -129,10 +139,40 @@ const TradeListingDetails = () => {
             </div>
           </Card>
 
-          {/* Offer section */}
-          {status === 'available' ? (
+          {/* Buy Now card (sale / both) */}
+          {showPrice && status === 'available' && (
             <Card>
-              <div className="trade-section-heading">Make an Offer</div>
+              <div className="trade-details-buynow">
+                <div>
+                  <div className="trade-kicker">Buy It Now</div>
+                  <div className="trade-details-buynow-price">${price}</div>
+                  <p style={{ fontSize: '13px', color: 'var(--text-3)', marginTop: '4px' }}>
+                    Instant purchase · No negotiation needed
+                  </p>
+                </div>
+                {bought ? (
+                  <div className="trade-offer-sent" style={{ marginBottom: 0 }}>
+                    <span className="trade-offer-sent-icon">✓</span>
+                    <div>
+                      <strong>Purchase confirmed!</strong>
+                      <p>{seller.name} will be in touch to arrange the handoff.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <Button block onClick={() => setBought(true)}>
+                    Buy Now — ${price}
+                  </Button>
+                )}
+              </div>
+            </Card>
+          )}
+
+          {/* Trade offer card (trade / both) */}
+          {canTrade && status === 'available' && (
+            <Card>
+              <div className="trade-section-heading">
+                {listingType === 'both' ? 'Or Make a Trade Offer' : 'Make an Offer'}
+              </div>
 
               {sent ? (
                 <div className="trade-offer-sent">
@@ -184,7 +224,10 @@ const TradeListingDetails = () => {
                 </form>
               )}
             </Card>
-          ) : (
+          )}
+
+          {/* Pending / unavailable */}
+          {status !== 'available' && (
             <Card>
               <div className="trade-pending-notice">
                 <span>⏳</span>

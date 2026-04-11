@@ -9,14 +9,22 @@ const SIZES    = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const CONDS    = ['Brand new', 'Near mint', 'Good', 'Used'];
 const EMOJIS   = { Football: '⚽', Basketball: '🏀' };
 
+const LISTING_TYPES = [
+  { value: 'trade', label: '⇄  Trade Only',        hint: 'Accept jersey offers only' },
+  { value: 'sale',  label: '$  For Sale',           hint: 'Set a fixed buy-it-now price' },
+  { value: 'both',  label: '⇄$  Trade + Buy Now',  hint: 'Accept offers or direct purchase' },
+];
+
 const defaultForm = {
-  jerseyName:  '',
-  club:        '',
-  sport:       'Football',
-  size:        '',
-  condition:   '',
-  description: '',
-  lookingFor:  '',
+  jerseyName:   '',
+  club:         '',
+  sport:        'Football',
+  size:         '',
+  condition:    '',
+  description:  '',
+  lookingFor:   '',
+  listingType:  'trade',
+  price:        '',
 };
 
 const CreateTradeListing = () => {
@@ -58,8 +66,9 @@ const CreateTradeListing = () => {
             <span className="trade-success-icon">✓</span>
             <p>
               <strong>{form.jerseyName || 'Your jersey'}</strong> (Size {form.size || '—'},{' '}
-              {form.condition || '—'}) has been listed. You'll be notified when someone makes an
-              offer.
+              {form.condition || '—'})
+              {form.price && form.listingType !== 'trade' ? ` at $${form.price}` : ''} has been
+              listed. You'll be notified when someone makes an offer or purchase.
             </p>
           </div>
 
@@ -116,6 +125,9 @@ const CreateTradeListing = () => {
                 .filter(Boolean)
                 .join(' · ') || 'Size · Condition'}
             </div>
+            {form.price && (
+              <div className="create-listing-preview-price">${form.price}</div>
+            )}
           </div>
           <span className="trade-badge trade-badge--available">✓ Available</span>
         </div>
@@ -207,6 +219,49 @@ const CreateTradeListing = () => {
               </select>
             </FormField>
           </div>
+
+          {/* ── Section: Pricing ── */}
+          <div className="trade-section-heading" style={{ marginTop: 'var(--space-3)' }}>
+            Pricing
+          </div>
+
+          <FormField label="Listing Type" hint={LISTING_TYPES.find(t => t.value === form.listingType)?.hint}>
+            <div className="trade-option-row">
+              {LISTING_TYPES.map((t) => (
+                <button
+                  key={t.value}
+                  type="button"
+                  className={`trade-option-btn${form.listingType === t.value ? ' is-active' : ''}`}
+                  onClick={() => pick('listingType', t.value)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </FormField>
+
+          {(form.listingType === 'sale' || form.listingType === 'both') && (
+            <FormField
+              label="Buy-It-Now Price"
+              htmlFor="jersey-price"
+              hint="Set a fair price in USD. Buyers can purchase directly at this price."
+            >
+              <div className="trade-price-input-wrap">
+                <span className="trade-price-symbol">$</span>
+                <input
+                  id="jersey-price"
+                  className="ui-input trade-price-input"
+                  type="number"
+                  min="1"
+                  max="9999"
+                  placeholder="e.g. 85"
+                  value={form.price}
+                  onChange={update('price')}
+                  required={form.listingType === 'sale' || form.listingType === 'both'}
+                />
+              </div>
+            </FormField>
+          )}
 
           {/* ── Section: Description ── */}
           <div className="trade-section-heading" style={{ marginTop: 'var(--space-3)' }}>

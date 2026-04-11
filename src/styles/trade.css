@@ -898,6 +898,112 @@
   flex-wrap: wrap;
 }
 
+/* ---- PRICING ---------------------------------------------- */
+
+/* Price tag overlay on card image */
+.trade-card-price-tag {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: var(--crimson);
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(192,21,42,0.3);
+  z-index: 2;
+}
+
+/* Price in card footer */
+.trade-card-price {
+  font-family: var(--font-head);
+  font-size: 24px;
+  letter-spacing: 0.5px;
+  color: var(--crimson);
+  line-height: 1;
+}
+
+/* Card action buttons row */
+.trade-card-actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+/* Buy Now button on card */
+.trade-card-buy-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  min-height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--crimson);
+  color: #fff;
+  font-family: var(--font-accent);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: none;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.trade-card-buy-btn:hover {
+  background: #A01122;
+  transform: translateY(-2px);
+}
+
+/* Buy Now section on details page */
+.trade-details-buynow {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.trade-details-buynow-price {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 56px);
+  line-height: 1;
+  letter-spacing: -1px;
+  color: var(--crimson);
+  text-shadow: 0 0 40px rgba(192,21,42,0.12);
+}
+
+/* Price input in create form */
+.trade-price-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.trade-price-symbol {
+  position: absolute;
+  left: 14px;
+  font-family: var(--font-head);
+  font-size: 20px;
+  color: var(--text-2);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.trade-price-input {
+  padding-left: 32px !important;
+  font-family: var(--font-head);
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+/* Price in listing preview */
+.create-listing-preview-price {
+  font-family: var(--font-head);
+  font-size: 28px;
+  letter-spacing: 0.5px;
+  color: var(--crimson);
+  margin-top: var(--space-2);
+}
+
 /* ---- RESPONSIVE ------------------------------------------- */
 
 @media (max-width: 1100px) {
