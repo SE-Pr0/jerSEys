@@ -37,6 +37,11 @@ const Navbar = () => {
           </NavLink>
         </li>
         <li>
+          <NavLink to="/customize" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+            Customize
+          </NavLink>
+        </li>
+        <li>
           <NavLink to="/trade" className={({ isActive }) => (isActive ? 'active' : undefined)}>
             Trade Marketplace
           </NavLink>

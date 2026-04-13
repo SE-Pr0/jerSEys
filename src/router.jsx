@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
@@ -14,12 +14,22 @@ import TradeListingDetails from './pages/TradeListingDetails';
 import TradeRequests       from './pages/TradeRequests';
 import CreateTradeListing  from './pages/CreateTradeListing';
 
+const CustomJerseyBuilder = lazy(() => import('./pages/CustomJerseyBuilder'));
+
 const Router = () => {
   return (
     <Routes>
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="shop" element={<Shop />} />
+        <Route
+          path="customize"
+          element={(
+            <Suspense fallback={<div className="ui-page-shell">Loading builder...</div>}>
+              <CustomJerseyBuilder />
+            </Suspense>
+          )}
+        />
         <Route path="shop/:productId" element={<ProductDetails />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
