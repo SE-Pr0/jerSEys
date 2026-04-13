@@ -295,6 +295,7 @@
 
 .jersey-print {
   position: absolute;
+  z-index: 8;
   display: grid;
   justify-items: center;
   color: var(--text-color);
