@@ -25,6 +25,7 @@ const savedLogoKey = 'front-kit-badge-logo';
 const savedFreeLogoKey = 'front-kit-free-logo';
 const savedFreeLogoPositionKey = 'front-kit-free-logo-position';
 const savedPresetKey = 'front-kit-preset';
+const savedTextKey = 'front-kit-text';
 const deprecatedPresetKeys = new Set([
   'Nike-Netherlands-Home-(From-the-International-Patterns-Pack).png',
   'Nike-Netherlands-Home-(From-the-International-Patterns-Pack)',
@@ -53,6 +54,12 @@ const defaultFreeLogoPosition = {
   left: freeLogoBoundary.left + freeLogoBoundary.width / 2,
   top: freeLogoBoundary.top + freeLogoBoundary.height / 2,
   width: 8,
+};
+
+const textDefaults = {
+  textName: '',
+  textNumber: '',
+  textColor: '#ffffff',
 };
 
 const presetSizes = {
@@ -110,6 +117,7 @@ const presets = presetFiles
 
 const getDefaultDesign = () => ({
   ...layerDefaults,
+  ...textDefaults,
   presetId: presets[0]?.id || '',
   badgeLogo: '',
   freeLogo: '',
@@ -143,6 +151,7 @@ const readInitialDesign = () => {
     const savedPresetKeyIsDeprecated = deprecatedPresetKeys.has(savedPreset);
     const selectedPreset = presets.find((preset) => preset.fileName === savedPreset || preset.id === savedPreset);
     const savedFreeLogoPosition = JSON.parse(localStorage.getItem(savedFreeLogoPositionKey) || 'null');
+    const savedText = JSON.parse(localStorage.getItem(savedTextKey) || 'null');
 
     if (savedPresetKeyIsDeprecated) {
       localStorage.removeItem(savedPresetKey);
@@ -154,6 +163,9 @@ const readInitialDesign = () => {
       sleeveColor: savedColors?.sleeve || defaultDesign.sleeveColor,
       presetColor: savedColors?.preset || defaultDesign.presetColor,
       collarColor: savedColors?.collar || defaultDesign.collarColor,
+      textName: savedText?.name || defaultDesign.textName,
+      textNumber: savedText?.number || defaultDesign.textNumber,
+      textColor: savedText?.color || defaultDesign.textColor,
       presetId: savedPresetKeyIsDeprecated ? defaultDesign.presetId : selectedPreset?.id || defaultDesign.presetId,
       badgeLogo: localStorage.getItem(savedLogoKey) || '',
       freeLogo: localStorage.getItem(savedFreeLogoKey) || '',
@@ -226,6 +238,7 @@ const CustomJerseyBuilder = () => {
   const [design, setDesign] = useState(readInitialDesign);
   const [notice, setNotice] = useState('');
   const [isFreeLogoSelected, setIsFreeLogoSelected] = useState(false);
+  const [activeControlSection, setActiveControlSection] = useState('pattern');
   const kitPreviewRef = useRef(null);
   const freeLogoRef = useRef(null);
   const freeLogoImageRef = useRef(null);
@@ -254,6 +267,7 @@ const CustomJerseyBuilder = () => {
     '--sleeve-color': design.sleeveColor,
     '--preset-color': design.presetColor,
     '--collar-color': design.collarColor,
+    '--text-color': design.textColor,
     '--texture-opacity': 0.46,
     '--shadow-opacity': 0.8,
   };
@@ -286,6 +300,13 @@ const CustomJerseyBuilder = () => {
     setDesign((currentDesign) => ({ ...currentDesign, ...updates }));
     setNotice('');
   };
+
+  const controlSections = [
+    { id: 'pattern', label: 'Pattern' },
+    { id: 'colors', label: 'Colors' },
+    { id: 'logos', label: 'Logos' },
+    { id: 'text', label: 'Text' },
+  ];
 
   const updateFreeLogoPosition = (updates) => {
     setDesign((currentDesign) => ({
@@ -535,6 +556,15 @@ const CustomJerseyBuilder = () => {
       saveFreeLogoPosition(design.freeLogoPosition);
     }
 
+    localStorage.setItem(
+      savedTextKey,
+      JSON.stringify({
+        name: design.textName.trim(),
+        number: design.textNumber.trim(),
+        color: design.textColor,
+      }),
+    );
+
     setNotice('Saved');
   };
 
@@ -544,8 +574,10 @@ const CustomJerseyBuilder = () => {
     localStorage.removeItem(savedFreeLogoKey);
     localStorage.removeItem(savedFreeLogoPositionKey);
     localStorage.removeItem(savedPresetKey);
+    localStorage.removeItem(savedTextKey);
     setDesign(getDefaultDesign());
     setIsFreeLogoSelected(false);
+    setActiveControlSection('pattern');
 
     if (badgeUploadRef.current) {
       badgeUploadRef.current.value = '';
@@ -631,6 +663,12 @@ const CustomJerseyBuilder = () => {
             <img className="jersey-layer jersey-layer-shadow" src={shadows} alt="" aria-hidden="true" />
 
             {design.badgeLogo && <img className="badge-logo" src={design.badgeLogo} alt="" />}
+            {(design.textName || design.textNumber) && (
+              <div className="jersey-print jersey-print-back" aria-hidden="true">
+                {design.textName && <strong>{design.textName}</strong>}
+                {design.textNumber && <span>{design.textNumber}</span>}
+              </div>
+            )}
 
             <div
               className="free-logo-boundary"
@@ -679,69 +717,134 @@ const CustomJerseyBuilder = () => {
           </div>
 
           <div className="ui-form">
-            <div className="ui-form-section">
-              <div className="custom-builder-section-title">
-                <span>01</span>
-                Pattern
-              </div>
-              <div className="preset-grid">
-                {presets.map((preset) => (
-                  <button
-                    className={`preset-card ${preset.id === selectedPreset?.id ? 'is-active' : ''}`}
-                    key={preset.id}
-                    onClick={() => updateDesign({ presetId: preset.id })}
-                    type="button"
-                  >
-                    <img src={preset.src} alt="" aria-hidden="true" />
-                    <span>{preset.name}</span>
-                  </button>
-                ))}
-              </div>
+            <div className="custom-builder-section-tabs" role="tablist" aria-label="Customizer sections">
+              {controlSections.map((section, index) => (
+                <button
+                  className={`custom-builder-section-tab ${activeControlSection === section.id ? 'is-active' : ''}`}
+                  key={section.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeControlSection === section.id}
+                  onClick={() => setActiveControlSection(section.id)}
+                >
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  {section.label}
+                </button>
+              ))}
             </div>
 
-            <div className="ui-form-section">
-              <div className="custom-builder-section-title">
-                <span>02</span>
-                Color
+            {activeControlSection === 'pattern' && (
+              <div className="ui-form-section custom-builder-section-panel" role="tabpanel">
+                <div className="custom-builder-section-title">
+                  <span>01</span>
+                  Pattern
+                </div>
+                <div className="preset-grid">
+                  {presets.map((preset) => (
+                    <button
+                      className={`preset-card ${preset.id === selectedPreset?.id ? 'is-active' : ''}`}
+                      key={preset.id}
+                      onClick={() => updateDesign({ presetId: preset.id })}
+                      type="button"
+                    >
+                      <img src={preset.src} alt="" aria-hidden="true" />
+                      <span>{preset.name}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="custom-color-grid">
-                {[
-                  ['Base', 'baseColor'],
-                  ['Sleeves', 'sleeveColor'],
-                  ['Secondary color', 'presetColor'],
-                  ['Collar', 'collarColor'],
-                ].map(([label, key]) => (
-                  <label className="custom-color-field" key={key}>
-                    <span>{label}</span>
+            )}
+
+            {activeControlSection === 'colors' && (
+              <div className="ui-form-section custom-builder-section-panel" role="tabpanel">
+                <div className="custom-builder-section-title">
+                  <span>02</span>
+                  Colors
+                </div>
+                <div className="custom-color-grid">
+                  {[
+                    ['Base', 'baseColor'],
+                    ['Sleeves', 'sleeveColor'],
+                    ['Secondary color', 'presetColor'],
+                    ['Collar', 'collarColor'],
+                  ].map(([label, key]) => (
+                    <label className="custom-color-field" key={key}>
+                      <span>{label}</span>
+                      <input
+                        aria-label={`${label} color`}
+                        type="color"
+                        value={design[key]}
+                        onChange={(event) => updateDesign({ [key]: event.target.value })}
+                      />
+                      <em>{design[key]}</em>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeControlSection === 'logos' && (
+              <div className="ui-form-section custom-builder-section-panel" role="tabpanel">
+                <div className="custom-builder-section-title">
+                  <span>03</span>
+                  Logos
+                </div>
+                <label className="custom-file-field">
+                  <span>Badge logo</span>
+                  <input ref={badgeUploadRef} type="file" accept="image/*" onChange={handleBadgeUpload} />
+                </label>
+                <label className="custom-file-field">
+                  <span>Sponsor logo</span>
+                  <input ref={freeLogoUploadRef} type="file" accept="image/*" onChange={handleFreeLogoUpload} />
+                </label>
+                <p className="custom-builder-helper">
+                  Click the sponsor logo to show the boundary, drag it around, or pull the corner handle to resize it.
+                </p>
+              </div>
+            )}
+
+            {activeControlSection === 'text' && (
+              <div className="ui-form-section custom-builder-section-panel" role="tabpanel">
+                <div className="custom-builder-section-title">
+                  <span>04</span>
+                  Text
+                </div>
+                <div className="custom-text-grid">
+                  <label className="custom-text-field">
+                    <span>Name</span>
                     <input
-                      aria-label={`${label} color`}
-                      type="color"
-                      value={design[key]}
-                      onChange={(event) => updateDesign({ [key]: event.target.value })}
+                      className="ui-input"
+                      maxLength="14"
+                      placeholder="PLAYER"
+                      type="text"
+                      value={design.textName}
+                      onChange={(event) => updateDesign({ textName: event.target.value.toUpperCase() })}
                     />
-                    <em>{design[key]}</em>
                   </label>
-                ))}
+                  <label className="custom-text-field">
+                    <span>Number</span>
+                    <input
+                      className="ui-input"
+                      maxLength="2"
+                      placeholder="10"
+                      type="text"
+                      value={design.textNumber}
+                      onChange={(event) => updateDesign({ textNumber: event.target.value.replace(/\D/g, '').slice(0, 2) })}
+                    />
+                  </label>
+                  <label className="custom-color-field custom-text-color-field">
+                    <span>Text color</span>
+                    <input
+                      aria-label="Text color"
+                      type="color"
+                      value={design.textColor}
+                      onChange={(event) => updateDesign({ textColor: event.target.value })}
+                    />
+                    <em>{design.textColor}</em>
+                  </label>
+                </div>
               </div>
-            </div>
-
-            <div className="ui-form-section">
-              <div className="custom-builder-section-title">
-                <span>03</span>
-                Logos
-              </div>
-              <label className="custom-file-field">
-                <span>Badge logo</span>
-                <input ref={badgeUploadRef} type="file" accept="image/*" onChange={handleBadgeUpload} />
-              </label>
-              <label className="custom-file-field">
-                <span>Sponsor logo</span>
-                <input ref={freeLogoUploadRef} type="file" accept="image/*" onChange={handleFreeLogoUpload} />
-              </label>
-              <p className="custom-builder-helper">
-                Click the sponsor logo to show the boundary, drag it around, or pull the corner handle to resize it.
-              </p>
-            </div>
+            )}
 
             {notice && <p className="custom-builder-notice">{notice}</p>}
 
