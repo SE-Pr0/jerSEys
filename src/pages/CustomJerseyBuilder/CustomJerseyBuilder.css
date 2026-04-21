@@ -305,6 +305,12 @@
   pointer-events: none;
 }
 
+.jersey-print strong,
+.jersey-print span {
+  -webkit-text-stroke: var(--text-stroke-width, 2px) var(--text-stroke-color);
+  paint-order: stroke fill;
+}
+
 .jersey-print span {
   font-size: clamp(34px, 6vw, 74px);
   line-height: 0.9;
@@ -323,10 +329,23 @@
 }
 
 .jersey-print-back {
-  right: 19%;
-  top: 43%;
-  width: 16%;
+  left: 74%;
+  top: 20%;
+  width: auto;
   gap: 8px;
+  --number-shift-x: -2px;
+  --number-shift-y: 0px;
+  transform: translateX(-50%);
+}
+
+.jersey-print-back strong {
+  font-size: clamp(18px, 2.4vw, 30px);
+}
+
+.jersey-print-back span {
+  display: block;
+  font-size: clamp(50px, 8vw, 98px);
+  transform: translate(var(--number-shift-x), var(--number-shift-y));
 }
 
 .custom-builder-panel {

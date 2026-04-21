@@ -109,7 +109,9 @@ const HeroSection = () => {
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </Link>
-            <a href="/shop#shop-insights" className="cta-secondary">Explore The Drop</a>
+            <Link to="/customize" className="cta-secondary">
+              Create Your own kit!
+            </Link>
           </div>
           <div
             ref={statsRef}

@@ -60,6 +60,8 @@ const textDefaults = {
   textName: '',
   textNumber: '',
   textColor: '#ffffff',
+  textStrokeColor: '#000000',
+  textStrokeWidth: 2,
 };
 
 const presetSizes = {
@@ -166,6 +168,10 @@ const readInitialDesign = () => {
       textName: savedText?.name || defaultDesign.textName,
       textNumber: savedText?.number || defaultDesign.textNumber,
       textColor: savedText?.color || defaultDesign.textColor,
+      textStrokeColor: savedText?.strokeColor || defaultDesign.textStrokeColor,
+      textStrokeWidth: Number.isFinite(Number(savedText?.strokeWidth))
+        ? Number(savedText.strokeWidth)
+        : defaultDesign.textStrokeWidth,
       presetId: savedPresetKeyIsDeprecated ? defaultDesign.presetId : selectedPreset?.id || defaultDesign.presetId,
       badgeLogo: localStorage.getItem(savedLogoKey) || '',
       freeLogo: localStorage.getItem(savedFreeLogoKey) || '',
@@ -268,6 +274,8 @@ const CustomJerseyBuilder = () => {
     '--preset-color': design.presetColor,
     '--collar-color': design.collarColor,
     '--text-color': design.textColor,
+    '--text-stroke-color': design.textStrokeColor,
+    '--text-stroke-width': `${design.textStrokeWidth}px`,
     '--texture-opacity': 0.46,
     '--shadow-opacity': 0.8,
   };
@@ -562,6 +570,8 @@ const CustomJerseyBuilder = () => {
         name: design.textName.trim(),
         number: design.textNumber.trim(),
         color: design.textColor,
+        strokeColor: design.textStrokeColor,
+        strokeWidth: design.textStrokeWidth,
       }),
     );
 
@@ -841,6 +851,31 @@ const CustomJerseyBuilder = () => {
                       onChange={(event) => updateDesign({ textColor: event.target.value })}
                     />
                     <em>{design.textColor}</em>
+                  </label>
+                  <label className="custom-color-field custom-text-color-field">
+                    <span>Stroke color</span>
+                    <input
+                      aria-label="Stroke color"
+                      type="color"
+                      value={design.textStrokeColor}
+                      onChange={(event) => updateDesign({ textStrokeColor: event.target.value })}
+                    />
+                    <em>{design.textStrokeColor}</em>
+                  </label>
+                  <label className="custom-range-field">
+                    <span>Stroke thickness</span>
+                    <input
+                      aria-label="Stroke thickness"
+                      max="12"
+                      min="0"
+                      step="0.5"
+                      type="range"
+                      value={design.textStrokeWidth}
+                      onChange={(event) =>
+                        updateDesign({ textStrokeWidth: Number.parseFloat(event.target.value) })
+                      }
+                    />
+                    <em>{design.textStrokeWidth}px</em>
                   </label>
                 </div>
               </div>
