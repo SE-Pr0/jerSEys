@@ -76,7 +76,12 @@ const toColorLabel = (value) => {
 };
 
 const getDetailPairs = (item, product) => {
-  const details = [];
+  const details = {
+    size: '',
+    name: '',
+    number: '',
+    extras: [],
+  };
   const size = firstText(item.size, item.selectedSize, item.jerseySize, item.variantSize, product?.sizes?.[0]);
   const playerName = firstText(
     item.playerName,
@@ -86,14 +91,6 @@ const getDetailPairs = (item, product) => {
     item.printName,
     item.customization?.playerName,
     item.design?.textName,
-  );
-  const customText = firstText(
-    item.text,
-    item.message,
-    item.customText,
-    item.customization?.text,
-    item.customization?.message,
-    item.design?.text,
   );
   const playerNumber = firstText(
     item.playerNumber,
@@ -113,31 +110,27 @@ const getDetailPairs = (item, product) => {
   const printColor = toColorLabel(item.textColor || item.customization?.textColor || item.design?.textColor);
 
   if (size) {
-    details.push({ label: 'Size', value: size });
+    details.size = size;
   }
 
   if (playerName) {
-    details.push({ label: 'Name', value: playerName });
-  }
-
-  if (customText) {
-    details.push({ label: 'Text', value: customText });
+    details.name = playerName;
   }
 
   if (playerNumber) {
-    details.push({ label: 'Number', value: playerNumber });
+    details.number = playerNumber;
   }
 
   if (printColor) {
-    details.push({ label: 'Print color', value: printColor });
+    details.extras.push({ label: 'Print color', value: printColor });
   }
 
   if (badgeLogo) {
-    details.push({ label: 'Badge logo', value: badgeLogo });
+    details.extras.push({ label: 'Badge logo', value: badgeLogo });
   }
 
   if (freeLogo) {
-    details.push({ label: 'Sponsor logo', value: freeLogo });
+    details.extras.push({ label: 'Sponsor logo', value: freeLogo });
   }
 
   if (baseColor || sleeveColor || presetColor || collarColor) {
@@ -148,11 +141,11 @@ const getDetailPairs = (item, product) => {
       collarColor ? `Collar ${collarColor}` : '',
     ].filter(Boolean);
 
-    details.push({ label: 'Colors', value: colors.join(' / ') });
+    details.extras.push({ label: 'Colors', value: colors.join(' / ') });
   }
 
   if (notes) {
-    details.push({ label: 'Notes', value: notes });
+    details.extras.push({ label: 'Notes', value: notes });
   }
 
   return details;
@@ -218,6 +211,7 @@ const persistCart = (items) => {
   });
 
   window.localStorage.setItem(PREFERRED_CART_KEY, JSON.stringify(items));
+  window.dispatchEvent(new Event('jerseys-cart-change'));
 };
 
 const buildShippingLabel = (subtotal) => {
@@ -283,6 +277,11 @@ const Cart = () => {
 
   const subtotal = useMemo(
     () => normalizedItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
+    [normalizedItems],
+  );
+
+  const itemCount = useMemo(
+    () => normalizedItems.reduce((sum, item) => sum + item.quantity, 0),
     [normalizedItems],
   );
 
@@ -389,7 +388,7 @@ const Cart = () => {
                 Your <span>Cart</span>
               </h1>
             </div>
-            <div className="cart-drawer-count">{normalizedItems.length} item(s)</div>
+            <div className="cart-drawer-count">{itemCount} item(s)</div>
           </header>
 
           <div className="cart-drawer-content">
@@ -401,7 +400,11 @@ const Cart = () => {
                     const lineTotal = item.unitPrice * item.quantity;
 
                     return (
-                      <Card key={item.cartKey || `${item.productId || item.name}-${index}`} className="cart-item-card">
+                      <Card
+                        key={item.cartKey || `${item.productId || item.name}-${index}`}
+                        className="cart-item-card"
+                        padded={false}
+                      >
                         <div className="cart-item-media">
                           <div className="cart-item-image-shell">
                             {item.image ? <img src={item.image} alt={item.name} className="cart-item-image" /> : null}
@@ -431,16 +434,41 @@ const Cart = () => {
                             </div>
                           </div>
 
-                          {detailPairs.length > 0 ? (
+                          <div className="cart-detail-stack">
+                            {detailPairs.size ? (
+                              <div className="cart-detail-pill cart-detail-pill-size">
+                                <span>Size</span>
+                                <strong>{detailPairs.size}</strong>
+                              </div>
+                            ) : null}
+
                             <div className="cart-detail-grid">
-                              {detailPairs.map((detail) => (
-                                <div key={`${item.cartKey}-${detail.label}`} className="cart-detail-pill">
-                                  <span>{detail.label}</span>
-                                  <strong>{detail.value}</strong>
+                              {detailPairs.name ? (
+                                <div className="cart-detail-pill">
+                                  <span>Name</span>
+                                  <strong>{detailPairs.name}</strong>
                                 </div>
-                              ))}
+                              ) : null}
+
+                              {detailPairs.number ? (
+                                <div className="cart-detail-pill">
+                                  <span>Number</span>
+                                  <strong>{detailPairs.number}</strong>
+                                </div>
+                              ) : null}
                             </div>
-                          ) : null}
+
+                            {detailPairs.extras.length > 0 ? (
+                              <div className="cart-detail-grid cart-detail-grid-extras">
+                                {detailPairs.extras.map((detail) => (
+                                  <div key={`${item.cartKey}-${detail.label}`} className="cart-detail-pill">
+                                    <span>{detail.label}</span>
+                                    <strong>{detail.value}</strong>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
 
                           <div className="cart-item-footer">
                             <div className="cart-quantity-shell">
@@ -518,7 +546,10 @@ const Cart = () => {
                   ) : null}
                   <div className="cart-summary-row">
                     <span>Shipping</span>
-                    <strong>{buildShippingLabel(discountedSubtotal)}</strong>
+                    <strong className="cart-summary-shipping">
+                      <span>{buildShippingLabel(discountedSubtotal)}</span>
+                      <em>(ghalyen el benzeen)</em>
+                    </strong>
                   </div>
                   <div className="cart-summary-row">
                     <span>Estimated tax</span>
