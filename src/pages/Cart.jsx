@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Card, FormField, PageHeader, PageShell, StateBlock } from '../components/ui';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Button, Card, FormField, StateBlock } from '../components/ui';
 import { getShopProductById } from '../services/productService';
 import './Cart.css';
 
@@ -74,7 +75,7 @@ const toColorLabel = (value) => {
   return text;
 };
 
-const getDetailPairs = (item, product, quantity) => {
+const getDetailPairs = (item, product) => {
   const details = [];
   const size = firstText(item.size, item.selectedSize, item.jerseySize, item.variantSize, product?.sizes?.[0]);
   const playerName = firstText(
@@ -115,8 +116,6 @@ const getDetailPairs = (item, product, quantity) => {
     details.push({ label: 'Size', value: size });
   }
 
-  details.push({ label: 'Quantity', value: String(quantity) });
-
   if (playerName) {
     details.push({ label: 'Name', value: playerName });
   }
@@ -154,10 +153,6 @@ const getDetailPairs = (item, product, quantity) => {
 
   if (notes) {
     details.push({ label: 'Notes', value: notes });
-  }
-
-  if (item.customization?.summary) {
-    details.push({ label: 'Kit build', value: item.customization.summary });
   }
 
   return details;
@@ -238,10 +233,15 @@ const buildShippingLabel = (subtotal) => {
 };
 
 const Cart = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const closeTimerRef = useRef(null);
   const [cartItems, setCartItems] = useState(readCartFromStorage);
   const [promoCode, setPromoCode] = useState('');
   const [promoMessage, setPromoMessage] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     const syncCart = () => {
@@ -260,6 +260,21 @@ const Cart = () => {
   useEffect(() => {
     persistCart(cartItems);
   }, [cartItems]);
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => setIsOpen(true));
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      document.body.style.overflow = previousOverflow;
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
 
   const normalizedItems = useMemo(
     () => cartItems.map((item, index) => normalizeStoredItem(item, index)),
@@ -335,206 +350,231 @@ const Cart = () => {
     setPromoMessage(`Coupon ${normalizedCode} was successfully applied.`);
   };
 
+  const closeCart = () => {
+    if (isClosing) {
+      return;
+    }
+
+    setIsClosing(true);
+    closeTimerRef.current = window.setTimeout(() => {
+      if (location.state?.backgroundLocation) {
+        navigate(-1);
+      } else {
+        navigate('/');
+      }
+    }, 220);
+  };
+
   return (
-    <PageShell className="cart-page">
-      <div className="cart-top-section">
-        <PageHeader
-          eyebrow="Shopping bag"
-          title={(
-            <>
-              Your <span>Cart</span>
-            </>
-          )}
-          description="Review every jersey, kit customisation, and checkout total before you place the order."
-        />
-      </div>
+    <div
+      className={`cart-drawer-overlay${isOpen ? ' is-open' : ''}${isClosing ? ' is-closing' : ''}`}
+      role="presentation"
+      onClick={closeCart}
+    >
+      <aside
+        className={`cart-drawer${isOpen ? ' is-open' : ''}${isClosing ? ' is-closing' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Shopping cart"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="cart-drawer-shell">
+          <header className="cart-drawer-header">
+            <button type="button" className="cart-drawer-close" onClick={closeCart} aria-label="Close cart">
+              ×
+            </button>
+            <div className="cart-drawer-title-block">
+              <p className="cart-drawer-eyebrow">Shopping bag</p>
+              <h1 className="cart-drawer-title">
+                Your <span>Cart</span>
+              </h1>
+            </div>
+            <div className="cart-drawer-count">{normalizedItems.length} item(s)</div>
+          </header>
 
-      <div className="cart-layout">
-        <div className="cart-main-column">
-          {normalizedItems.length > 0 ? (
-            <div className="cart-item-list">
-              {normalizedItems.map((item, index) => {
-                const detailPairs = getDetailPairs(item, item.product, item.quantity);
-                const lineTotal = item.unitPrice * item.quantity;
+          <div className="cart-drawer-content">
+            <div className="cart-main-column">
+              {normalizedItems.length > 0 ? (
+                <div className="cart-item-list">
+                  {normalizedItems.map((item, index) => {
+                    const detailPairs = getDetailPairs(item, item.product);
+                    const lineTotal = item.unitPrice * item.quantity;
 
-                return (
-                  <Card key={item.cartKey || `${item.productId || item.name}-${index}`} className="cart-item-card">
-                    <div className="cart-item-media">
-                      <div className="cart-item-image-shell">
-                        {item.image ? <img src={item.image} alt={item.name} className="cart-item-image" /> : null}
-                        {item.badge ? <span className={`cart-item-badge is-${item.badge}`}>{item.badge}</span> : null}
-                      </div>
-                    </div>
-
-                    <div className="cart-item-body">
-                      <div className="cart-item-header">
-                        <div>
-                          <p className="cart-item-kicker">
-                            {item.sportLabel || 'Jersey'}
-                            {item.team ? ` / ${item.team}` : ''}
-                          </p>
-                          <h2>{item.name}</h2>
-                          {item.categoryLabel || item.season ? (
-                            <p className="cart-item-subtitle">
-                              {item.categoryLabel}
-                              {item.categoryLabel && item.season ? ' / ' : ''}
-                              {item.season}
-                            </p>
-                          ) : null}
-                        </div>
-                        <div className="cart-item-pricing">
-                          <span className="cart-item-unit-price">{formatPrice(item.unitPrice)}</span>
-                          <span className="cart-item-line-total">{formatPrice(lineTotal)}</span>
-                        </div>
-                      </div>
-
-                      {detailPairs.length > 0 ? (
-                        <div className="cart-detail-grid">
-                          {detailPairs.map((detail) => (
-                            <div key={`${item.cartKey}-${detail.label}`} className="cart-detail-pill">
-                              <span>{detail.label}</span>
-                              <strong>{detail.value}</strong>
-                            </div>
-                          ))}
-                        </div>
-                      ) : null}
-
-                      <div className="cart-item-footer">
-                        <div className="cart-quantity-shell">
-                          <span className="cart-quantity-label">Quantity</span>
-                          <div className="cart-quantity-stepper" aria-label={`Quantity for ${item.name}`}>
-                            <button
-                              type="button"
-                              className="cart-stepper-button"
-                              onClick={() => updateItemQuantity(index, Math.max(item.quantity - 1, 0))}
-                              aria-label={`Decrease quantity for ${item.name}`}
-                            >
-                              -
-                            </button>
-                            <span className="cart-quantity-value">{item.quantity}</span>
-                            <button
-                              type="button"
-                              className="cart-stepper-button"
-                              onClick={() => updateItemQuantity(index, item.quantity + 1)}
-                              aria-label={`Increase quantity for ${item.name}`}
-                            >
-                              +
-                            </button>
+                    return (
+                      <Card key={item.cartKey || `${item.productId || item.name}-${index}`} className="cart-item-card">
+                        <div className="cart-item-media">
+                          <div className="cart-item-image-shell">
+                            {item.image ? <img src={item.image} alt={item.name} className="cart-item-image" /> : null}
+                            {item.badge ? <span className={`cart-item-badge is-${item.badge}`}>{item.badge}</span> : null}
                           </div>
                         </div>
 
-                        <Button variant="secondary" onClick={() => removeItem(index)}>
-                          Remove
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          ) : (
-            <StateBlock
-              icon="0"
-              title="Your cart is empty"
-              description="Pick a jersey from the shop or build a custom kit and it will show up here with size, text, number, and all the usual checkout details."
-              centered
-              actions={(
-                <>
-                  <Button to="/shop">Browse Jerseys</Button>
-                  <Button variant="secondary" to="/customize">
-                    Customize a Kit
-                  </Button>
-                </>
+                        <div className="cart-item-body">
+                          <div className="cart-item-header">
+                            <div>
+                              <p className="cart-item-kicker">
+                                {item.sportLabel || 'Jersey'}
+                                {item.team ? ` / ${item.team}` : ''}
+                              </p>
+                              <h2>{item.name}</h2>
+                              {item.categoryLabel || item.season ? (
+                                <p className="cart-item-subtitle">
+                                  {item.categoryLabel}
+                                  {item.categoryLabel && item.season ? ' / ' : ''}
+                                  {item.season}
+                                </p>
+                              ) : null}
+                            </div>
+                            <div className="cart-item-pricing">
+                              <span className="cart-item-unit-price">{formatPrice(item.unitPrice)}</span>
+                              <span className="cart-item-line-total">{formatPrice(lineTotal)}</span>
+                            </div>
+                          </div>
+
+                          {detailPairs.length > 0 ? (
+                            <div className="cart-detail-grid">
+                              {detailPairs.map((detail) => (
+                                <div key={`${item.cartKey}-${detail.label}`} className="cart-detail-pill">
+                                  <span>{detail.label}</span>
+                                  <strong>{detail.value}</strong>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+
+                          <div className="cart-item-footer">
+                            <div className="cart-quantity-shell">
+                              <div className="cart-quantity-stepper" aria-label={`Quantity for ${item.name}`}>
+                                <button
+                                  type="button"
+                                  className="cart-stepper-button"
+                                  onClick={() => updateItemQuantity(index, Math.max(item.quantity - 1, 0))}
+                                  aria-label={`Decrease quantity for ${item.name}`}
+                                >
+                                  -
+                                </button>
+                                <span className="cart-quantity-value">{item.quantity}</span>
+                                <button
+                                  type="button"
+                                  className="cart-stepper-button"
+                                  onClick={() => updateItemQuantity(index, item.quantity + 1)}
+                                  aria-label={`Increase quantity for ${item.name}`}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+
+                            <Button variant="secondary" onClick={() => removeItem(index)}>
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              ) : (
+                <StateBlock
+                  icon="0"
+                  title="Your cart is empty"
+                  description="Pick a jersey from the shop or build a custom kit and it will show up here with size, text, number, and all the usual checkout details."
+                  centered
+                  actions={(
+                    <>
+                      <Button to="/shop">Browse Jerseys</Button>
+                      <Button variant="secondary" to="/customize">
+                        Customize a Kit
+                      </Button>
+                    </>
+                  )}
+                />
               )}
-            />
-          )}
-        </div>
-
-        <aside className="cart-summary-column">
-          <Card className="cart-summary-card">
-            <div className="cart-summary-heading">
-              <h2>Checkout details</h2>
             </div>
 
-            <div className="cart-summary-rows">
-              <div className="cart-summary-row">
-                <span>Subtotal</span>
-                {isCouponApplied ? (
-                  <strong className="cart-price-stack">
-                    <span className="cart-price-old">{formatPrice(subtotal)}</span>
-                    <span className="cart-price-new">{formatPrice(discountedSubtotal)}</span>
-                  </strong>
-                ) : (
-                  <strong>{formatPrice(subtotal)}</strong>
-                )}
-              </div>
-              {isCouponApplied ? (
-                <div className="cart-summary-row cart-summary-coupon-row">
-                  <span>{`Coupon ${appliedCoupon}`}</span>
-                  <strong className="cart-coupon-applied">- {formatPrice(discountAmount)}</strong>
+            <aside className="cart-summary-column">
+              <Card className="cart-summary-card">
+                <div className="cart-summary-heading">
+                  <h2>Checkout details</h2>
                 </div>
-              ) : null}
-              <div className="cart-summary-row">
-                <span>Shipping</span>
-                <strong>{buildShippingLabel(discountedSubtotal)}</strong>
-              </div>
-              <div className="cart-summary-row">
-                <span>Estimated tax</span>
-                <strong>{formatPrice(taxCost)}</strong>
-              </div>
-              <div className="cart-summary-row is-total">
-                <span>Total</span>
-                {isCouponApplied ? (
-                  <strong className="cart-price-stack">
-                    <span className="cart-price-old">{formatPrice(originalOrderTotal)}</span>
-                    <span className="cart-price-new">{formatPrice(orderTotal)}</span>
-                  </strong>
-                ) : (
-                  <strong>{formatPrice(orderTotal)}</strong>
-                )}
-              </div>
-            </div>
 
-            <form className="cart-promo-form" onSubmit={handlePromoSubmit}>
-              <FormField label="Promo code" htmlFor="cart-promo">
-                <div className="cart-promo-row">
-                  <input
-                    id="cart-promo"
-                    className="ui-input"
-                    value={promoCode}
-                    onChange={(event) => setPromoCode(event.target.value)}
-                    placeholder="Enter code"
-                  />
-                  <Button type="submit" variant="secondary">
-                    Apply
+                <div className="cart-summary-rows">
+                  <div className="cart-summary-row">
+                    <span>Subtotal</span>
+                    {isCouponApplied ? (
+                      <strong className="cart-price-stack">
+                        <span className="cart-price-old">{formatPrice(subtotal)}</span>
+                        <span className="cart-price-new">{formatPrice(discountedSubtotal)}</span>
+                      </strong>
+                    ) : (
+                      <strong>{formatPrice(subtotal)}</strong>
+                    )}
+                  </div>
+                  {isCouponApplied ? (
+                    <div className="cart-summary-row cart-summary-coupon-row">
+                      <span>{`Coupon ${appliedCoupon}`}</span>
+                      <strong className="cart-coupon-applied">- {formatPrice(discountAmount)}</strong>
+                    </div>
+                  ) : null}
+                  <div className="cart-summary-row">
+                    <span>Shipping</span>
+                    <strong>{buildShippingLabel(discountedSubtotal)}</strong>
+                  </div>
+                  <div className="cart-summary-row">
+                    <span>Estimated tax</span>
+                    <strong>{formatPrice(taxCost)}</strong>
+                  </div>
+                  <div className="cart-summary-row is-total">
+                    <span>Total</span>
+                    {isCouponApplied ? (
+                      <strong className="cart-price-stack">
+                        <span className="cart-price-old">{formatPrice(originalOrderTotal)}</span>
+                        <span className="cart-price-new">{formatPrice(orderTotal)}</span>
+                      </strong>
+                    ) : (
+                      <strong>{formatPrice(orderTotal)}</strong>
+                    )}
+                  </div>
+                </div>
+
+                <form className="cart-promo-form" onSubmit={handlePromoSubmit}>
+                  <FormField label="Promo code" htmlFor="cart-promo">
+                    <div className="cart-promo-row">
+                      <input
+                        id="cart-promo"
+                        className="ui-input"
+                        value={promoCode}
+                        onChange={(event) => setPromoCode(event.target.value)}
+                        placeholder="Enter code"
+                      />
+                      <Button type="submit" variant="secondary">
+                        Apply
+                      </Button>
+                    </div>
+                  </FormField>
+                  {promoMessage ? (
+                    <p
+                      className={`cart-promo-message${promoMessage === 'Invalid coupon' ? ' is-error' : ' is-success'}`}
+                    >
+                      {promoMessage}
+                    </p>
+                  ) : null}
+                </form>
+
+                <div className="cart-summary-actions">
+                  <Button block disabled={normalizedItems.length === 0}>
+                    Secure Checkout
+                  </Button>
+                  <Button block variant="ghost" onClick={clearCart} disabled={normalizedItems.length === 0}>
+                    Clear Cart
                   </Button>
                 </div>
-              </FormField>
-              {promoMessage ? (
-                <p
-                  className={`cart-promo-message${promoMessage === 'Invalid coupon' ? ' is-error' : ' is-success'}`}
-                >
-                  {promoMessage}
-                </p>
-              ) : null}
-            </form>
-
-            <div className="cart-summary-actions">
-              <Button block disabled={normalizedItems.length === 0}>
-                Secure Checkout
-              </Button>
-              <Button block variant="secondary" to="/shop">
-                Continue Shopping
-              </Button>
-              <Button block variant="ghost" onClick={clearCart} disabled={normalizedItems.length === 0}>
-                Clear Cart
-              </Button>
-            </div>
-          </Card>
-
-        </aside>
-      </div>
-    </PageShell>
+              </Card>
+            </aside>
+          </div>
+        </div>
+      </aside>
+    </div>
   );
 };
 

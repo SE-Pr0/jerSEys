@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import '../styles/navbar.css';
 import { clearStoredUser, getStoredUser } from '../utils/auth';
 
 const Navbar = () => {
+  const location = useLocation();
   const [user, setUser] = useState(() => getStoredUser());
 
   useEffect(() => {
@@ -46,7 +47,9 @@ const Navbar = () => {
             Trade Marketplace
           </NavLink>
         </li>
-        <li><Link to="/shop#shop-insights">Insights</Link></li>
+        <li>
+          <Link to="/shop#shop-insights">Insights</Link>
+        </li>
       </ul>
       <div className="nav-actions">
         {user ? (
@@ -54,15 +57,26 @@ const Navbar = () => {
             <Link to="/profile" className="nav-btn btn-ghost">
               {user.username}
             </Link>
-            <button type="button" className="nav-btn btn-solid" onClick={clearStoredUser}>Sign Out</button>
+            <button type="button" className="nav-btn btn-solid" onClick={clearStoredUser}>
+              Sign Out
+            </button>
           </>
         ) : (
           <>
-            <Link to="/login" className="nav-btn btn-ghost">Sign In</Link>
-            <Link to="/register" className="nav-btn btn-solid">Register</Link>
+            <Link to="/login" className="nav-btn btn-ghost">
+              Sign In
+            </Link>
+            <Link to="/register" className="nav-btn btn-solid">
+              Register
+            </Link>
           </>
         )}
-        <Link to="/cart" className="cart-icon" aria-label="Shopping cart">
+        <Link
+          to="/cart"
+          state={{ backgroundLocation: location }}
+          className="cart-icon"
+          aria-label="Shopping cart"
+        >
           <span aria-hidden="true">🛒</span>
           <div className="cart-badge">0</div>
         </Link>
