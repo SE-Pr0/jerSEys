@@ -13,6 +13,7 @@ import TradeMarketplace    from './pages/TradeMarketplace';
 import TradeListingDetails from './pages/TradeListingDetails';
 import TradeRequests       from './pages/TradeRequests';
 import CreateTradeListing  from './pages/CreateTradeListing';
+import SalesReports from './pages/admin/SalesReports';
 
 const CustomJerseyBuilder = lazy(() => import('./pages/CustomJerseyBuilder'));
 
@@ -35,6 +36,7 @@ const Router = () => {
         <Route path="register" element={<Register />} />
         <Route path="profile" element={<Profile />} />
         <Route path="order-history" element={<OrderHistory />} />
+        <Route path="admin/sales-reports" element={<SalesReports />} />
         <Route path="trade"            element={<TradeMarketplace />} />
         <Route path="trade/marketplace" element={<Navigate to="/trade" replace />} />
         <Route path="trade/requests"   element={<TradeRequests />} />
