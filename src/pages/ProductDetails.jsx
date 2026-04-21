@@ -4,6 +4,9 @@ import ProductCard from '../components/ProductCard';
 import { getRelatedShopProducts, getShopProductById } from '../services/productService';
 import '../styles/product-details.css';
 
+const CART_STORAGE_KEY = 'jerseys-cart';
+const CART_EVENT_NAME = 'jerseys-cart-change';
+
 const formatPrice = (value) =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -24,6 +27,96 @@ const detailHighlights = [
     copy: 'Catalogued from verified jersey sources with live product links.',
   },
 ];
+
+const firstText = (...values) => {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return '';
+};
+
+const readStoredCart = () => {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(CART_STORAGE_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeStoredCart = (items) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  window.dispatchEvent(new Event(CART_EVENT_NAME));
+};
+
+const buildCartLineKey = (productId, size, personalize, playerName, playerNumber) => {
+  const fields = [
+    productId,
+    size || 'no-size',
+    personalize ? 'personalized' : 'standard',
+    playerName || 'no-name',
+    playerNumber || 'no-number',
+  ];
+
+  return fields.join('|');
+};
+
+const buildCartLineItem = (product, details) => {
+  const { selectedSize, quantity, personalize, playerName, playerNumber } = details;
+  const lineKey = buildCartLineKey(product.id, selectedSize, personalize, playerName, playerNumber);
+  const summaryParts = [];
+
+  if (selectedSize) {
+    summaryParts.push(`Size ${selectedSize}`);
+  }
+
+  if (personalize && playerName) {
+    summaryParts.push(`Name ${playerName}`);
+  }
+
+  if (personalize && playerNumber) {
+    summaryParts.push(`Number ${playerNumber}`);
+  }
+
+  return {
+    cartKey: lineKey,
+    id: product.id,
+    productId: product.id,
+    name: product.name,
+    title: product.name,
+    team: product.team,
+    sportLabel: product.sportLabel,
+    categoryLabel: product.categoryLabel,
+    season: product.season,
+    image: product.image,
+    badge: product.badge,
+    price: product.price,
+    unitPrice: product.price,
+    quantity,
+    size: selectedSize,
+    selectedSize,
+    playerName: personalize ? playerName : '',
+    playerNumber: personalize ? playerNumber : '',
+    text: personalize ? [playerName, playerNumber].filter(Boolean).join(' # ') : '',
+    notes: '',
+    customization: {
+      playerName: personalize ? playerName : '',
+      playerNumber: personalize ? playerNumber : '',
+      summary: summaryParts.join(' / '),
+    },
+  };
+};
 
 const ProductDetails = () => {
   const { productId } = useParams();
@@ -68,10 +161,27 @@ const ProductDetails = () => {
       return;
     }
 
-    const personalization =
-      personalize && (playerName || playerNumber) ? ` with ${playerName || 'custom name'} ${playerNumber || ''}` : '';
+    const nextCartItem = buildCartLineItem(product, {
+      selectedSize,
+      quantity,
+      personalize,
+      playerName: firstText(playerName),
+      playerNumber: firstText(playerNumber),
+    });
+    const currentCart = readStoredCart();
+    const existingItemIndex = currentCart.findIndex((item) => item.cartKey === nextCartItem.cartKey);
 
-    setNotice(`${product.name} ${selectedSize ? `in ${selectedSize}` : ''}${personalization} is ready for checkout.`);
+    if (existingItemIndex >= 0) {
+      currentCart[existingItemIndex] = {
+        ...currentCart[existingItemIndex],
+        quantity: Number(currentCart[existingItemIndex].quantity || 1) + quantity,
+      };
+    } else {
+      currentCart.push(nextCartItem);
+    }
+
+    writeStoredCart(currentCart);
+    setNotice(`Added to cart: ${product.name}${selectedSize ? ` in ${selectedSize}` : ''}.`);
   };
 
   const incrementQuantity = () => {
@@ -205,7 +315,7 @@ const ProductDetails = () => {
                   onClick={handleAddToCart}
                   disabled={!product.inStock}
                 >
-                  {product.inStock ? 'Order' : 'Unavailable'}
+                  {product.inStock ? 'Add to cart' : 'Unavailable'}
                 </button>
               </div>
 

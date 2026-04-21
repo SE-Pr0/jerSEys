@@ -62,10 +62,10 @@ const Navbar = () => {
             <Link to="/register" className="nav-btn btn-solid">Register</Link>
           </>
         )}
-        <div className="cart-icon">
-          Cart
+        <Link to="/cart" className="cart-icon" aria-label="Shopping cart">
+          <span aria-hidden="true">🛒</span>
           <div className="cart-badge">0</div>
-        </div>
+        </Link>
       </div>
     </nav>
   );

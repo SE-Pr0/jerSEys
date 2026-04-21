@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import OrderHistory from './pages/OrderHistory';
+import Cart from './pages/Cart';
 import NotFound from './pages/NotFound';
 import TradeMarketplace    from './pages/TradeMarketplace';
 import TradeListingDetails from './pages/TradeListingDetails';
@@ -35,6 +36,7 @@ const Router = () => {
         <Route path="register" element={<Register />} />
         <Route path="profile" element={<Profile />} />
         <Route path="order-history" element={<OrderHistory />} />
+        <Route path="cart" element={<Cart />} />
         <Route path="trade"            element={<TradeMarketplace />} />
         <Route path="trade/marketplace" element={<Navigate to="/trade" replace />} />
         <Route path="trade/requests"   element={<TradeRequests />} />
