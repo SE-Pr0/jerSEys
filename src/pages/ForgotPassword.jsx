@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -11,6 +12,9 @@ import '../styles/auth.css';
 import '../styles/forgotpassword.css';
 
 const CODE_LENGTH = 6;
+const PASSWORD_REQUIREMENTS =
+  'Use at least 8 characters, including 1 uppercase, 1 lowercase, 1 number, and 1 special character from .!@#$%^&*.';
+const PASSWORD_PATTERN = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[.!@#$%^&*]).{8,}$';
 
 const createVerificationCode = () =>
   String(Math.floor(100000 + Math.random() * 900000));
@@ -18,6 +22,50 @@ const createVerificationCode = () =>
 const createEmptyCode = () => Array.from({ length: CODE_LENGTH }, () => '');
 
 const isValidEmail = (value) => /\S+@\S+\.\S+/.test(value);
+
+const getPasswordError = (password) => {
+  if (!password) {
+    return 'Password is required.';
+  }
+
+  if (
+    password.length < 8 ||
+    !/[A-Z]/.test(password) ||
+    !/[a-z]/.test(password) ||
+    !/\d/.test(password) ||
+    !/[.!@#$%^&*]/.test(password)
+  ) {
+    return PASSWORD_REQUIREMENTS;
+  }
+
+  return '';
+};
+
+const PasswordVisibilityIcon = ({ isVisible }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    {isVisible ? (
+      <>
+        <path d="M2 12s3.75-6 10-6 10 6 10 6-3.75 6-10 6S2 12 2 12Z" />
+        <circle cx="12" cy="12" r="2.75" />
+      </>
+    ) : (
+      <>
+        <path d="M3 3l18 18" />
+        <path d="M10.58 10.58A2 2 0 0 0 10 12a2 2 0 0 0 3.42 1.42" />
+        <path d="M9.88 5.09A11.4 11.4 0 0 1 12 4.9c6.25 0 10 6.1 10 6.1a18.46 18.46 0 0 1-3.04 3.8" />
+        <path d="M6.61 6.63A18.7 18.7 0 0 0 2 12s3.75 6 10 6a11.5 11.5 0 0 0 2.76-.32" />
+      </>
+    )}
+  </svg>
+);
 
 const CodeNoticeIcon = () => (
   <svg
@@ -35,7 +83,23 @@ const CodeNoticeIcon = () => (
   </svg>
 );
 
+const SuccessIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.9"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="9" />
+    <path d="m8.5 12.5 2.5 2.5 4.5-5.5" />
+  </svg>
+);
+
 const ForgotPassword = () => {
+  const navigate = useNavigate();
   const emailInputRef = useRef(null);
   const codeInputRefs = useRef([]);
   const [step, setStep] = useState('email');
@@ -43,9 +107,16 @@ const ForgotPassword = () => {
   const [emailError, setEmailError] = useState('');
   const [codeDigits, setCodeDigits] = useState(createEmptyCode);
   const [codeError, setCodeError] = useState('');
+  const [passwordValues, setPasswordValues] = useState({
+    password: '',
+    confirmPassword: '',
+  });
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const [showPasswords, setShowPasswords] = useState(false);
   const [generatedCode, setGeneratedCode] = useState('');
   const [notification, setNotification] = useState(null);
   const [isVerified, setIsVerified] = useState(false);
+  const [isPasswordUpdated, setIsPasswordUpdated] = useState(false);
 
   useEffect(() => {
     if (step === 'email') {
@@ -62,11 +133,24 @@ const ForgotPassword = () => {
     return () => window.clearTimeout(timer);
   }, [codeDigits, step]);
 
+  useEffect(() => {
+    if (!isPasswordUpdated) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      navigate('/login');
+    }, 3000);
+
+    return () => window.clearTimeout(timer);
+  }, [isPasswordUpdated, navigate]);
+
   const resetCodeStep = (nextCode = generatedCode) => {
     setGeneratedCode(nextCode);
     setCodeDigits(createEmptyCode());
     setCodeError('');
     setIsVerified(false);
+    setIsPasswordUpdated(false);
     setNotification({
       title: 'Verification code ready',
       description: `This is a demo in-page notification for now. Your 6-digit code is ${nextCode}.`,
@@ -174,9 +258,10 @@ const ForgotPassword = () => {
 
     setCodeError('');
     setIsVerified(true);
+    setStep('password');
     setNotification({
       title: 'Verification complete',
-      description: 'The code matched. The reset-password step can be added next when the email service is ready.',
+      description: 'The code matched. Now create your new password and confirm it below.',
     });
   };
 
@@ -190,9 +275,82 @@ const ForgotPassword = () => {
     setCodeError('');
     setNotification(null);
     setIsVerified(false);
+    setIsPasswordUpdated(false);
     setGeneratedCode('');
+    setPasswordValues({
+      password: '',
+      confirmPassword: '',
+    });
+    setPasswordErrors({});
+    setShowPasswords(false);
     window.setTimeout(() => emailInputRef.current?.focus(), 0);
   };
+
+  const handlePasswordChange = (event) => {
+    const { name, value } = event.target;
+
+    setPasswordValues((currentValues) => ({
+      ...currentValues,
+      [name]: value,
+    }));
+
+    setPasswordErrors((currentErrors) => {
+      if (!currentErrors[name]) {
+        return currentErrors;
+      }
+
+      const nextErrors = { ...currentErrors };
+      delete nextErrors[name];
+      return nextErrors;
+    });
+  };
+
+  const validatePasswordStep = () => {
+    const nextErrors = {};
+
+    const passwordError = getPasswordError(passwordValues.password);
+    if (passwordError) {
+      nextErrors.password = passwordError;
+    }
+
+    if (!passwordValues.confirmPassword) {
+      nextErrors.confirmPassword = 'Please confirm your password.';
+    } else if (passwordValues.confirmPassword !== passwordValues.password) {
+      nextErrors.confirmPassword = 'Passwords do not match.';
+    }
+
+    return nextErrors;
+  };
+
+  const handlePasswordSubmit = (event) => {
+    event.preventDefault();
+
+    const nextErrors = validatePasswordStep();
+    setPasswordErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
+
+    setIsPasswordUpdated(true);
+  };
+
+  if (isPasswordUpdated) {
+    return (
+      <PageShell narrow className="auth-page forgot-password-page">
+        <Card className="auth-card forgot-password-card">
+          <div className="forgot-password-success-screen">
+            <StateBlock
+              centered
+              icon={<SuccessIcon />}
+              title="Password successfully updated"
+              description="Redirecting to login"
+            />
+          </div>
+        </Card>
+      </PageShell>
+    );
+  }
 
   if (isVerified) {
     return (
@@ -200,26 +358,75 @@ const ForgotPassword = () => {
         <Card className="auth-card forgot-password-card">
           <PageHeader
             title="Forgot Password"
-            description="Your code has been verified. We can connect this page to the real reset-password step once the email workflow is ready."
+            description="Your code has been verified. Create a new password to finish the reset process."
           />
 
-          {notification ? (
-            <StateBlock
-              centered
-              icon={<CodeNoticeIcon />}
-              title={notification.title}
-              description={notification.description}
-            />
-          ) : null}
+          <form className="ui-form" onSubmit={handlePasswordSubmit} noValidate>
+            <FormField
+              label="Password"
+              htmlFor="password"
+              error={passwordErrors.password}
+            >
+              <div className="auth-password-field">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPasswords ? 'text' : 'password'}
+                  className="ui-input auth-password-input"
+                  placeholder="Enter password"
+                  value={passwordValues.password}
+                  onChange={handlePasswordChange}
+                  autoComplete="new-password"
+                  minLength={8}
+                  pattern={PASSWORD_PATTERN}
+                  title={PASSWORD_REQUIREMENTS}
+                />
+                <button
+                  type="button"
+                  className="auth-password-toggle"
+                  onClick={() => setShowPasswords((current) => !current)}
+                  aria-label={showPasswords ? 'Hide passwords' : 'Show passwords'}
+                  aria-pressed={showPasswords}
+                >
+                  <PasswordVisibilityIcon isVisible={showPasswords} />
+                </button>
+              </div>
+            </FormField>
 
-          <div className="forgot-password-success-actions">
-            <Button to="/login" block>
-              Back to Login
-            </Button>
-            <Button variant="ghost" onClick={handleChangeEmail}>
-              Start Over
-            </Button>
-          </div>
+            <FormField
+              label="Confirm Password"
+              htmlFor="confirmPassword"
+              error={passwordErrors.confirmPassword}
+            >
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showPasswords ? 'text' : 'password'}
+                className="ui-input"
+                placeholder="Confirm password"
+                value={passwordValues.confirmPassword}
+                onChange={handlePasswordChange}
+                autoComplete="new-password"
+                minLength={8}
+                pattern={PASSWORD_PATTERN}
+                title={PASSWORD_REQUIREMENTS}
+              />
+            </FormField>
+
+            <div className="forgot-password-step-actions">
+              <Button type="submit" block>
+                Update Password
+              </Button>
+              <div className="ui-inline-stack forgot-password-inline-actions">
+                <Button variant="ghost" onClick={handleChangeEmail}>
+                  Start Over
+                </Button>
+                <Button to="/login" variant="ghost">
+                  Back to Login
+                </Button>
+              </div>
+            </div>
+          </form>
         </Card>
       </PageShell>
     );
