@@ -4,14 +4,16 @@
   background:
     radial-gradient(circle at 12% 18%, rgba(244, 123, 32, 0.12), transparent 30%),
     radial-gradient(circle at 82% 8%, rgba(27, 59, 138, 0.1), transparent 28%),
+    linear-gradient(rgba(27, 59, 138, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 59, 138, 0.05) 1px, transparent 1px),
     var(--bg);
+  background-size: auto, auto, 64px 64px, 64px 64px, auto;
 }
 
 .custom-builder-hero {
   position: relative;
   overflow: hidden;
-  border-bottom: 1px solid var(--border);
-  background: var(--white);
+  background: transparent;
 }
 
 .custom-builder-hero-bg,
@@ -24,14 +26,14 @@
   background:
     radial-gradient(circle at 20% 18%, rgba(192, 21, 42, 0.12), transparent 30%),
     radial-gradient(circle at 78% 20%, rgba(244, 123, 32, 0.14), transparent 32%),
-    linear-gradient(180deg, #fff 0%, #fbf8f3 100%);
+    linear-gradient(rgba(27, 59, 138, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 59, 138, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(251, 248, 243, 0.82) 100%);
+  background-size: auto, auto, 64px 64px, 64px 64px, auto;
 }
 
 .custom-builder-hero-grid {
-  background-image:
-    linear-gradient(rgba(27, 59, 138, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(27, 59, 138, 0.05) 1px, transparent 1px);
-  background-size: 64px 64px;
+  display: none;
 }
 
 .custom-builder-hero-inner {
@@ -42,7 +44,7 @@
   gap: var(--space-6);
   align-items: end;
   padding-top: 42px;
-  padding-bottom: 44px;
+  padding-bottom: 28px;
 }
 
 .custom-builder-copy {
@@ -81,11 +83,14 @@
 }
 
 .custom-builder-workspace {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(360px, 430px);
   gap: var(--space-6);
   align-items: start;
-  padding-top: var(--space-7);
+  margin-top: -8px;
+  padding-top: var(--space-5);
 }
 
 .custom-builder-preview {
@@ -689,6 +694,10 @@
 
   .custom-builder-preview-stage {
     margin-top: 24px;
+  }
+
+  .custom-builder-workspace {
+    margin-top: 0;
   }
 }
 
