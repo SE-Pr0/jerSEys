@@ -1,93 +1,88 @@
 import React, { useState, useMemo } from 'react';
+import SearchBar from '../components/SearchBar';
 import { Button, Card, PageHeader, PageShell, StateBlock } from '../components/ui';
 import TradeCard from '../components/TradeCard';
 import { useTrade } from '../context/TradeContext';
+import '../styles/shop.css';
 import '../styles/trade.css';
 
-const SPORTS = ['All', 'Football', 'Basketball'];
-const STATUSES = ['All', 'Available', 'Pending'];
+const SPORTS = ['Football', 'Basketball'];
+const LISTING_TYPES = [
+  { key: 'all', label: 'All' },
+  { key: 'trade-available', label: 'Available For Trade' },
+  { key: 'sale-available', label: 'Available For Sale' },
+];
 
 const TradeMarketplace = () => {
   const { listings: TRADE_LISTINGS } = useTrade();
   const [sport, setSport] = useState('All');
-  const [status, setStatus] = useState('All');
+  const [listingType, setListingType] = useState('all');
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
     return TRADE_LISTINGS.filter((item) => {
       const matchSport =
         sport === 'All' || item.sport === sport.toLowerCase();
-      const matchStatus =
-        status === 'All' || item.status === status.toLowerCase();
+      const matchListingType =
+        listingType === 'all'
+          || (listingType === 'trade-available'
+            && item.status === 'available'
+            && (item.listingType === 'trade' || item.listingType === 'both'))
+          || (listingType === 'sale-available'
+            && item.status === 'available'
+            && (item.listingType === 'sale' || item.listingType === 'both'))
+          || (listingType === 'both' && item.listingType === 'both');
       const q = search.toLowerCase();
       const matchSearch =
         !q ||
         item.jerseyName.toLowerCase().includes(q) ||
         item.club.toLowerCase().includes(q) ||
         item.seller.name.toLowerCase().includes(q);
-      return matchSport && matchStatus && matchSearch;
+      return matchSport && matchListingType && matchSearch;
     });
-  }, [sport, status, search]);
+  }, [sport, listingType, search]);
 
   const clearFilters = () => {
     setSport('All');
-    setStatus('All');
+    setListingType('all');
     setSearch('');
   };
 
   return (
     <PageShell className="trade-page">
-      {/* Header + hero card side by side */}
       <div className="trade-marketplace-top">
         <PageHeader
-          eyebrow="Community Marketplace"
-          title={
-            <>
-              Jersey
-              <br />
-              <span>Trade</span>
-            </>
-          }
-          description="Browse listings from the community. Find a jersey you want and make an offer with one from your own collection."
-        />
+        eyebrow="Community Marketplace"
+        title={
+          <>
+            Trade
+            <br />
+            <span>Marketplace</span>
+          </>
+        }
+        description="Browse listings from the community. Find a jersey you want and make an offer with one from your own collection."
+      />
 
-        <Card className="trade-filter-card">
-          <div className="trade-section-heading" style={{ marginBottom: 'var(--space-3)' }}>
+        <Card className="trade-marketplace-summary">
+          <div className="trade-section-heading trade-marketplace-summary-title">
             Quick Stats
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+          <div className="trade-marketplace-stats">
             {[
               { val: TRADE_LISTINGS.filter((l) => l.status === 'available').length, label: 'Available' },
               { val: TRADE_LISTINGS.filter((l) => l.status === 'pending').length,   label: 'In negotiation' },
               { val: TRADE_LISTINGS.filter((l) => l.sport === 'football').length,   label: 'Football kits' },
               { val: TRADE_LISTINGS.filter((l) => l.sport === 'basketball').length, label: 'Basketball jerseys' },
             ].map((s) => (
-              <div
-                key={s.label}
-                style={{
-                  padding: 'var(--space-4)',
-                  background: 'var(--bg)',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border)',
-                }}
-              >
-                <div
-                  style={{
-                    fontFamily: 'var(--font-head)',
-                    fontSize: '32px',
-                    color: 'var(--crimson)',
-                    letterSpacing: '0.5px',
-                    lineHeight: 1,
-                    marginBottom: '4px',
-                  }}
-                >
+              <div key={s.label} className="trade-marketplace-stat">
+                <div className="trade-marketplace-stat-value">
                   {s.val}
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-3)' }}>{s.label}</div>
+                <div className="trade-marketplace-stat-label">{s.label}</div>
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+          <div className="trade-marketplace-actions">
             <Button to="/trade/requests" variant="secondary" style={{ flex: 1 }}>
               My Requests
             </Button>
@@ -98,42 +93,51 @@ const TradeMarketplace = () => {
         </Card>
       </div>
 
-      {/* Filter bar */}
-      <Card>
+      <Card className="trade-filter-card">
         <div className="trade-filter-row">
-          <div className="trade-search-wrap">
-            <input
-              type="text"
-              className="ui-input trade-search-input"
-              placeholder="Search jerseys, clubs, traders…"
+          <div className="shop-search-wrap trade-search-wrap">
+            <SearchBar
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search jerseys, clubs, traders..."
             />
-            <span className="trade-search-icon">🔍</span>
           </div>
 
-          <div className="trade-filter-chips">
-            {SPORTS.map((s) => (
+          <div className="trade-filter-toolbar" role="group" aria-label="Trade filters">
+            <div className="shop-main-filters" role="group" aria-label="Sport category">
               <button
-                key={s}
                 type="button"
-                className={`trade-chip${sport === s ? ' is-active' : ''}`}
-                onClick={() => setSport(s)}
+                className={`shop-main-filter${sport === 'All' ? ' active' : ''}`}
+                onClick={() => setSport('All')}
               >
-                {s}
+                All
               </button>
-            ))}
-            <div className="trade-chip-divider" />
-            {STATUSES.map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={`trade-chip${status === s ? ' is-active' : ''}`}
-                onClick={() => setStatus(s)}
-              >
-                {s}
-              </button>
-            ))}
+              {SPORTS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={`shop-main-filter${sport === s ? ' active' : ''}`}
+                  onClick={() => setSport(s)}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+
+            <div className="trade-filter-divider" aria-hidden="true" />
+
+            <div className="shop-main-filters trade-status-filters" role="group" aria-label="Listing type">
+              {LISTING_TYPES.map((s) => (
+                <button
+                  key={s.key}
+                  type="button"
+                  className={`shop-main-filter${listingType === s.key ? ' active' : ''}`}
+                  onClick={() => setListingType(s.key)}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

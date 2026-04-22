@@ -1,5 +1,5 @@
 /* ============================================================
-   TRADE — page-specific styles
+   TRADE - page-specific styles
    Covers: TradeMarketplace, TradeListingDetails,
            TradeRequests, CreateTradeListing,
            TradeCard component, TradeRequestCard component
@@ -10,16 +10,24 @@
 .trade-page {
   position: relative;
   overflow: hidden;
+  padding-top: 12px;
+  padding-bottom: 96px;
+  background:
+    radial-gradient(circle at 16% 22%, rgba(244, 123, 32, 0.08), transparent 26%),
+    radial-gradient(circle at 82% 18%, rgba(27, 59, 138, 0.08), transparent 28%),
+    radial-gradient(circle at 58% 86%, rgba(192, 21, 42, 0.06), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #fbf8f3 100%);
 }
 
 .trade-page::before {
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 65% 50% at 80% 20%, rgba(192,21,42,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 45% 45% at 15% 70%, rgba(27,59,138,0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 35% 30% at 50% 100%, rgba(244,123,32,0.04) 0%, transparent 50%);
+  background-image:
+    linear-gradient(rgba(27, 59, 138, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 59, 138, 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  opacity: 0.55;
   pointer-events: none;
   z-index: 0;
 }
@@ -29,16 +37,56 @@
   z-index: 1;
 }
 
-/* Big display title override (matches order-history scale) */
+.trade-page .ui-page-stack {
+  gap: var(--space-5);
+}
+
+.trade-page .ui-page-stack > * {
+  opacity: 0;
+  animation: fadeUp 0.85s ease forwards;
+}
+
+.trade-page .ui-page-stack > *:nth-child(1) {
+  animation-delay: 0.08s;
+}
+
+.trade-page .ui-page-stack > *:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+.trade-page .ui-page-stack > *:nth-child(3) {
+  animation-delay: 0.28s;
+}
+
+.trade-page .ui-page-stack > *:nth-child(4) {
+  animation-delay: 0.38s;
+}
+
+.trade-page .ui-page-stack > *:nth-child(5) {
+  animation-delay: 0.48s;
+}
+
 .trade-page .ui-page-title {
   font-size: clamp(56px, 7vw, 108px);
-  line-height: 0.96;
+  line-height: 0.92;
   letter-spacing: -2px;
 }
 
 .trade-page .ui-page-title span {
   color: var(--crimson);
-  text-shadow: 0 0 60px rgba(192,21,42,0.15);
+  letter-spacing: 1px;
+}
+
+.trade-page .ui-page-eyebrow {
+  margin-bottom: 14px;
+  letter-spacing: 5px;
+}
+
+.trade-page .ui-page-description {
+  max-width: 420px;
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 /* ---- COMMON TRADE ATOMS ----------------------------------- */
@@ -46,7 +94,7 @@
 .trade-kicker {
   font-family: var(--font-accent);
   font-size: 11px;
-  letter-spacing: 3px;
+  letter-spacing: 4px;
   text-transform: uppercase;
   color: var(--orange);
   margin-bottom: var(--space-2);
@@ -60,7 +108,6 @@
   margin-bottom: var(--space-4);
 }
 
-/* Badge */
 .trade-badge {
   display: inline-flex;
   align-items: center;
@@ -81,7 +128,7 @@
 }
 
 .trade-badge--pending {
-  background: rgba(212,146,10,0.12);
+  background: rgba(212, 146, 10, 0.12);
   color: var(--yellow);
 }
 
@@ -101,7 +148,6 @@
   font-size: 11px;
 }
 
-/* Avatar */
 .trade-avatar {
   width: 32px;
   height: 32px;
@@ -121,7 +167,6 @@
   font-size: 20px;
 }
 
-/* User row */
 .trade-user-row {
   display: flex;
   align-items: center;
@@ -145,7 +190,6 @@
   margin-top: 2px;
 }
 
-/* Filter chips (shared by marketplace + requests) */
 .trade-chip {
   display: inline-flex;
   align-items: center;
@@ -182,7 +226,6 @@
   align-self: center;
 }
 
-/* Tabs */
 .trade-tabs {
   display: flex;
   gap: 2px;
@@ -239,99 +282,186 @@
   color: var(--crimson);
 }
 
-/* Image URL preview in create form */
-/* file upload area */
-.trade-upload-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* ---- MARKETPLACE PAGE ------------------------------------- */
+
+.trade-marketplace-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 36px;
+  align-items: start;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.1s forwards;
+}
+
+.trade-marketplace-top .ui-page-header {
+  align-items: start;
+  gap: 0;
+  padding-top: 0;
+  max-width: 720px;
+}
+
+.trade-marketplace-top .ui-page-title {
+  max-width: 680px;
+}
+
+.trade-marketplace-summary,
+.trade-filter-card,
+.trade-tabs-card,
+.trade-details-visual,
+.trade-details-seller-card,
+.trade-request-card,
+.trade-success-block,
+.create-listing-preview {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(24, 20, 14, 0.08);
+  box-shadow: var(--shadow-sm);
+}
+
+.trade-marketplace-summary {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.18s forwards;
+}
+
+.ui-card.trade-marketplace-summary,
+.ui-card.trade-filter-card,
+.ui-card.trade-tabs-card,
+.ui-card.trade-request-card,
+.ui-card.trade-details-seller-card {
+  padding: var(--space-5);
+}
+
+.ui-card.trade-tabs-card {
+  padding-bottom: var(--space-4);
+}
+
+.trade-marketplace-summary-title {
+  margin-bottom: 0;
+}
+
+.trade-marketplace-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.trade-marketplace-stat {
+  display: grid;
   gap: 6px;
-  width: 100%;
-  padding: var(--space-4) var(--space-3);
-  border: 2px dashed var(--border);
+  padding: 16px;
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--bg3);
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  background: var(--bg2);
 }
 
-.trade-upload-area:hover {
-  border-color: var(--orange);
-  background: var(--orange-lt);
-}
-
-.trade-upload-icon {
-  font-size: 24px;
-  color: var(--text-3);
-  line-height: 1;
-}
-
-.trade-upload-label {
+.trade-marketplace-stat-value {
   font-family: var(--font-head);
-  font-size: 14px;
-  color: var(--text-1);
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  color: var(--crimson);
 }
 
-.trade-upload-hint {
+.trade-marketplace-stat-label {
   font-size: 12px;
   color: var(--text-3);
 }
 
-/* file selected preview */
-.trade-upload-preview {
+.trade-marketplace-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.trade-marketplace-actions .ui-button {
+  flex: 1 1 0;
+}
+
+.trade-filter-card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  opacity: 0;
+  animation: fadeUp 0.85s ease 0.28s forwards;
+}
+
+.trade-filter-row {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg3);
+  gap: var(--space-4);
+  flex-wrap: wrap;
 }
 
-.trade-upload-thumb {
-  width: 72px;
-  height: 72px;
-  object-fit: cover;
-  border-radius: 6px;
-  flex-shrink: 0;
+.trade-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
 }
 
-.trade-upload-preview-info {
+.trade-filter-toolbar {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  width: 100%;
 }
 
-.trade-upload-filename {
-  font-size: 13px;
-  color: var(--text-1);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.trade-filter-toolbar .shop-main-filters {
+  flex: 0 0 auto;
 }
 
-.trade-upload-change {
-  font-size: 13px;
-  color: var(--orange);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  text-align: left;
-  font-family: var(--font-body);
+.trade-status-filters {
+  margin-left: 0;
 }
 
-.trade-upload-change:hover {
-  text-decoration: underline;
+.trade-filter-divider {
+  width: 1px;
+  height: 48px;
+  align-self: center;
+  margin: 0 2px;
+  background: rgba(24, 20, 14, 0.14);
+  flex: 0 0 auto;
+  transform: translateY(9px);
+}
+
+.trade-search-input {
+  padding-right: 44px;
+}
+
+.trade-search-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+.trade-results-label {
+  font-family: var(--font-accent);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.trade-marketplace-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  opacity: 0;
+  animation: fadeUp 0.85s ease 0.38s forwards;
 }
 
 /* ---- TRADE CARD COMPONENT --------------------------------- */
 
 .trade-card {
-  background: var(--white);
-  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(24, 20, 14, 0.08);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   border-bottom: 3px solid transparent;
@@ -340,7 +470,19 @@
     transform var(--transition-base),
     box-shadow var(--transition-base),
     border-color var(--transition-fast);
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards;
 }
+
+.trade-marketplace-grid .trade-card:nth-child(1) { animation-delay: 0.42s; }
+.trade-marketplace-grid .trade-card:nth-child(2) { animation-delay: 0.47s; }
+.trade-marketplace-grid .trade-card:nth-child(3) { animation-delay: 0.52s; }
+.trade-marketplace-grid .trade-card:nth-child(4) { animation-delay: 0.57s; }
+.trade-marketplace-grid .trade-card:nth-child(5) { animation-delay: 0.62s; }
+.trade-marketplace-grid .trade-card:nth-child(6) { animation-delay: 0.67s; }
+.trade-marketplace-grid .trade-card:nth-child(7) { animation-delay: 0.72s; }
+.trade-marketplace-grid .trade-card:nth-child(8) { animation-delay: 0.77s; }
+.trade-marketplace-grid .trade-card:nth-child(9) { animation-delay: 0.82s; }
 
 .trade-card:hover {
   transform: translateY(-4px);
@@ -351,7 +493,7 @@
 .trade-card-visual {
   position: relative;
   height: 200px;
-  background: var(--bg3);
+  background: var(--bg2);
   overflow: hidden;
 }
 
@@ -371,6 +513,21 @@
   position: absolute;
   top: 12px;
   right: 12px;
+  z-index: 2;
+}
+
+.trade-card-price-tag {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: var(--crimson);
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(192, 21, 42, 0.3);
   z-index: 2;
 }
 
@@ -404,20 +561,28 @@
   border-top: 1px solid var(--border);
 }
 
-.trade-card-value {
+.trade-card-value,
+.trade-card-price {
   font-family: var(--font-head);
   font-size: 20px;
-  color: var(--text-2);
+  color: var(--crimson);
   letter-spacing: 0.5px;
+  line-height: 1;
 }
 
-.trade-card-offer-btn {
+.trade-card-actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.trade-card-offer-btn,
+.trade-card-buy-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
   min-height: 36px;
-  border: 1px solid rgba(244,123,32,0.4);
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--orange);
@@ -430,8 +595,19 @@
   transition:
     background var(--transition-fast),
     color var(--transition-fast),
-    border-color var(--transition-fast);
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
   white-space: nowrap;
+}
+
+.trade-card-offer-btn {
+  border: 1px solid rgba(244, 123, 32, 0.4);
+}
+
+.trade-card-buy-btn {
+  border: 1px solid var(--crimson);
+  background: var(--crimson);
+  color: #fff;
 }
 
 .trade-card-offer-btn:hover {
@@ -440,77 +616,17 @@
   border-color: var(--orange);
 }
 
+.trade-card-buy-btn:hover {
+  background: #a01122;
+  border-color: #a01122;
+  transform: translateY(-2px);
+}
+
 .trade-card-offer-btn.is-disabled {
   border-color: var(--border);
   color: var(--text-3);
   pointer-events: none;
   opacity: 0.6;
-}
-
-/* ---- MARKETPLACE PAGE ------------------------------------- */
-
-.trade-marketplace-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
-  gap: var(--space-4);
-  align-items: start;
-}
-
-.trade-filter-card {
-  display: grid;
-  gap: var(--space-4);
-  opacity: 0;
-  animation: fadeUp 0.8s ease 0.3s forwards;
-}
-
-.trade-filter-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-}
-
-.trade-search-wrap {
-  position: relative;
-  flex: 1;
-  min-width: 200px;
-}
-
-.trade-search-input {
-  padding-right: 44px;
-}
-
-.trade-search-icon {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 16px;
-  color: var(--text-3);
-  pointer-events: none;
-}
-
-.trade-filter-chips {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.trade-results-label {
-  font-family: var(--font-accent);
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--text-3);
-}
-
-.trade-marketplace-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
-  opacity: 0;
-  animation: fadeUp 0.85s ease 0.42s forwards;
 }
 
 /* ---- LISTING DETAILS PAGE --------------------------------- */
@@ -524,16 +640,20 @@
   grid-template-columns: 360px minmax(0, 1fr);
   gap: var(--space-5);
   align-items: start;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.12s forwards;
 }
 
 .trade-details-visual {
   overflow: hidden;
+  opacity: 0;
+  animation: fadeUp 0.85s ease 0.18s forwards;
 }
 
 .trade-details-emoji-wrap {
   position: relative;
   height: 340px;
-  background: var(--bg3);
+  background: var(--bg2);
   overflow: hidden;
 }
 
@@ -594,6 +714,9 @@
 
 .trade-details-seller-card {
   margin-top: var(--space-4);
+  padding: var(--space-5);
+  opacity: 0;
+  animation: fadeUp 0.85s ease 0.28s forwards;
 }
 
 .trade-details-right {
@@ -603,6 +726,8 @@
 
 .trade-details-right .ui-page-header {
   padding: 0;
+  opacity: 0;
+  animation: fadeUp 0.85s ease 0.18s forwards;
 }
 
 .trade-details-right .ui-page-title {
@@ -644,10 +769,40 @@
   border-top: 1px solid var(--border);
 }
 
+.trade-details-right .ui-card {
+  opacity: 0;
+  animation: fadeUp 0.85s ease forwards;
+}
+
+.trade-details-right .ui-card:nth-of-type(1) {
+  animation-delay: 0.26s;
+}
+
+.trade-details-right .ui-card:nth-of-type(2) {
+  animation-delay: 0.34s;
+}
+
+.trade-details-right .ui-card:nth-of-type(3) {
+  animation-delay: 0.42s;
+}
+
 .trade-details-description {
   font-size: 15px;
   line-height: 1.75;
   color: var(--text-2);
+}
+
+.trade-details-buynow {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.trade-details-buynow-price {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 56px);
+  line-height: 1;
+  letter-spacing: -1px;
+  color: var(--crimson);
 }
 
 .trade-offer-form {
@@ -661,7 +816,7 @@
   padding: var(--space-5);
   background: var(--green-lt);
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(42,158,57,0.2);
+  border: 1px solid rgba(42, 158, 57, 0.2);
   margin-bottom: var(--space-4);
 }
 
@@ -698,11 +853,10 @@
   align-items: flex-start;
   gap: var(--space-4);
   padding: var(--space-5);
-  background: rgba(212,146,10,0.08);
+  background: rgba(212, 146, 10, 0.08);
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(212,146,10,0.2);
+  border: 1px solid rgba(212, 146, 10, 0.2);
   margin-bottom: var(--space-4);
-  font-size: 22px;
 }
 
 .trade-pending-notice > span {
@@ -725,7 +879,8 @@
   color: var(--text-2);
 }
 
-/* ---- AUTH GATE (inside action cards) ---------------------- */
+/* ---- AUTH GATE -------------------------------------------- */
+
 .trade-auth-gate {
   display: flex;
   flex-direction: column;
@@ -748,7 +903,9 @@
 /* ---- TRADE REQUESTS PAGE ---------------------------------- */
 
 .trade-tabs-card {
-  padding-bottom: 0 !important;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.24s forwards;
 }
 
 .trade-requests-list {
@@ -761,7 +918,16 @@
 .trade-request-card {
   display: grid;
   gap: var(--space-5);
+  padding: var(--space-5);
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards;
 }
+
+.trade-requests-list .trade-request-card:nth-child(1) { animation-delay: 0.42s; }
+.trade-requests-list .trade-request-card:nth-child(2) { animation-delay: 0.48s; }
+.trade-requests-list .trade-request-card:nth-child(3) { animation-delay: 0.54s; }
+.trade-requests-list .trade-request-card:nth-child(4) { animation-delay: 0.6s; }
+.trade-requests-list .trade-request-card:nth-child(5) { animation-delay: 0.66s; }
 
 .trade-request-header {
   display: flex;
@@ -873,15 +1039,15 @@
   align-items: center;
   gap: var(--space-5);
   padding: var(--space-5);
-  background: linear-gradient(145deg, var(--bg3), var(--bg));
-  border-radius: var(--radius-sm);
+  opacity: 0;
+  animation: fadeUp 0.85s ease 0.2s forwards;
 }
 
 .create-listing-preview-emoji {
   font-size: 72px;
   line-height: 1;
   flex-shrink: 0;
-  filter: drop-shadow(0 8px 16px rgba(192,21,42,0.10));
+  filter: drop-shadow(0 8px 16px rgba(192, 21, 42, 0.10));
 }
 
 .create-listing-preview-info {
@@ -899,6 +1065,99 @@
 .create-listing-preview-meta {
   font-size: 13px;
   color: var(--text-3);
+}
+
+.create-listing-preview-price {
+  font-family: var(--font-head);
+  font-size: 28px;
+  letter-spacing: 0.5px;
+  color: var(--crimson);
+  margin-top: var(--space-2);
+}
+
+.trade-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: var(--space-4) var(--space-3);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.trade-upload-area:hover {
+  border-color: var(--orange);
+  background: var(--orange-lt);
+}
+
+.trade-upload-icon {
+  font-size: 24px;
+  color: var(--text-3);
+  line-height: 1;
+}
+
+.trade-upload-label {
+  font-family: var(--font-head);
+  font-size: 14px;
+  color: var(--text-1);
+}
+
+.trade-upload-hint {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.trade-upload-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+}
+
+.trade-upload-thumb {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.trade-upload-preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.trade-upload-filename {
+  font-size: 13px;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trade-upload-change {
+  font-size: 13px;
+  color: var(--orange);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+}
+
+.trade-upload-change:hover {
+  text-decoration: underline;
 }
 
 .trade-option-row {
@@ -978,13 +1237,18 @@
   flex-wrap: wrap;
 }
 
+.trade-page .ui-form {
+  opacity: 0;
+  animation: fadeUp 0.85s ease 0.3s forwards;
+}
+
 .trade-success-block {
   display: flex;
   align-items: flex-start;
   gap: var(--space-4);
   padding: var(--space-5);
   background: var(--green-lt);
-  border: 1px solid rgba(42,158,57,0.2);
+  border: 1px solid rgba(42, 158, 57, 0.2);
   border-radius: var(--radius-sm);
   margin-bottom: var(--space-5);
   font-size: 15px;
@@ -1012,80 +1276,8 @@
   flex-wrap: wrap;
 }
 
-/* ---- PRICING ---------------------------------------------- */
+/* ---- PRICE / INPUT DECORATION ----------------------------- */
 
-/* Price tag overlay on card image */
-.trade-card-price-tag {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  background: var(--crimson);
-  color: #fff;
-  font-family: var(--font-head);
-  font-size: 18px;
-  letter-spacing: 0.5px;
-  padding: 4px 12px;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 4px 12px rgba(192,21,42,0.3);
-  z-index: 2;
-}
-
-/* Price in card footer */
-.trade-card-price {
-  font-family: var(--font-head);
-  font-size: 24px;
-  letter-spacing: 0.5px;
-  color: var(--crimson);
-  line-height: 1;
-}
-
-/* Card action buttons row */
-.trade-card-actions {
-  display: flex;
-  gap: var(--space-2);
-  align-items: center;
-}
-
-/* Buy Now button on card */
-.trade-card-buy-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 14px;
-  min-height: 36px;
-  border-radius: var(--radius-sm);
-  background: var(--crimson);
-  color: #fff;
-  font-family: var(--font-accent);
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  text-decoration: none;
-  cursor: none;
-  transition: background var(--transition-fast), transform var(--transition-fast);
-  white-space: nowrap;
-}
-
-.trade-card-buy-btn:hover {
-  background: #A01122;
-  transform: translateY(-2px);
-}
-
-/* Buy Now section on details page */
-.trade-details-buynow {
-  display: grid;
-  gap: var(--space-4);
-}
-
-.trade-details-buynow-price {
-  font-family: var(--font-display);
-  font-size: clamp(40px, 5vw, 56px);
-  line-height: 1;
-  letter-spacing: -1px;
-  color: var(--crimson);
-  text-shadow: 0 0 40px rgba(192,21,42,0.12);
-}
-
-/* Price input in create form */
 .trade-price-input-wrap {
   position: relative;
   display: flex;
@@ -1109,15 +1301,6 @@
   letter-spacing: 0.5px;
 }
 
-/* Price in listing preview */
-.create-listing-preview-price {
-  font-family: var(--font-head);
-  font-size: 28px;
-  letter-spacing: 0.5px;
-  color: var(--crimson);
-  margin-top: var(--space-2);
-}
-
 /* ---- RESPONSIVE ------------------------------------------- */
 
 @media (max-width: 1100px) {
@@ -1131,6 +1314,10 @@
 
   .trade-marketplace-top {
     grid-template-columns: 1fr;
+  }
+
+  .trade-marketplace-summary {
+    order: 2;
   }
 }
 
@@ -1146,6 +1333,15 @@
   .trade-filter-row {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .trade-filter-toolbar {
+    justify-content: flex-start;
+  }
+
+  .trade-filter-divider {
+    width: 100%;
+    height: 1px;
   }
 
   .trade-search-wrap {
@@ -1189,6 +1385,10 @@
 
 @media (max-width: 480px) {
   .trade-details-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trade-marketplace-stats {
     grid-template-columns: 1fr;
   }
 
