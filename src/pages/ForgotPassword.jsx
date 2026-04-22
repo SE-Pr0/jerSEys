@@ -337,7 +337,7 @@ const ForgotPassword = () => {
 
   if (isPasswordUpdated) {
     return (
-      <PageShell narrow className="auth-page forgot-password-page">
+      <PageShell narrow className="auth-page">
         <Card className="auth-card forgot-password-card">
           <div className="forgot-password-success-screen">
             <StateBlock
@@ -354,7 +354,7 @@ const ForgotPassword = () => {
 
   if (isVerified) {
     return (
-      <PageShell narrow className="auth-page forgot-password-page">
+      <PageShell narrow className="auth-page">
         <Card className="auth-card forgot-password-card">
           <PageHeader
             title="Forgot Password"
@@ -433,7 +433,7 @@ const ForgotPassword = () => {
   }
 
   return (
-    <PageShell narrow className="auth-page forgot-password-page">
+    <PageShell narrow className="auth-page">
       <Card className="auth-card forgot-password-card">
         <PageHeader
           title="Forgot Password"
