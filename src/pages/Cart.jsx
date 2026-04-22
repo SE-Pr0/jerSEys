@@ -80,7 +80,6 @@ const getDetailPairs = (item, product) => {
     size: '',
     name: '',
     number: '',
-    extras: [],
   };
   const size = firstText(item.size, item.selectedSize, item.jerseySize, item.variantSize, product?.sizes?.[0]);
   const playerName = firstText(
@@ -121,35 +120,15 @@ const getDetailPairs = (item, product) => {
     details.number = playerNumber;
   }
 
-  if (printColor) {
-    details.extras.push({ label: 'Print color', value: printColor });
-  }
-
-  if (badgeLogo) {
-    details.extras.push({ label: 'Badge logo', value: badgeLogo });
-  }
-
-  if (freeLogo) {
-    details.extras.push({ label: 'Sponsor logo', value: freeLogo });
-  }
-
-  if (baseColor || sleeveColor || presetColor || collarColor) {
-    const colors = [
-      baseColor ? `Base ${baseColor}` : '',
-      sleeveColor ? `Sleeves ${sleeveColor}` : '',
-      presetColor ? `Accent ${presetColor}` : '',
-      collarColor ? `Collar ${collarColor}` : '',
-    ].filter(Boolean);
-
-    details.extras.push({ label: 'Colors', value: colors.join(' / ') });
-  }
-
-  if (notes) {
-    details.extras.push({ label: 'Notes', value: notes });
-  }
-
   return details;
 };
+
+const getCustomizationVisuals = (item) => ({
+  logo: firstText(item.badgeLogo, item.customization?.badgeLogo),
+  sponsor: firstText(item.freeLogo, item.customization?.freeLogo),
+  patternName: firstText(item.presetName, item.customization?.presetName, item.categoryLabel),
+  patternImage: firstText(item.presetImage, item.customization?.presetImage),
+});
 
 const normalizeStoredItem = (item, index) => {
   const rawItem = typeof item === 'string' ? { productId: item } : { ...item };
@@ -212,6 +191,65 @@ const persistCart = (items) => {
 
   window.localStorage.setItem(PREFERRED_CART_KEY, JSON.stringify(items));
   window.dispatchEvent(new Event('jerseys-cart-change'));
+};
+
+const hydrateCustomKitEditor = (item) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const selectedPresetId = firstText(item.presetId, item.customization?.presetId);
+  const selectedPresetName = firstText(item.presetName, item.customization?.presetName);
+
+  if (item.baseColor || item.sleeveColor || item.presetColor || item.collarColor) {
+    window.localStorage.setItem(
+      'front-kit-layer-colors-v3',
+      JSON.stringify({
+        base: item.baseColor || '#0f172a',
+        sleeve: item.sleeveColor || '#ffffff',
+        preset: item.presetColor || '#ffffff',
+        collar: item.collarColor || '#ffffff',
+      }),
+    );
+  }
+
+  if (selectedPresetId) {
+    window.localStorage.setItem('front-kit-preset', selectedPresetId);
+  }
+
+  if (selectedPresetName) {
+    window.localStorage.setItem('front-kit-preset-name', selectedPresetName);
+  }
+
+  if (item.badgeLogo) {
+    window.localStorage.setItem('front-kit-badge-logo', item.badgeLogo);
+  }
+
+  if (item.freeLogo) {
+    window.localStorage.setItem('front-kit-free-logo', item.freeLogo);
+  }
+
+  if (item.freeLogoPosition) {
+    window.localStorage.setItem(
+      'front-kit-free-logo-position',
+      JSON.stringify({
+        left: `${item.freeLogoPosition.left}%`,
+        top: `${item.freeLogoPosition.top}%`,
+        width: `${item.freeLogoPosition.width}%`,
+      }),
+    );
+  }
+
+  window.localStorage.setItem(
+    'front-kit-text',
+    JSON.stringify({
+      name: item.playerName || item.textName || '',
+      number: item.playerNumber || item.textNumber || '',
+      color: item.textColor || '#ffffff',
+      strokeColor: item.textStrokeColor || '#000000',
+      strokeWidth: Number.isFinite(Number(item.textStrokeWidth)) ? Number(item.textStrokeWidth) : 2,
+    }),
+  );
 };
 
 const buildShippingLabel = (subtotal) => {
@@ -319,6 +357,11 @@ const Cart = () => {
     setCartItems((currentItems) => currentItems.filter((_, currentIndex) => currentIndex !== index));
   };
 
+  const editCustomKit = (item) => {
+    hydrateCustomKitEditor(item);
+    navigate('/customize');
+  };
+
   const clearCart = () => {
     setCartItems([]);
     setPromoCode('');
@@ -397,7 +440,9 @@ const Cart = () => {
                 <div className="cart-item-list">
                   {normalizedItems.map((item, index) => {
                     const detailPairs = getDetailPairs(item, item.product);
+                    const customVisuals = getCustomizationVisuals(item);
                     const lineTotal = item.unitPrice * item.quantity;
+                    const isCustomKit = firstText(item.itemType, item.productId).startsWith('custom-kit');
 
                     return (
                       <Card
@@ -407,7 +452,14 @@ const Cart = () => {
                       >
                         <div className="cart-item-media">
                           <div className="cart-item-image-shell">
-                            {item.image ? <img src={item.image} alt={item.name} className="cart-item-image" /> : null}
+                            {item.image ? (
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="cart-item-image"
+                                style={item.imageFocus ? { objectPosition: item.imageFocus } : undefined}
+                              />
+                            ) : null}
                             {item.badge ? <span className={`cart-item-badge is-${item.badge}`}>{item.badge}</span> : null}
                           </div>
                         </div>
@@ -435,12 +487,21 @@ const Cart = () => {
                           </div>
 
                           <div className="cart-detail-stack">
-                            {detailPairs.size ? (
-                              <div className="cart-detail-pill cart-detail-pill-size">
-                                <span>Size</span>
-                                <strong>{detailPairs.size}</strong>
-                              </div>
-                            ) : null}
+                            <div className="cart-custom-top-row">
+                              {detailPairs.size ? (
+                                <div className="cart-detail-pill cart-detail-pill-size">
+                                  <span>Size</span>
+                                  <strong>{detailPairs.size}</strong>
+                                </div>
+                              ) : null}
+
+                              {isCustomKit ? (
+                                <div className="cart-detail-pill cart-detail-pill-pattern">
+                                  <span>Pattern</span>
+                                  {customVisuals.patternName ? <strong>{customVisuals.patternName}</strong> : null}
+                                </div>
+                              ) : null}
+                            </div>
 
                             <div className="cart-detail-grid">
                               {detailPairs.name ? (
@@ -458,14 +519,21 @@ const Cart = () => {
                               ) : null}
                             </div>
 
-                            {detailPairs.extras.length > 0 ? (
-                              <div className="cart-detail-grid cart-detail-grid-extras">
-                                {detailPairs.extras.map((detail) => (
-                                  <div key={`${item.cartKey}-${detail.label}`} className="cart-detail-pill">
-                                    <span>{detail.label}</span>
-                                    <strong>{detail.value}</strong>
+                            {isCustomKit ? (
+                              <div className="cart-custom-visuals">
+                                {customVisuals.logo ? (
+                                  <div className="cart-custom-visual cart-custom-visual-badge">
+                                    <span>Logo</span>
+                                    <img src={customVisuals.logo} alt="Badge logo preview" />
                                   </div>
-                                ))}
+                                ) : null}
+
+                                {customVisuals.sponsor ? (
+                                  <div className="cart-custom-visual cart-custom-visual-sponsor">
+                                    <span>Sponsor</span>
+                                    <img src={customVisuals.sponsor} alt="Sponsor logo preview" />
+                                  </div>
+                                ) : null}
                               </div>
                             ) : null}
                           </div>
@@ -493,9 +561,16 @@ const Cart = () => {
                               </div>
                             </div>
 
-                            <Button variant="secondary" onClick={() => removeItem(index)}>
-                              Remove
-                            </Button>
+                            <div className="cart-item-actions">
+                              {isCustomKit ? (
+                                <Button variant="secondary" onClick={() => editCustomKit(item)}>
+                                  Edit
+                                </Button>
+                              ) : null}
+                              <Button variant="secondary" onClick={() => removeItem(index)}>
+                                Remove
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </Card>

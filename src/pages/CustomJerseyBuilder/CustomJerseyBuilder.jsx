@@ -18,6 +18,7 @@ import trianglesPreset from './Assets/Presets/Triangles.png';
 import voronoiFracturePreset from './Assets/Presets/Voronoi-Fracture.png';
 import zagsPreset from './Assets/Presets/Zags.png';
 import zigZagPreset from './Assets/Presets/Zig-Zag.png';
+import { Button, Card } from '../../components/ui';
 import './CustomJerseyBuilder.css';
 
 const savedColorsKey = 'front-kit-layer-colors-v3';
@@ -26,6 +27,10 @@ const savedFreeLogoKey = 'front-kit-free-logo';
 const savedFreeLogoPositionKey = 'front-kit-free-logo-position';
 const savedPresetKey = 'front-kit-preset';
 const savedTextKey = 'front-kit-text';
+const CART_STORAGE_KEY = 'jerseys-cart';
+const CART_EVENT_NAME = 'jerseys-cart-change';
+const CUSTOM_KIT_PRICE = 39.99;
+const CUSTOM_KIT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const deprecatedPresetKeys = new Set([
   'Nike-Netherlands-Home-(From-the-International-Patterns-Pack).png',
   'Nike-Netherlands-Home-(From-the-International-Patterns-Pack)',
@@ -95,6 +100,12 @@ const presetFiles = [
   { fileName: 'Zags.png', src: zagsPreset },
   { fileName: 'Zig-Zag.png', src: zigZagPreset },
 ];
+
+const thumbnailBadgePlacement = {
+  x: 0.204,
+  y: 0.292,
+  size: 0.052,
+};
 
 const getPresetLabel = (fileName) =>
   fileName
@@ -232,6 +243,104 @@ const cropTransparentPadding = (src) =>
     image.src = src;
   });
 
+const findFrontBounds = (canvas) => {
+  const sampleScale = 4;
+  const sampleWidth = Math.max(1, Math.ceil(canvas.width / sampleScale));
+  const sampleHeight = Math.max(1, Math.ceil(canvas.height / sampleScale));
+  const sampleCanvas = createCanvas(sampleWidth, sampleHeight);
+  const sampleContext = sampleCanvas.getContext('2d', { willReadFrequently: true });
+
+  sampleContext.drawImage(canvas, 0, 0, sampleWidth, sampleHeight);
+
+  const { data } = sampleContext.getImageData(0, 0, sampleWidth, sampleHeight);
+  const visited = new Uint8Array(sampleWidth * sampleHeight);
+  const components = [];
+  const threshold = 12;
+  const index = (x, y) => y * sampleWidth + x;
+
+  for (let y = 0; y < sampleHeight; y += 1) {
+    for (let x = 0; x < sampleWidth; x += 1) {
+      const startIndex = index(x, y);
+
+      if (visited[startIndex] || data[startIndex * 4 + 3] <= threshold) {
+        continue;
+      }
+
+      let head = 0;
+      const queue = [startIndex];
+      visited[startIndex] = 1;
+      let minX = x;
+      let maxX = x;
+      let minY = y;
+      let maxY = y;
+      let area = 0;
+
+      while (head < queue.length) {
+        const current = queue[head++];
+        const currentX = current % sampleWidth;
+        const currentY = Math.floor(current / sampleWidth);
+
+        area += 1;
+        minX = Math.min(minX, currentX);
+        minY = Math.min(minY, currentY);
+        maxX = Math.max(maxX, currentX);
+        maxY = Math.max(maxY, currentY);
+
+        const neighbors = [
+          [currentX - 1, currentY],
+          [currentX + 1, currentY],
+          [currentX, currentY - 1],
+          [currentX, currentY + 1],
+        ];
+
+        for (const [nextX, nextY] of neighbors) {
+          if (nextX < 0 || nextY < 0 || nextX >= sampleWidth || nextY >= sampleHeight) {
+            continue;
+          }
+
+          const neighborIndex = index(nextX, nextY);
+
+          if (visited[neighborIndex] || data[neighborIndex * 4 + 3] <= threshold) {
+            continue;
+          }
+
+          visited[neighborIndex] = 1;
+          queue.push(neighborIndex);
+        }
+      }
+
+      components.push({
+        area,
+        centerX: (minX + maxX) / 2,
+        centerY: (minY + maxY) / 2,
+        maxX,
+        maxY,
+        minX,
+        minY,
+      });
+    }
+  }
+
+  if (!components.length) {
+    return { x: 0, y: 0, width: canvas.width, height: canvas.height };
+  }
+
+  const largestArea = Math.max(...components.map((component) => component.area));
+  const frontCandidates = components.filter((component) => component.area >= Math.max(20, largestArea * 0.45));
+  const chosenComponent = (frontCandidates.length ? frontCandidates : components).sort(
+    (first, second) => first.centerX - second.centerX || second.area - first.area,
+  )[0];
+
+  const padX = Math.max(2, Math.round((chosenComponent.maxX - chosenComponent.minX + 1) * 0.12));
+  const padY = Math.max(2, Math.round((chosenComponent.maxY - chosenComponent.minY + 1) * 0.1));
+  const x = Math.max(0, Math.floor((chosenComponent.minX - padX) * sampleScale));
+  const y = Math.max(0, Math.floor((chosenComponent.minY - padY) * sampleScale));
+  const width = Math.min(canvas.width - x, Math.ceil((chosenComponent.maxX - chosenComponent.minX + 1 + padX * 2) * sampleScale));
+  const height = Math.min(canvas.height - y, Math.ceil((chosenComponent.maxY - chosenComponent.minY + 1 + padY * 2) * sampleScale));
+
+  return { x, y, width, height };
+};
+
 const readFileAsDataUrl = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -240,11 +349,315 @@ const readFileAsDataUrl = (file) =>
     reader.readAsDataURL(file);
   });
 
+const loadImage = (src) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.decoding = 'async';
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+
+const createCanvas = (width, height) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  return canvas;
+};
+
+const parseAspectRatio = (value) => {
+  if (typeof value !== 'string' || !value.includes('/')) {
+    return 1;
+  }
+
+  const [rawWidth, rawHeight] = value.split('/').map((part) => Number.parseFloat(part.trim()));
+  if (!Number.isFinite(rawWidth) || !Number.isFinite(rawHeight) || rawHeight === 0) {
+    return 1;
+  }
+
+  return rawWidth / rawHeight;
+};
+
+const drawImageContain = (context, image, targetX, targetY, targetWidth, targetHeight) => {
+  const sourceWidth = image.naturalWidth || image.videoWidth || image.width || 1;
+  const sourceHeight = image.naturalHeight || image.videoHeight || image.height || 1;
+  const scale = Math.min(targetWidth / sourceWidth, targetHeight / sourceHeight);
+  const width = sourceWidth * scale;
+  const height = sourceHeight * scale;
+  const x = targetX + (targetWidth - width) / 2;
+  const y = targetY + (targetHeight - height) / 2;
+
+  context.drawImage(image, x, y, width, height);
+};
+
+const applyMask = (context, maskImage, width, height) => {
+  context.globalCompositeOperation = 'destination-in';
+  context.drawImage(maskImage, 0, 0, width, height);
+  context.globalCompositeOperation = 'source-over';
+};
+
+const escapeSvgText = (value) =>
+  String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+
+const readStoredCart = () => {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(CART_STORAGE_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeStoredCart = (items) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  window.dispatchEvent(new Event(CART_EVENT_NAME));
+};
+
+const buildCustomKitLineKey = (design, size) =>
+  [
+    'custom-kit',
+    size || 'no-size',
+    design.presetId || 'no-preset',
+    design.baseColor || 'no-base',
+    design.sleeveColor || 'no-sleeve',
+    design.presetColor || 'no-preset-color',
+    design.collarColor || 'no-collar',
+    design.textName.trim() || 'no-name',
+    design.textNumber.trim() || 'no-number',
+    design.badgeLogo ? 'badge' : 'no-badge',
+    design.freeLogo ? 'free-logo' : 'no-free-logo',
+    design.freeLogoPosition
+      ? `${design.freeLogoPosition.left}-${design.freeLogoPosition.top}-${design.freeLogoPosition.width}`
+      : 'no-logo-position',
+  ].join('|');
+
+const buildCustomKitThumbnail = async (design, selectedPreset) => {
+  try {
+    const [
+      baseMaskImage,
+      sleeveMaskImage,
+      collarMaskImage,
+      baseTextureImage,
+      sleeveTextureImage,
+      shadowsImage,
+      patternImage,
+      badgeLogoImage,
+      freeLogoImage,
+    ] = await Promise.all([
+      loadImage(baseMask),
+      loadImage(sleeveMask),
+      loadImage(collarMask),
+      loadImage(baseTexture),
+      loadImage(sleeveTexture),
+      loadImage(shadows),
+      selectedPreset?.src ? loadImage(selectedPreset.src) : Promise.resolve(null),
+      design.badgeLogo ? loadImage(design.badgeLogo) : Promise.resolve(null),
+      design.freeLogo ? loadImage(design.freeLogo) : Promise.resolve(null),
+    ]);
+
+    const jerseyCanvas = createCanvas(viewBox.width, viewBox.height);
+    const jerseyContext = jerseyCanvas.getContext('2d');
+    const boundsCanvas = createCanvas(viewBox.width, viewBox.height);
+    const boundsContext = boundsCanvas.getContext('2d');
+    const selectedPresetSize = selectedPreset
+      ? presetSizes[selectedPreset.fileName] || { x: 0, y: 0, width: viewBox.width, height: viewBox.height }
+      : { x: 0, y: 0, width: viewBox.width, height: viewBox.height };
+    const freeLogoAspect = parseAspectRatio(design.freeLogoAspect);
+    const freeLogoWidth = (design.freeLogoPosition.width / 100) * viewBox.width;
+    const freeLogoHeight = freeLogoImage ? freeLogoWidth / freeLogoAspect : freeLogoWidth;
+    const freeLogoX = (design.freeLogoPosition.left / 100) * viewBox.width - freeLogoWidth / 2;
+    const freeLogoY = (design.freeLogoPosition.top / 100) * viewBox.height - freeLogoHeight / 2;
+    const badgeLogoX = viewBox.width * thumbnailBadgePlacement.x-18;
+    const badgeLogoY = viewBox.height * thumbnailBadgePlacement.y -25;
+    const badgeLogoSize = viewBox.width * thumbnailBadgePlacement.size;
+    const renderLayer = (paintLayer) => {
+      const layerCanvas = createCanvas(jerseyCanvas.width, jerseyCanvas.height);
+      const layerContext = layerCanvas.getContext('2d');
+      paintLayer(layerContext, layerCanvas);
+      return layerCanvas;
+    };
+
+    const baseLayer = renderLayer((layerContext, layerCanvas) => {
+      layerContext.fillStyle = design.baseColor || '#0f172a';
+      layerContext.fillRect(0, 0, layerCanvas.width, layerCanvas.height);
+      applyMask(layerContext, baseMaskImage, layerCanvas.width, layerCanvas.height);
+    });
+
+    const patternLayer = patternImage
+      ? renderLayer((layerContext, layerCanvas) => {
+          layerContext.fillStyle = design.presetColor || '#ffffff';
+          layerContext.fillRect(
+            selectedPresetSize.x,
+            selectedPresetSize.y,
+            selectedPresetSize.width,
+            selectedPresetSize.height,
+          );
+          layerContext.globalCompositeOperation = 'destination-in';
+          layerContext.drawImage(
+            patternImage,
+            selectedPresetSize.x,
+            selectedPresetSize.y,
+            selectedPresetSize.width,
+            selectedPresetSize.height,
+          );
+          layerContext.globalCompositeOperation = 'source-over';
+          applyMask(layerContext, baseMaskImage, layerCanvas.width, layerCanvas.height);
+        })
+      : null;
+
+    const baseTextureLayer = renderLayer((layerContext, layerCanvas) => {
+      layerContext.globalAlpha = 0.42;
+      layerContext.drawImage(baseTextureImage, 0, 0, layerCanvas.width, layerCanvas.height);
+      applyMask(layerContext, baseMaskImage, layerCanvas.width, layerCanvas.height);
+    });
+
+    const sleeveLayer = renderLayer((layerContext, layerCanvas) => {
+      layerContext.fillStyle = design.sleeveColor || '#ffffff';
+      layerContext.fillRect(0, 0, layerCanvas.width, layerCanvas.height);
+      applyMask(layerContext, sleeveMaskImage, layerCanvas.width, layerCanvas.height);
+    });
+
+    const sleeveTextureLayer = renderLayer((layerContext, layerCanvas) => {
+      layerContext.globalAlpha = 0.38;
+      layerContext.drawImage(sleeveTextureImage, 0, 0, layerCanvas.width, layerCanvas.height);
+      applyMask(layerContext, sleeveMaskImage, layerCanvas.width, layerCanvas.height);
+    });
+
+    const collarLayer = renderLayer((layerContext, layerCanvas) => {
+      layerContext.fillStyle = design.collarColor || '#ffffff';
+      layerContext.fillRect(0, 0, layerCanvas.width, layerCanvas.height);
+      applyMask(layerContext, collarMaskImage, layerCanvas.width, layerCanvas.height);
+    });
+
+    const shadowLayer = renderLayer((layerContext, layerCanvas) => {
+      layerContext.drawImage(shadowsImage, 0, 0, layerCanvas.width, layerCanvas.height);
+    });
+
+    jerseyContext.drawImage(baseLayer, 0, 0);
+    if (patternLayer) {
+      jerseyContext.drawImage(patternLayer, 0, 0);
+    }
+    jerseyContext.save();
+    jerseyContext.globalCompositeOperation = 'multiply';
+    jerseyContext.drawImage(baseTextureLayer, 0, 0);
+    jerseyContext.restore();
+    jerseyContext.drawImage(sleeveLayer, 0, 0);
+    jerseyContext.save();
+    jerseyContext.globalCompositeOperation = 'multiply';
+    jerseyContext.drawImage(sleeveTextureLayer, 0, 0);
+    jerseyContext.restore();
+    jerseyContext.drawImage(collarLayer, 0, 0);
+    jerseyContext.save();
+    jerseyContext.globalAlpha = 0.74;
+    jerseyContext.globalCompositeOperation = 'multiply';
+    jerseyContext.drawImage(shadowLayer, 0, 0);
+    jerseyContext.restore();
+
+    boundsContext.drawImage(baseLayer, 0, 0);
+    if (patternLayer) {
+      boundsContext.drawImage(patternLayer, 0, 0);
+    }
+    boundsContext.drawImage(sleeveLayer, 0, 0);
+    boundsContext.drawImage(collarLayer, 0, 0);
+
+    if (badgeLogoImage) {
+      drawImageContain(jerseyContext, badgeLogoImage, badgeLogoX, badgeLogoY, badgeLogoSize, badgeLogoSize);
+      drawImageContain(boundsContext, badgeLogoImage, badgeLogoX, badgeLogoY, badgeLogoSize, badgeLogoSize);
+    }
+
+    if (freeLogoImage) {
+      drawImageContain(jerseyContext, freeLogoImage, freeLogoX, freeLogoY, freeLogoWidth, freeLogoHeight);
+      drawImageContain(boundsContext, freeLogoImage, freeLogoX, freeLogoY, freeLogoWidth, freeLogoHeight);
+    }
+
+    const thumbnailCanvas = createCanvas(900, 900);
+    const thumbnailContext = thumbnailCanvas.getContext('2d');
+    const frontBounds = findFrontBounds(boundsCanvas);
+    const frontCanvas = createCanvas(frontBounds.width, frontBounds.height);
+    const frontContext = frontCanvas.getContext('2d');
+
+    frontContext.drawImage(
+      jerseyCanvas,
+      frontBounds.x,
+      frontBounds.y,
+      frontBounds.width,
+      frontBounds.height,
+      0,
+      0,
+      frontBounds.width,
+      frontBounds.height,
+    );
+
+    thumbnailContext.fillStyle = '#ffffff';
+    thumbnailContext.fillRect(0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
+    thumbnailContext.imageSmoothingEnabled = true;
+    thumbnailContext.imageSmoothingQuality = 'high';
+    drawImageContain(thumbnailContext, frontCanvas, 50, 38, thumbnailCanvas.width - 76, thumbnailCanvas.height - 76);
+
+    return thumbnailCanvas.toDataURL('image/png');
+  } catch {
+    const patternSrc = escapeSvgText(selectedPreset?.src || '');
+    const badgeLogo = escapeSvgText(design.badgeLogo || '');
+    const freeLogo = escapeSvgText(design.freeLogo || '');
+    const baseColor = escapeSvgText(design.baseColor || '#0f172a');
+    const sleeveColor = escapeSvgText(design.sleeveColor || '#ffffff');
+    const presetColor = escapeSvgText(design.presetColor || '#ffffff');
+    const collarColor = escapeSvgText(design.collarColor || '#ffffff');
+    const selectedPresetSize = selectedPreset
+      ? presetSizes[selectedPreset.fileName] || { x: 0, y: 0, width: viewBox.width, height: viewBox.height }
+      : { x: 0, y: 0, width: viewBox.width, height: viewBox.height };
+
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1114 622" role="img" aria-label="Custom jersey preview">
+        <defs>
+          <mask id="baseFillMask">
+            <image href="${baseMask}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" />
+          </mask>
+          <mask id="sleeveFillMask">
+            <image href="${sleeveMask}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" />
+          </mask>
+          <mask id="collarFillMask">
+            <image href="${collarMask}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" />
+          </mask>
+        </defs>
+        <rect width="1114" height="622" rx="24" fill="#ffffff" />
+        <rect x="0" y="0" width="1114" height="622" fill="${baseColor}" mask="url(#baseFillMask)" />
+        ${patternSrc ? `<image href="${patternSrc}" x="${selectedPresetSize.x}" y="${selectedPresetSize.y}" width="${selectedPresetSize.width}" height="${selectedPresetSize.height}" preserveAspectRatio="xMidYMid slice" mask="url(#baseFillMask)" opacity="0.98" />` : ''}
+        <rect x="0" y="0" width="1114" height="622" fill="${presetColor}" mask="url(#baseFillMask)" opacity="0.14" />
+        <image href="${baseTexture}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" opacity="0.42" mask="url(#baseFillMask)" />
+        <rect x="0" y="0" width="1114" height="622" fill="${sleeveColor}" mask="url(#sleeveFillMask)" />
+        <image href="${sleeveTexture}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" opacity="0.38" mask="url(#sleeveFillMask)" />
+        <rect x="0" y="0" width="1114" height="622" fill="${collarColor}" mask="url(#collarFillMask)" />
+        <image href="${shadows}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" opacity="0.74" />
+        ${badgeLogo ? `<image href="${badgeLogo}" x="430" y="232" width="85" height="85" preserveAspectRatio="xMidYMid meet" />` : ''}
+        ${freeLogo ? `<image href="${freeLogo}" x="350" y="278" width="420" height="150" preserveAspectRatio="xMidYMid meet" />` : ''}
+      </svg>
+    `;
+
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
+};
+
 const CustomJerseyBuilder = () => {
   const [design, setDesign] = useState(readInitialDesign);
   const [notice, setNotice] = useState('');
   const [isFreeLogoSelected, setIsFreeLogoSelected] = useState(false);
   const [activeControlSection, setActiveControlSection] = useState('pattern');
+  const [isSizePromptOpen, setIsSizePromptOpen] = useState(false);
+  const [selectedCartSize, setSelectedCartSize] = useState('');
   const kitPreviewRef = useRef(null);
   const freeLogoRef = useRef(null);
   const freeLogoImageRef = useRef(null);
@@ -541,41 +954,109 @@ const CustomJerseyBuilder = () => {
     clampLogoToBoundary(centerX, centerY, nextWidthPercent);
   };
 
-  const handleSaveKit = () => {
-    const selectedColors = {
-      base: design.baseColor,
-      sleeve: design.sleeveColor,
-      preset: design.presetColor,
-      collar: design.collarColor,
-    };
+  const handleOpenAddToCart = () => {
+    setSelectedCartSize('');
+    setIsSizePromptOpen(true);
+    setNotice('');
+  };
 
-    localStorage.setItem(savedColorsKey, JSON.stringify(selectedColors));
-
-    if (selectedPreset) {
-      localStorage.setItem(savedPresetKey, selectedPreset.fileName);
+  const handleConfirmAddToCart = async () => {
+    if (!selectedCartSize) {
+      setNotice('Pick a size first.');
+      return;
     }
 
-    if (design.badgeLogo) {
-      localStorage.setItem(savedLogoKey, design.badgeLogo);
-    }
+    const thumbnailImage = await buildCustomKitThumbnail(design, selectedPreset);
 
-    if (design.freeLogo) {
-      localStorage.setItem(savedFreeLogoKey, design.freeLogo);
-      saveFreeLogoPosition(design.freeLogoPosition);
-    }
-
-    localStorage.setItem(
-      savedTextKey,
-      JSON.stringify({
-        name: design.textName.trim(),
-        number: design.textNumber.trim(),
-        color: design.textColor,
+    const nextCartItem = {
+      cartKey: buildCustomKitLineKey(design, selectedCartSize),
+      id: `custom-kit-${selectedPreset?.id || 'custom'}`,
+      productId: `custom-kit-${selectedPreset?.id || 'custom'}`,
+      itemType: 'custom-kit',
+      name: 'Custom jersey',
+      title: 'Custom jersey',
+      team: 'Made to order',
+      sportLabel: 'Custom kit',
+      categoryLabel: selectedPreset?.name || 'Custom build',
+      season: 'Made to order',
+      image: thumbnailImage,
+      imageFocus: 'center center',
+      badge: '',
+      price: CUSTOM_KIT_PRICE,
+      unitPrice: CUSTOM_KIT_PRICE,
+      quantity: 1,
+      size: selectedCartSize,
+      selectedSize: selectedCartSize,
+      playerName: design.textName.trim(),
+      playerNumber: design.textNumber.trim(),
+      text: [design.textName.trim(), design.textNumber.trim()].filter(Boolean).join(' # '),
+      notes: '',
+      badgeLogo: design.badgeLogo,
+      freeLogo: design.freeLogo,
+      freeLogoPosition: design.freeLogoPosition,
+      presetId: selectedPreset?.id || '',
+      presetName: selectedPreset?.name || '',
+      presetImage: selectedPreset?.src || '',
+      baseColor: design.baseColor,
+      sleeveColor: design.sleeveColor,
+      presetColor: design.presetColor,
+      collarColor: design.collarColor,
+      textColor: design.textColor,
+      textStrokeColor: design.textStrokeColor,
+      textStrokeWidth: design.textStrokeWidth,
+      customization: {
+        playerName: design.textName.trim(),
+        playerNumber: design.textNumber.trim(),
+        summary: [`Size ${selectedCartSize}`, selectedPreset?.name || 'Custom build'].join(' / '),
+        badgeLogo: design.badgeLogo,
+        freeLogo: design.freeLogo,
+        freeLogoPosition: design.freeLogoPosition,
+        presetId: selectedPreset?.id || '',
+        presetName: selectedPreset?.name || '',
+        presetImage: selectedPreset?.src || '',
+        baseColor: design.baseColor,
+        sleeveColor: design.sleeveColor,
+        presetColor: design.presetColor,
+        collarColor: design.collarColor,
+        colors: {
+          base: design.baseColor,
+          sleeve: design.sleeveColor,
+          secondary: design.presetColor,
+          collar: design.collarColor,
+        },
+        textColor: design.textColor,
         strokeColor: design.textStrokeColor,
         strokeWidth: design.textStrokeWidth,
-      }),
-    );
+      },
+      previewColors: {
+        base: design.baseColor,
+        sleeve: design.sleeveColor,
+        secondary: design.presetColor,
+        collar: design.collarColor,
+      },
+    };
 
-    setNotice('Saved');
+    const currentCart = readStoredCart();
+    const existingItemIndex = currentCart.findIndex((item) => item.cartKey === nextCartItem.cartKey);
+
+    if (existingItemIndex >= 0) {
+      currentCart[existingItemIndex] = {
+        ...currentCart[existingItemIndex],
+        ...nextCartItem,
+        quantity: Number(currentCart[existingItemIndex].quantity || 1) + 1,
+      };
+    } else {
+      currentCart.push(nextCartItem);
+    }
+
+    writeStoredCart(currentCart);
+    setIsSizePromptOpen(false);
+    setNotice(`Added to cart: Custom jersey in ${selectedCartSize}.`);
+  };
+
+  const handleResetSizePrompt = () => {
+    setIsSizePromptOpen(false);
+    setSelectedCartSize('');
   };
 
   const handleReset = () => {
@@ -620,6 +1101,21 @@ const CustomJerseyBuilder = () => {
     document.addEventListener('pointerdown', handleDocumentPointerDown);
     return () => document.removeEventListener('pointerdown', handleDocumentPointerDown);
   }, []);
+
+  useEffect(() => {
+    if (!isSizePromptOpen) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        handleResetSizePrompt();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSizePromptOpen]);
 
   return (
     <div className="custom-builder-page">
@@ -884,9 +1380,9 @@ const CustomJerseyBuilder = () => {
             {notice && <p className="custom-builder-notice">{notice}</p>}
 
             <div className="custom-builder-actions">
-              <button className="ui-button is-primary" type="button" onClick={handleSaveKit}>
-                Save kit
-              </button>
+              <Button type="button" onClick={handleOpenAddToCart}>
+                Add to cart
+              </Button>
               <button className="ui-button is-secondary" type="button" onClick={handleReset}>
                 Reset
               </button>
@@ -894,6 +1390,50 @@ const CustomJerseyBuilder = () => {
           </div>
         </aside>
       </section>
+
+      {isSizePromptOpen ? (
+        <div
+          className="custom-builder-size-overlay"
+          role="presentation"
+          onClick={handleResetSizePrompt}
+        >
+          <Card
+            className="custom-builder-size-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="custom-builder-size-modal-header">
+              <p className="section-eyebrow">Choose size</p>
+              <h2>Pick a jersey size before we add it to cart.</h2>
+            </div>
+
+            <div className="custom-builder-size-grid" role="list" aria-label="Custom jersey sizes">
+              {CUSTOM_KIT_SIZES.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  className={`custom-builder-size-option${selectedCartSize === size ? ' is-selected' : ''}`}
+                  onClick={() => setSelectedCartSize(size)}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+
+            <p className="custom-builder-size-copy">
+              Select one size, confirm, and the custom jersey will be added to your cart.
+            </p>
+
+            <div className="custom-builder-size-actions">
+              <Button variant="secondary" type="button" onClick={handleResetSizePrompt}>
+                Cancel
+              </Button>
+              <Button type="button" onClick={handleConfirmAddToCart} disabled={!selectedCartSize}>
+                Confirm add
+              </Button>
+            </div>
+          </Card>
+        </div>
+      ) : null}
     </div>
   );
 };

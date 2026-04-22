@@ -599,6 +599,82 @@
   gap: var(--space-3);
 }
 
+.custom-builder-size-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.46);
+  backdrop-filter: blur(4px);
+}
+
+.custom-builder-size-modal {
+  display: grid;
+  gap: 1rem;
+  width: min(92vw, 520px);
+}
+
+.custom-builder-size-modal-header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.custom-builder-size-modal-header h2 {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: clamp(24px, 3vw, 36px);
+  line-height: 0.98;
+  letter-spacing: -0.5px;
+  color: var(--text-1);
+}
+
+.custom-builder-size-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.custom-builder-size-option {
+  min-height: 54px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  color: var(--text-1);
+  font-family: var(--font-accent);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: none;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.custom-builder-size-option:hover {
+  transform: translateY(-1px);
+  border-color: var(--orange);
+}
+
+.custom-builder-size-option.is-selected {
+  border-color: var(--crimson);
+  background: rgba(192, 21, 42, 0.08);
+  color: var(--crimson);
+}
+
+.custom-builder-size-copy {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.custom-builder-size-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
 @media (max-width: 1120px) {
   .custom-builder-hero-inner,
   .custom-builder-workspace {
@@ -654,5 +730,17 @@
 
   .custom-builder-actions .ui-button {
     width: 100%;
+  }
+
+  .custom-builder-size-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .custom-builder-size-actions {
+    justify-content: stretch;
+  }
+
+  .custom-builder-size-actions .ui-button {
+    flex: 1 1 0;
   }
 }
