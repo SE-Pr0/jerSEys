@@ -342,20 +342,27 @@
 }
 
 .shop-filter-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(110px, 1fr)) 1.2fr 1.2fr 260px;
-  gap: 12px;
-  align-items: center;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  align-items: flex-start;
   width: 100%;
+  overflow: hidden;
+  padding-bottom: 4px;
 }
 
 .shop-main-filters {
-  display: contents;
+  display: flex;
+  flex: 1 1 0;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  padding-top: 22px;
 }
 
 .shop-main-filter {
-  width: 100%;
-  min-width: 0;
+  flex: 0 0 auto;
+  min-width: 112px;
   padding: 12px 14px;
   min-height: 46px;
   border: 1px solid var(--border-dark);
@@ -378,29 +385,35 @@
 }
 
 .shop-subfilters {
-  display: contents;
+  display: flex;
+  flex: 2 1 0;
+  gap: 10px;
+  align-items: flex-start;
+  min-width: 0;
 }
 
 .shop-select-group {
   display: grid;
   gap: 8px;
   align-content: center;
+  flex: 1 1 0;
   min-width: 0;
-}
-
-.shop-subfilters .shop-select-group:not(.shop-select-group-price) {
-  transform: translateY(-12px);
+  width: auto;
 }
 
 .shop-select-group-price {
-  width: 100%;
-  max-width: none;
+  flex: 1.4 1 0;
+  width: auto;
+}
+
+.shop-select-group-price .shop-price-range {
+  min-width: 0;
 }
 
 .shop-select-group span {
   font-family: var(--font-accent);
   font-size: 10px;
-  letter-spacing: 3px;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
   color: var(--text-3);
   min-height: 16px;
@@ -643,26 +656,20 @@
   }
 
   .shop-filter-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 8px;
   }
 
   .shop-main-filters {
     display: flex;
-    flex-wrap: wrap;
-    width: 100%;
-    gap: 12px;
+    gap: 8px;
   }
 
   .shop-subfilters {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 8px;
   }
 
   .shop-main-filter {
-    flex: 1 1 100%;
+    min-width: 92px;
   }
 
   .shop-controls-shell {
@@ -675,8 +682,7 @@
   }
 
   .shop-select-group-price {
-    width: 100%;
-    max-width: none;
+    width: auto;
   }
 
   .shop-select-group select {
@@ -693,14 +699,33 @@
     font-size: clamp(44px, 13vw, 72px);
   }
 
-  .shop-stat-row,
-  .shop-hero-actions,
-  .shop-main-filters {
+  .shop-stat-row {
     grid-template-columns: 1fr;
   }
 
   .shop-hero-actions {
     flex-direction: column;
+  }
+
+  .shop-filter-row {
+    gap: 6px;
+  }
+
+  .shop-main-filters {
+    gap: 6px;
+  }
+
+  .shop-main-filter {
+    min-width: 84px;
+    padding: 10px 10px;
+  }
+
+  .shop-select-group {
+    width: auto;
+  }
+
+  .shop-select-group-price {
+    width: auto;
   }
 
   .shop-load-more,

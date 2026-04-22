@@ -5,14 +5,33 @@ import ProductCard from '../components/ProductCard';
 import '../styles/shop.css';
 import { getShopProducts, getShopSummary } from '../services/productService';
 
-const mainFilters = [
-  { key: 'all', label: 'All Jerseys' },
+const sportFilters = [
+  { key: 'all', label: 'All' },
   { key: 'football', label: 'Football' },
   { key: 'basketball', label: 'Basketball' },
 ];
 
 const products = getShopProducts();
 const summary = getShopSummary();
+const availableSizes = [...new Set(products.flatMap((product) => product.sizes))].sort((left, right) => {
+  const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
+  const leftIndex = sizeOrder.indexOf(left);
+  const rightIndex = sizeOrder.indexOf(right);
+
+  if (leftIndex === -1 && rightIndex === -1) {
+    return left.localeCompare(right);
+  }
+
+  if (leftIndex === -1) {
+    return 1;
+  }
+
+  if (rightIndex === -1) {
+    return -1;
+  }
+
+  return leftIndex - rightIndex;
+});
 const productPrices = products.map((product) => product.price);
 const absoluteMinPrice = Math.floor(Math.min(...productPrices));
 const absoluteMaxPrice = Math.ceil(Math.max(...productPrices));
@@ -122,6 +141,8 @@ const Shop = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [mainCategory, setMainCategory] = useState('all');
+  const [catalogCategory, setCatalogCategory] = useState('all');
+  const [sizeFilter, setSizeFilter] = useState('all');
   const [stockFilter, setStockFilter] = useState('all');
   const [minPriceInput, setMinPriceInput] = useState(String(absoluteMinPrice));
   const [maxPriceInput, setMaxPriceInput] = useState(String(absoluteMaxPrice));
@@ -184,7 +205,7 @@ const Shop = () => {
 
   useEffect(() => {
     setVisibleCount(24);
-  }, [searchTerm, mainCategory, stockFilter, minPrice, maxPrice, sortBy]);
+  }, [mainCategory, catalogCategory, searchTerm, sizeFilter, stockFilter, minPrice, maxPrice, sortBy]);
 
   const handleMinPriceInput = (event) => {
     setMinPriceInput(event.target.value);
@@ -217,24 +238,27 @@ const Shop = () => {
 
     const filtered = products.filter((product) => {
       const matchesSearch = !trimmedSearch || product.searchText.includes(trimmedSearch);
-      const matchesMainCategory = mainCategory === 'all' || product.sport === mainCategory;
+      const matchesCatalogCategory =
+        mainCategory === 'all' || product.sport === mainCategory;
+      const matchesCategory = catalogCategory === 'all' || product.category === catalogCategory;
+      const matchesSize = sizeFilter === 'all' || product.sizes.includes(sizeFilter);
       const matchesStock =
         stockFilter === 'all' ||
         (stockFilter === 'in-stock' && product.inStock) ||
         (stockFilter === 'out-of-stock' && !product.inStock);
       const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
 
-      return matchesSearch && matchesMainCategory && matchesStock && matchesPrice;
+      return matchesSearch && matchesCatalogCategory && matchesCategory && matchesSize && matchesStock && matchesPrice;
     });
 
     const sorted = sortProducts(filtered, sortBy);
 
-    if (mainCategory === 'all' && sortBy === 'featured') {
+    if (mainCategory === 'all' && catalogCategory === 'all' && sortBy === 'featured') {
       return interleaveBySport(sorted);
     }
 
     return sorted;
-  }, [mainCategory, minPrice, maxPrice, searchTerm, sortBy, stockFilter]);
+  }, [mainCategory, catalogCategory, minPrice, maxPrice, searchTerm, sizeFilter, sortBy, stockFilter]);
 
   const visibleProducts = filteredProducts.slice(0, visibleCount);
   const spotlightProduct = spotlightProducts[spotlightIndex % spotlightProducts.length] || products[0];
@@ -342,8 +366,8 @@ const Shop = () => {
           </div>
 
           <div className="shop-filter-row">
-            <div className="shop-main-filters">
-              {mainFilters.map((filter) => (
+            <div className="shop-main-filters" role="group" aria-label="Sport category">
+              {sportFilters.map((filter) => (
                 <button
                   key={filter.key}
                   type="button"
@@ -356,6 +380,27 @@ const Shop = () => {
             </div>
 
             <div className="shop-subfilters">
+              <label className="shop-select-group">
+                <span>Category</span>
+                <select value={catalogCategory} onChange={(event) => setCatalogCategory(event.target.value)}>
+                  <option value="all">All</option>
+                  <option value="club">Club</option>
+                  <option value="national">Country</option>
+                </select>
+              </label>
+
+              <label className="shop-select-group">
+                <span>Size</span>
+                <select value={sizeFilter} onChange={(event) => setSizeFilter(event.target.value)}>
+                  <option value="all">All sizes</option>
+                  {availableSizes.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
               <label className="shop-select-group">
                 <span>Status</span>
                 <select value={stockFilter} onChange={(event) => setStockFilter(event.target.value)}>
@@ -371,7 +416,6 @@ const Shop = () => {
                   <option value="featured">Featured</option>
                   <option value="price-low">Price: low to high</option>
                   <option value="price-high">Price: high to low</option>
-                  <option value="alphabetical">Alphabetical</option>
                   <option value="team">Team name</option>
                 </select>
               </label>
