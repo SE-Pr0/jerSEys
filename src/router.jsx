@@ -4,6 +4,7 @@ import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import OrderHistory from './pages/OrderHistory';
@@ -16,6 +17,7 @@ const Router = () => {
         <Route index element={<Home />} />
         <Route path="shop" element={<Shop />} />
         <Route path="login" element={<Login />} />
+        <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="register" element={<Register />} />
         <Route path="profile" element={<Profile />} />
         <Route path="order-history" element={<OrderHistory />} />
