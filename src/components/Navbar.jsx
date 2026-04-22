@@ -110,9 +110,6 @@ const Navbar = () => {
             Trade Marketplace
           </NavLink>
         </li>
-        <li>
-          <Link to="/shop#shop-insights">Insights</Link>
-        </li>
       </ul>
       <div className="nav-actions">
         {user ? (

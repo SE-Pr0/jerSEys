@@ -30,6 +30,7 @@
     linear-gradient(90deg, rgba(27, 59, 138, 0.05) 1px, transparent 1px),
     linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(251, 248, 243, 0.82) 100%);
   background-size: auto, auto, 64px 64px, 64px 64px, auto;
+  opacity: 0;
 }
 
 .custom-builder-hero-grid {
@@ -45,6 +46,14 @@
   align-items: end;
   padding-top: 42px;
   padding-bottom: 28px;
+}
+
+.custom-builder-copy,
+.custom-builder-summary span,
+.custom-builder-preview,
+.custom-builder-panel {
+  opacity: 0;
+  transform: translateY(24px);
 }
 
 .custom-builder-copy {
@@ -91,6 +100,52 @@
   align-items: start;
   margin-top: -8px;
   padding-top: var(--space-5);
+}
+
+.custom-builder-section-tabs,
+.custom-builder-section-panel {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.custom-builder-page.is-loaded .custom-builder-hero-bg {
+  animation: fadeIn 0.7s ease forwards;
+}
+
+.custom-builder-page.is-loaded .custom-builder-copy {
+  animation: fadeUp 0.9s ease 0.1s forwards;
+}
+
+.custom-builder-page.is-loaded .custom-builder-summary span {
+  animation: fadeUp 0.8s ease forwards;
+}
+
+.custom-builder-page.is-loaded .custom-builder-summary span:nth-child(1) {
+  animation-delay: 0.18s;
+}
+
+.custom-builder-page.is-loaded .custom-builder-summary span:nth-child(2) {
+  animation-delay: 0.24s;
+}
+
+.custom-builder-page.is-loaded .custom-builder-summary span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.custom-builder-page.is-loaded .custom-builder-preview {
+  animation: fadeUp 0.95s ease 0.22s forwards;
+}
+
+.custom-builder-page.is-loaded .custom-builder-panel {
+  animation: fadeUp 0.95s ease 0.3s forwards;
+}
+
+.custom-builder-page.is-loaded .custom-builder-section-tabs {
+  animation: fadeUp 0.8s ease 0.42s forwards;
+}
+
+.custom-builder-page.is-loaded .custom-builder-section-panel {
+  animation: fadeUp 0.85s ease 0.5s forwards;
 }
 
 .custom-builder-preview {
@@ -751,5 +806,19 @@
 
   .custom-builder-size-actions .ui-button {
     flex: 1 1 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .custom-builder-copy,
+  .custom-builder-summary span,
+  .custom-builder-preview,
+  .custom-builder-panel,
+  .custom-builder-section-tabs,
+  .custom-builder-section-panel,
+  .custom-builder-hero-bg {
+    opacity: 1;
+    transform: none;
+    animation: none;
   }
 }

@@ -658,6 +658,7 @@ const CustomJerseyBuilder = () => {
   const [activeControlSection, setActiveControlSection] = useState('pattern');
   const [isSizePromptOpen, setIsSizePromptOpen] = useState(false);
   const [selectedCartSize, setSelectedCartSize] = useState('');
+  const [isLoaded, setIsLoaded] = useState(false);
   const kitPreviewRef = useRef(null);
   const freeLogoRef = useRef(null);
   const freeLogoImageRef = useRef(null);
@@ -1117,8 +1118,16 @@ const CustomJerseyBuilder = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isSizePromptOpen]);
 
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      setIsLoaded(true);
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
+
   return (
-    <div className="custom-builder-page">
+    <div className={`custom-builder-page ${isLoaded ? 'is-loaded' : ''}`}>
       <section className="custom-builder-hero">
         <div className="custom-builder-hero-bg" />
         <div className="custom-builder-hero-grid" />
