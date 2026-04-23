@@ -21,19 +21,20 @@ const Footer = () => {
         <div>
           <div className="footer-col-title">Shop</div>
           <ul className="footer-links">
-            <li><a href="#">Football Kits</a></li>
-            <li><a href="#">Basketball Jerseys</a></li>
-            <li><a href="#">Club Teams</a></li>
-            <li><a href="#">National Teams</a></li>
+            <li><Link to="/shop">Football Kits</Link></li>
+            <li><Link to="/shop">Basketball Jerseys</Link></li>
+            <li><Link to="/shop#shop-catalog">Club Teams</Link></li>
+            <li><Link to="/shop#shop-catalog">National Teams</Link></li>
           </ul>
         </div>
         <div>
           <div className="footer-col-title">Account</div>
           <ul className="footer-links">
             <li><Link to="/register">Register</Link></li>
-            <li><a href="#">Sign In</a></li>
-            <li><a href="#">My Orders</a></li>
-            <li><a href="#">Trade Offers</a></li>
+            <li><Link to="/login">Sign In</Link></li>
+            <li><Link to="/order-history">My Orders</Link></li>
+            <li><Link to="/trade/requests">Trade Offers</Link></li>
+            <li><Link to="/trade">Trade Marketplace</Link></li>
           </ul>
         </div>
         <div>

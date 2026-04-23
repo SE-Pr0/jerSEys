@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import ProductCard from '../components/ProductCard';
 import '../styles/shop.css';
@@ -118,6 +119,7 @@ const CountUpValue = ({ target, duration = 2200, delay = 650 }) => {
 };
 
 const Shop = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [mainCategory, setMainCategory] = useState('all');
   const [stockFilter, setStockFilter] = useState('all');
@@ -280,7 +282,18 @@ const Shop = () => {
             </div>
           </div>
 
-          <div className="shop-spotlight-card">
+          <div
+            className="shop-spotlight-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => navigate(`/shop/${spotlightProduct.id}`)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                navigate(`/shop/${spotlightProduct.id}`);
+              }
+            }}
+          >
             <div className="shop-spotlight-media">
               <div className={`shop-spotlight-image-shell${spotlightVisible ? ' is-visible' : ''}`}>
                 <img
@@ -442,7 +455,7 @@ const Shop = () => {
                   badge={product.badge}
                   image={product.image}
                   actionLabel="View Listing"
-                  onAction={() => window.open(product.sourceUrl, '_blank', 'noopener,noreferrer')}
+                  onAction={() => navigate(`/shop/${product.id}`)}
                 />
               ))}
             </div>

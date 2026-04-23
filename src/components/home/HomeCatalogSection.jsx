@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ProductCard from '../ProductCard';
 import SearchBar from '../SearchBar';
 import '../../styles/home-catalog.css';
@@ -31,6 +31,7 @@ const interleaveBySport = (items) => {
 };
 
 const HomeCatalogSection = () => {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [visibleCount, setVisibleCount] = useState(4);
@@ -112,7 +113,7 @@ const HomeCatalogSection = () => {
             badge={product.badge}
             image={product.image}
             actionLabel="View Listing"
-            onAction={() => window.open(product.sourceUrl, '_blank', 'noopener,noreferrer')}
+            onAction={() => navigate(`/shop/${product.id}`)}
           />
         ))}
       </div>

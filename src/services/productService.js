@@ -106,6 +106,32 @@ const uniqueCountries = new Set(catalog.filter((product) => product.category ===
 
 export const getShopProducts = () => catalog;
 
+export const getShopProductById = (productId) => catalog.find((product) => product.id === productId);
+
+export const getRelatedShopProducts = (productId, limit = 4) => {
+  const selectedProduct = getShopProductById(productId);
+
+  if (!selectedProduct) {
+    return catalog.slice(0, limit);
+  }
+
+  return catalog
+    .filter((product) => product.id !== productId)
+    .sort((left, right) => {
+      const leftScore =
+        Number(left.sport === selectedProduct.sport) +
+        Number(left.category === selectedProduct.category) +
+        Number(left.team === selectedProduct.team);
+      const rightScore =
+        Number(right.sport === selectedProduct.sport) +
+        Number(right.category === selectedProduct.category) +
+        Number(right.team === selectedProduct.team);
+
+      return rightScore - leftScore;
+    })
+    .slice(0, limit);
+};
+
 export const getShopSummary = () => ({
   totalProducts: catalog.length,
   clubCount: uniqueClubTeams.size,

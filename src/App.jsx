@@ -5,6 +5,7 @@ import CustomCursor from './components/CustomCursor';
 import Loader from './components/Loader';
 import ScrollToTop from './components/ScrollToTop';
 import Toast from './components/Toast';
+import { TradeProvider } from './context/TradeContext';
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -23,8 +24,10 @@ const App = () => {
       {isLoading && <Loader />}
       <Toast />
       <BrowserRouter>
-        <ScrollToTop />
-        <Router />
+        <TradeProvider>
+          <ScrollToTop />
+          <Router />
+        </TradeProvider>
       </BrowserRouter>
     </>
   );

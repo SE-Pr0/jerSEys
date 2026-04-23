@@ -264,10 +264,16 @@
   overflow: visible;
   transition: transform .3s;
   box-shadow: 0 24px 60px rgba(0,0,0,0.10), 0 4px 16px rgba(192,21,42,0.06);
+  cursor: none;
 }
 
 .jersey-card-hero:hover {
   transform: scale(1.03);
+}
+
+.jersey-card-hero:focus-visible {
+  outline: 2px solid rgba(192,21,42,0.32);
+  outline-offset: 6px;
 }
 
 .jersey-card-img {

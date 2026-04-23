@@ -1,16 +1,126 @@
 .order-history-page {
+  position: relative;
+  padding-top: 12px;
+  gap: var(--space-4);
+  overflow: hidden;
+}
+
+.order-history-page::before,
+.order-history-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.order-history-page::before {
+  background:
+    radial-gradient(ellipse 70% 55% at 72% 40%, rgba(192,21,42,0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 50% at 22% 75%, rgba(27,59,138,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 50% 95%, rgba(58,181,74,0.05) 0%, transparent 55%),
+    #FFFFFF;
+  z-index: 0;
+}
+
+.order-history-page::after {
+  background-image:
+    linear-gradient(rgba(27,59,138,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,59,138,0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  inset: -60px;
+  animation: orderHistoryGridDrift 20s linear infinite;
+  will-change: transform;
+  z-index: 0;
+}
+
+.order-history-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.order-history-top-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1.62fr) minmax(320px, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.order-history-page .ui-page-header {
+  opacity: 0;
+  animation: fadeUp .8s ease .2s forwards;
+}
+
+.order-history-page .ui-page-eyebrow {
+  font-family: var(--font-accent);
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.order-history-page .ui-page-title {
+  font-family: var(--font-display);
+  font-size: clamp(64px, 8vw, 120px);
+  line-height: 0.98;
+  letter-spacing: -2px;
+  margin-bottom: 10px;
+}
+
+.order-history-page .ui-page-title span {
+  display: block;
+  color: var(--crimson);
+  text-shadow: 0 0 60px rgba(192,21,42,0.18);
+  letter-spacing: 1px;
+}
+
+.order-history-page .ui-page-description {
+  max-width: 520px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-2);
+}
+
+.order-history-card {
+  display: grid;
   gap: var(--space-5);
+}
+
+.order-history-overview-card {
+  align-self: start;
+  gap: var(--space-4);
+  padding-top: 4px;
+  padding-bottom: 4px;
+  opacity: 0;
+  animation: fadeUp .85s ease .28s forwards;
+}
+
+.order-history-section-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.order-history-section-heading h2 {
+  font-family: var(--font-head);
+  font-size: 30px;
+  letter-spacing: 0.8px;
+  color: var(--text-1);
 }
 
 .order-history-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
+  gap: 12px;
 }
 
 .order-history-stat {
   display: grid;
-  gap: var(--space-1);
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
 }
 
 .order-history-stat strong,
@@ -26,11 +136,19 @@
   color: var(--text-2);
 }
 
+.order-history-overview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
 .order-history-filters {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
+  opacity: 0;
+  animation: fadeUp .85s ease .34s forwards;
 }
 
 .order-history-filter-copy h2,
@@ -81,11 +199,13 @@
 .order-history-list {
   display: grid;
   gap: var(--space-4);
+  opacity: 0;
+  animation: fadeUp .85s ease .42s forwards;
 }
 
-.order-history-card {
-  display: grid;
-  gap: var(--space-5);
+.order-history-page .ui-state-block {
+  opacity: 0;
+  animation: fadeUp .85s ease .42s forwards;
 }
 
 .order-history-card-top {
@@ -166,10 +286,23 @@
   gap: var(--space-3);
 }
 
+@keyframes orderHistoryGridDrift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(60px, 60px, 0);
+  }
+}
+
 @media (max-width: 900px) {
-  .order-history-summary,
+  .order-history-top-section,
   .order-history-meta {
     grid-template-columns: 1fr;
+  }
+
+  .order-history-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .order-history-filters,
@@ -179,7 +312,24 @@
 }
 
 @media (max-width: 640px) {
+  .order-history-page {
+    padding-top: 12px;
+  }
+
+  .order-history-section-heading {
+    flex-direction: column;
+  }
+
+  .order-history-summary {
+    grid-template-columns: 1fr;
+  }
+
   .order-history-actions {
     flex-direction: column;
+  }
+
+  .order-history-overview-actions .ui-button,
+  .order-history-actions .ui-button {
+    width: 100%;
   }
 }

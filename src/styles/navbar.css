@@ -29,7 +29,7 @@ nav {
 
 .nav-links {
   display: flex;
-  gap: 40px;
+  gap: 28px;
   list-style: none;
 }
 
@@ -109,6 +109,9 @@ nav {
 
 .cart-icon {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
   cursor: none;
   font-size: 20px;
   color: var(--text-2);
