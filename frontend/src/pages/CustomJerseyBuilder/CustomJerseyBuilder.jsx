@@ -696,11 +696,24 @@ const CustomJerseyBuilder = () => {
 
   const patternStyle = selectedPreset
     ? {
-        '--preset-image': `url(${selectedPreset.src})`,
         '--preset-x': `${(selectedPresetSize.x / viewBox.width) * 100}%`,
         '--preset-y': `${(selectedPresetSize.y / viewBox.height) * 100}%`,
         '--preset-width': `${(selectedPresetSize.width / viewBox.width) * 100}%`,
         '--preset-height': `${(selectedPresetSize.height / viewBox.height) * 100}%`,
+      }
+    : {};
+
+  const patternMaskStyle = selectedPreset
+    ? {
+        backgroundColor: design.presetColor,
+        maskImage: `url(${selectedPreset.src})`,
+        WebkitMaskImage: `url(${selectedPreset.src})`,
+        maskPosition: 'center',
+        maskRepeat: 'no-repeat',
+        maskSize: '100% 100%',
+        WebkitMaskPosition: 'center',
+        WebkitMaskRepeat: 'no-repeat',
+        WebkitMaskSize: '100% 100%',
       }
     : {};
 
@@ -1169,7 +1182,7 @@ const CustomJerseyBuilder = () => {
           >
             <div className="jersey-layer jersey-layer-base" />
             <div className="jersey-layer jersey-layer-pattern" style={patternStyle}>
-              {selectedPreset && <div className="jersey-layer-pattern-mask" />}
+              {selectedPreset && <div className="jersey-layer-pattern-mask" style={patternMaskStyle} />}
             </div>
             <img className="jersey-layer jersey-layer-texture" src={baseTexture} alt="" aria-hidden="true" />
             <div className="jersey-layer jersey-layer-sleeve" />
