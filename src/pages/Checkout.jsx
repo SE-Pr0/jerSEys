@@ -388,10 +388,6 @@ const Checkout = () => {
           <div className="ui-page-eyebrow">Secure Checkout</div>
           <h1 className="ui-page-title">Checkout</h1>
         </div>
-        <div className="checkout-topbar-meta">
-          <span>Order subtotal ({itemCount} items)</span>
-          <strong>{formatPrice(subtotal)}</strong>
-        </div>
       </div>
 
       <div className="checkout-layout">
@@ -873,10 +869,6 @@ const Checkout = () => {
           </Card>
 
           <Card className="checkout-help-card">
-            <div>
-              <h2>Need help?</h2>
-              <p>Our support flow is the same clean style as the rest of the site.</p>
-            </div>
             <div className="checkout-help-actions">
               <Button variant="secondary" to="/shop">
                 Back to shop
