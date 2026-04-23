@@ -757,6 +757,13 @@ const CustomJerseyBuilder = () => {
     '--free-logo-area-height': `${freeLogoBoundary.height}%`,
   };
 
+  const jerseyTextStyle = {
+    color: design.textColor,
+    '--text-color': design.textColor,
+    '--text-stroke-color': design.textStrokeColor,
+    '--text-stroke-width': `${design.textStrokeWidth}px`,
+  };
+
   const updateDesign = (updates) => {
     setDesign((currentDesign) => ({ ...currentDesign, ...updates }));
     setNotice('');
@@ -1242,7 +1249,7 @@ const CustomJerseyBuilder = () => {
 
             {design.badgeLogo && <img className="badge-logo" src={design.badgeLogo} alt="" />}
             {(design.textName || design.textNumber) && (
-              <div className="jersey-print jersey-print-back" aria-hidden="true">
+              <div className="jersey-print jersey-print-back" style={jerseyTextStyle} aria-hidden="true">
                 {design.textName && <strong>{design.textName}</strong>}
                 {design.textNumber && <span>{design.textNumber}</span>}
               </div>
