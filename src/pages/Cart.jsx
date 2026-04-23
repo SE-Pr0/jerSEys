@@ -668,7 +668,11 @@ const Cart = () => {
                 </form>
 
                 <div className="cart-summary-actions">
-                  <Button block disabled={normalizedItems.length === 0}>
+                  <Button
+                    block
+                    onClick={() => navigate('/checkout')}
+                    disabled={normalizedItems.length === 0}
+                  >
                     Secure Checkout
                   </Button>
                   <Button block variant="ghost" onClick={clearCart} disabled={normalizedItems.length === 0}>

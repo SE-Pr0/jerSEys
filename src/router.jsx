@@ -5,10 +5,13 @@ import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetails from './pages/ProductDetails';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import OrderHistory from './pages/OrderHistory';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
 import NotFound from './pages/NotFound';
 import TradeMarketplace from './pages/TradeMarketplace';
 import TradeListingDetails from './pages/TradeListingDetails';
@@ -41,6 +44,9 @@ const Router = () => {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="order-confirmation" element={<OrderConfirmation />} />
           <Route path="order-history" element={<OrderHistory />} />
           <Route path="admin/sales-reports" element={<SalesReports />} />
           <Route path="admin/inventory-reports" element={<InventoryReports />} />

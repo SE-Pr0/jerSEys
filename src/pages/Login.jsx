@@ -159,6 +159,12 @@ const Login = () => {
           </div>
 
           <div className="auth-alt-link">
+            <Button to="/forgot-password" variant="ghost">
+              Forgot your password?
+            </Button>
+          </div>
+
+          <div className="auth-alt-link">
             <Button to="/register" variant="ghost">
               Need an account? Register
             </Button>
