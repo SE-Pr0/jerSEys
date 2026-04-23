@@ -17,6 +17,10 @@ import TradeMarketplace from './pages/TradeMarketplace';
 import TradeListingDetails from './pages/TradeListingDetails';
 import TradeRequests from './pages/TradeRequests';
 import CreateTradeListing from './pages/CreateTradeListing';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ManageUsers from './pages/admin/ManageUsers';
+import ManageOrders from './pages/admin/ManageOrders';
+import ManageInventory from './pages/admin/ManageInventory';
 import SalesReports from './pages/admin/SalesReports';
 import InventoryReports from './pages/admin/InventoryReports';
 
@@ -49,6 +53,10 @@ const Router = () => {
           <Route path="checkout" element={<Checkout />} />
           <Route path="order-confirmation" element={<OrderConfirmation />} />
           <Route path="order-history" element={<OrderHistory />} />
+          <Route path="admin" element={<AdminDashboard />} />
+          <Route path="admin/manage-users" element={<ManageUsers />} />
+          <Route path="admin/manage-orders" element={<ManageOrders />} />
+          <Route path="admin/manage-inventory" element={<ManageInventory />} />
           <Route path="admin/sales-reports" element={<SalesReports />} />
           <Route path="admin/inventory-reports" element={<InventoryReports />} />
           <Route path="trade" element={<TradeMarketplace />} />
