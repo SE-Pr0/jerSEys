@@ -9,26 +9,45 @@
 
 .trade-page {
   position: relative;
-  overflow: hidden;
+  min-height: 100vh;
   padding-top: 12px;
   padding-bottom: 96px;
-  background:
-    radial-gradient(circle at 16% 22%, rgba(244, 123, 32, 0.08), transparent 26%),
-    radial-gradient(circle at 82% 18%, rgba(27, 59, 138, 0.08), transparent 28%),
-    radial-gradient(circle at 58% 86%, rgba(192, 21, 42, 0.06), transparent 30%),
-    linear-gradient(180deg, #ffffff 0%, #fbf8f3 100%);
+  gap: var(--space-4);
+  background: transparent;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.trade-page::before,
+.trade-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .trade-page::before {
-  content: '';
-  position: absolute;
-  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 72% 40%, rgba(192,21,42,0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 50% at 22% 75%, rgba(27,59,138,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 50% 95%, rgba(58,181,74,0.05) 0%, transparent 55%),
+    #FFFFFF;
+  opacity: 0;
+  animation: fadeIn 1s ease .08s forwards;
+  z-index: 0;
+}
+
+.trade-page::after {
   background-image:
-    linear-gradient(rgba(27, 59, 138, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(27, 59, 138, 0.035) 1px, transparent 1px);
-  background-size: 64px 64px;
-  opacity: 0.55;
-  pointer-events: none;
+    linear-gradient(rgba(27,59,138,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,59,138,0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0;
+  animation: fadeIn 1.15s ease .18s forwards, gridMove 20s linear infinite;
   z-index: 0;
 }
 
@@ -68,11 +87,13 @@
 
 .trade-page .ui-page-title {
   font-size: clamp(56px, 7vw, 108px);
-  line-height: 0.92;
+  line-height: 0.99;
   letter-spacing: -2px;
 }
 
 .trade-page .ui-page-title span {
+  display: block;
+  margin-top: 0.06em;
   color: var(--crimson);
   letter-spacing: 1px;
 }
