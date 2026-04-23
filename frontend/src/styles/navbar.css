@@ -1,4 +1,4 @@
-nav {
+.site-nav {
   position: fixed;
   top: 0;
   left: 0;
@@ -139,7 +139,7 @@ nav {
   font-family: var(--font-body);
 }
 @media (max-width: 1024px) {
-  nav {
+  .site-nav {
     padding: 0 24px;
   }
 
@@ -155,7 +155,7 @@ nav {
 }
 
 @media (max-width: 680px) {
-  nav {
+  .site-nav {
     padding: 0 16px;
   }
 

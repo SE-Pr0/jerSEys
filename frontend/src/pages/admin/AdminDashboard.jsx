@@ -1,203 +1,261 @@
-import React from 'react';
-import { Button, Card, PageHeader } from '../../components/ui';
-import AdminSuiteLayout from './AdminSuiteLayout';
-import { adminSectionTabs, getInitials, toneAvatarStyles, toneBadgeStyles, toneBarStyles } from './adminConstants';
+import React, { useRef, useState } from 'react';
+import { Button, Card, PageHeader, PageShell } from '../../components/ui';
+import './AdminSuite.css';
+import { toneBadgeStyles } from './adminConstants';
 
-const dashboardMetrics = [
+const adminSections = [
   {
-    label: 'Users managed',
-    value: '1,248',
-    trend: '+62 this month',
-    trendTone: 'positive',
-    note: 'Team accounts and customer records across the storefront.',
+    id: 'dashboard',
+    group: 'General',
+    title: 'Dashboard',
+    description: 'A live command center for users, orders, inventory, and active alerts.',
+    status: 'Live',
     tone: 'royal',
+    route: '/admin',
+    chips: ['KPIs', 'Queues', 'Quick links'],
+    details: [
+      'Snapshot of the whole admin stack',
+      'Fast entry into the most used workflows',
+      'Highlights across sales, stock, and access',
+    ],
   },
   {
-    label: 'Open orders',
-    value: '318',
-    trend: '24 need review',
-    trendTone: 'warning',
-    note: 'Processing and fulfillment queues waiting for action.',
-    tone: 'orange',
-  },
-  {
-    label: 'Inventory SKUs',
-    value: '486',
-    trend: '21 low stock',
-    trendTone: 'warning',
-    note: 'Products monitored for restock and replenishment.',
+    id: 'user-management',
+    group: 'Sisyphus Ventures',
+    title: 'User management',
+    description: 'Review team accounts, permissions, invitations, and account health.',
+    status: 'Live',
     tone: 'crimson',
+    route: '/admin/manage-users',
+    chips: ['Roles', 'Invites', 'Suspensions'],
+    details: ['Access review and approvals', 'Role assignment', 'Account status checks'],
   },
   {
-    label: 'Alerts resolved',
-    value: '94%',
-    trend: '+7% faster',
-    trendTone: 'positive',
-    note: 'Operational issues being cleared before they impact sales.',
-    tone: 'green',
-  },
-];
-
-const launchCards = [
-  {
-    title: 'Manage Users',
-    to: '/admin/manage-users',
-    eyebrow: 'Accounts',
-    meta: 'Permissions, approvals, and account health',
-    tone: 'royal',
-    note: 'Review access, suspend risky accounts, and approve new team members.',
-  },
-  {
-    title: 'Manage Orders',
-    to: '/admin/manage-orders',
-    eyebrow: 'Operations',
-    meta: 'Status, payment, and fulfillment tracking',
+    id: 'manage-orders',
+    group: 'Sisyphus Ventures',
+    title: 'Manage orders',
+    description: 'Track order queues, payments, shipping, and fulfillment progress.',
+    status: 'Live',
     tone: 'orange',
-    note: 'Work through queues, payment checks, and shipping progress.',
+    route: '/admin/manage-orders',
+    chips: ['Queue', 'Payment', 'Fulfillment'],
+    details: ['Pending and completed orders', 'Payment checks', 'Shipping labels'],
   },
   {
-    title: 'Manage Inventory',
-    to: '/admin/manage-inventory',
-    eyebrow: 'Stock',
-    meta: 'Levels, reorders, and product health',
+    id: 'manage-inventory',
+    group: 'Sisyphus Ventures',
+    title: 'Manage inventory',
+    description: 'Monitor stock levels, reorder thresholds, and vendor restocks.',
+    status: 'Live',
     tone: 'green',
-    note: 'Spot low-stock products and push the next restock wave.',
+    route: '/admin/manage-inventory',
+    chips: ['Stock', 'Reorder', 'Vendor'],
+    details: ['Low-stock flags', 'Replenishment list', 'Warehouse counts'],
+  },
+  {
+    id: 'sales-reports',
+    group: 'Sisyphus Ventures',
+    title: 'Sales reports',
+    description: 'Revenue, conversion, and order performance analytics.',
+    status: 'Live',
+    tone: 'royal',
+    route: '/admin/sales-reports',
+    chips: ['Revenue', 'AOV', 'Conversion'],
+    details: ['Sales momentum', 'Category trends', 'Fulfillment metrics'],
+  },
+  {
+    id: 'inventory-reports',
+    group: 'Sisyphus Ventures',
+    title: 'Inventory reports',
+    description: 'Stock coverage, health score, and low-stock reporting.',
+    status: 'Live',
+    tone: 'orange',
+    route: '/admin/inventory-reports',
+    chips: ['Health', 'Coverage', 'Alerts'],
+    details: ['Coverage windows', 'Health score', 'Urgent restocks'],
+  },
+  {
+    id: 'manage-products',
+    group: 'Sisyphus Ventures',
+    title: 'Manage products',
+    description: 'Catalog editing, pricing updates, and product visibility.',
+    status: 'Planned',
+    tone: 'crimson',
+    chips: ['Catalog', 'Pricing', 'Visibility'],
+    details: ['Product cards and variants', 'Price changes', 'Feature toggles'],
+  },
+  {
+    id: 'manage-templates',
+    group: 'Sisyphus Ventures',
+    title: 'Manage templates',
+    description: 'Pattern packs, jersey templates, and reusable design assets.',
+    status: 'Planned',
+    tone: 'royal',
+    chips: ['Templates', 'Patterns', 'Assets'],
+    details: ['Design presets', 'Pattern library', 'Reusable assets'],
+  },
+  {
+    id: 'manage-trades',
+    group: 'Sisyphus Ventures',
+    title: 'Manage trades',
+    description: 'Review trade listings and approval workflows.',
+    status: 'Planned',
+    tone: 'green',
+    chips: ['Listings', 'Approvals', 'Review'],
+    details: ['Trade moderation', 'Request handling', 'Listing review'],
+  },
+  {
+    id: 'moderate-listings',
+    group: 'Sisyphus Ventures',
+    title: 'Moderate listings',
+    description: 'Flagged content, review queues, and marketplace moderation.',
+    status: 'Planned',
+    tone: 'orange',
+    chips: ['Flags', 'Queue', 'Reports'],
+    details: ['Content moderation', 'Flag resolution', 'Marketplace safety'],
   },
 ];
 
-const quickStatus = [
-  { label: 'Sales reports', value: 'Live', tone: 'green', to: '/admin/sales-reports' },
-  { label: 'Inventory reports', value: 'Live', tone: 'green', to: '/admin/inventory-reports' },
-  { label: 'Pending reviews', value: '12', tone: 'orange' },
-  { label: 'Urgent flags', value: '4', tone: 'crimson' },
-];
-
-const recentNotes = [
-  'Two premium custom orders are ready for approval.',
-  'One batch of basketball jerseys needs a stock verification pass.',
-  'A bulk user invite wave is scheduled for this afternoon.',
+const sidebarGroups = [
+  {
+    title: 'General',
+    items: adminSections.filter((section) => section.group === 'General'),
+  },
+  {
+    title: 'Sisyphus Ventures',
+    items: adminSections.filter((section) => section.group === 'Sisyphus Ventures'),
+  },
 ];
 
 const AdminDashboard = () => {
+  const mainRef = useRef(null);
+  const [activeSection, setActiveSection] = useState('dashboard');
+
+  const groupedVisibleSections = sidebarGroups
+    .map((group) => ({
+      ...group,
+      items: group.items,
+    }))
+    .filter((group) => group.items.length > 0);
+
+  const sidebarOptions = groupedVisibleSections.flatMap((group) => group.items);
+  const groupedContentSections = groupedVisibleSections
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((section) => section.id !== 'dashboard'),
+    }))
+    .filter((group) => group.items.length > 0);
+
+  const handleSidebarSelect = (sectionId) => {
+    setActiveSection(sectionId);
+
+    const sectionElement = document.getElementById(sectionId);
+    const mainElement = mainRef.current;
+
+    if (!sectionElement || !mainElement) {
+      return;
+    }
+
+    mainElement.scrollTo({
+      top: Math.max(sectionElement.offsetTop - 8, 0),
+      behavior: 'smooth',
+    });
+  };
+
   return (
-    <AdminSuiteLayout
-      actions={(
-        <>
-          <Button to="/admin/manage-users" variant="secondary">
-            Users
-          </Button>
-          <Button to="/admin/manage-orders">
-            Orders
-          </Button>
-        </>
-      )}
-      className="admin-dashboard-page"
-      description="Central command for user access, order flow, and inventory health."
-      eyebrow="Admin Console"
-      metrics={dashboardMetrics}
-      tabs={adminSectionTabs}
-      title={(
-        <>
-          Admin <span>Dashboard</span>
-        </>
-      )}
-    >
-      <div className="admin-suite-dashboard-grid">
-        <Card className="admin-suite-panel">
-          <div className="admin-suite-side-header">
-            <div>
-              <div className="admin-suite-kicker">Launchpad</div>
-              <h2 className="admin-suite-side-title">Jump into the core management flows.</h2>
-              <p className="admin-suite-side-subtitle">
-                Use the same editorial styling as the rest of the site while keeping the admin tools easy to scan.
-              </p>
-            </div>
+    <PageShell className="admin-suite-page admin-hub-page">
+      <div className="admin-hub-shell ui-card">
+        <aside className="admin-hub-sidebar" aria-label="Admin menu">
+          <div className="admin-hub-sidebar-head">
+            <strong>Admin Menu</strong>
           </div>
 
-          <div className="admin-suite-link-grid">
-            {launchCards.map((card) => (
-              <Card
-                as="a"
-                className={`admin-suite-link-card tone-${card.tone}`}
-                href={card.to}
-                key={card.title}
-                interactive
+          <nav className="admin-hub-sidebar-menu" aria-label="Admin sections">
+            {sidebarOptions.map((item) => (
+              <button
+                type="button"
+                className={`admin-hub-sidebar-option${activeSection === item.id ? ' is-active' : ''}`}
+                key={item.id}
+                onClick={() => handleSidebarSelect(item.id)}
               >
-                <div className="admin-suite-link-eyebrow">{card.eyebrow}</div>
-                <strong>{card.title}</strong>
-                <p>{card.note}</p>
-                <div className="admin-suite-link-foot">
-                  <span className="admin-suite-link-meta">{card.meta}</span>
-                  <span className="admin-suite-pill" style={toneBadgeStyles[card.tone]}>
-                    Open
-                  </span>
+                <span>{item.title}</span>
+                {item.id === 'notifications' ? <em>4</em> : null}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        <main className="admin-hub-main" ref={mainRef}>
+          <PageHeader
+            title={(
+              <>
+                Admin <span>Dashboard</span>
+              </>
+            )}
+          />
+
+          <div className="admin-hub-content">
+            <div id="dashboard" />
+
+            {groupedContentSections.map((group) => (
+              <section className="admin-hub-group" key={group.title}>
+                <div className="admin-hub-section-grid">
+                  {group.items.map((section) => (
+                    <Card
+                      className={`admin-hub-section-card tone-${section.tone}`}
+                      id={section.id}
+                      key={section.id}
+                      onMouseEnter={() => setActiveSection(section.id)}
+                    >
+                      <div className="admin-hub-section-head">
+                        <div>
+                          <div className="admin-suite-kicker">{section.group}</div>
+                          <h3 className="admin-hub-section-title">{section.title}</h3>
+                          <p className="admin-hub-section-subtitle">{section.description}</p>
+                        </div>
+                        <span className="admin-suite-pill" style={toneBadgeStyles[section.tone]}>
+                          {section.status}
+                        </span>
+                      </div>
+
+                      <div className="admin-hub-chip-list" aria-label={`${section.title} highlights`}>
+                        {section.chips.map((chip) => (
+                          <span className="admin-hub-chip" key={chip} style={toneBadgeStyles[section.tone]}>
+                            {chip}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="admin-hub-section-list">
+                        {section.details.map((detail) => (
+                          <div className="admin-hub-section-item" key={detail}>
+                            <span className="admin-hub-section-dot" aria-hidden="true" />
+                            <span>{detail}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="admin-hub-section-actions">
+                        {section.route ? (
+                          <Button to={section.route}>Open page</Button>
+                        ) : (
+                          <Button disabled variant="secondary">
+                            Coming soon
+                          </Button>
+                        )}
+                        <Button variant="ghost" onClick={() => setActiveSection(section.id)}>
+                          Focus section
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
                 </div>
-              </Card>
+              </section>
             ))}
           </div>
-        </Card>
-
-        <div className="admin-suite-dashboard-stack">
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">System pulse</div>
-                <h2 className="admin-suite-side-title">What needs attention now.</h2>
-              </div>
-            </div>
-            <div className="admin-suite-dashboard-quicklinks">
-              {quickStatus.map((item) => (
-                <div className="admin-suite-dashboard-quicklink" key={item.label}>
-                  <div>
-                    <strong>{item.label}</strong>
-                    <div className="admin-suite-footnote">Current status and short-term priority.</div>
-                  </div>
-                  <span className="admin-suite-status" style={toneBadgeStyles[item.tone || 'royal']}>
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Recent notes</div>
-                <h2 className="admin-suite-side-title">Latest admin updates.</h2>
-              </div>
-            </div>
-            <div className="admin-suite-list">
-              {recentNotes.map((note, index) => (
-                <div className="admin-suite-list-item" key={note}>
-                  <strong>Update {index + 1}</strong>
-                  <span>{note}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Support</div>
-                <h2 className="admin-suite-side-title">Team snapshot.</h2>
-              </div>
-            </div>
-            <div className="admin-suite-list">
-              <div className="admin-suite-list-item">
-                <strong>Flora Shaw</strong>
-                <span>Admin lead and access reviewer.</span>
-              </div>
-              <div className="admin-suite-list-item">
-                <strong>Account coverage</strong>
-                <span>2FA enabled for 94% of active staff accounts.</span>
-              </div>
-            </div>
-          </Card>
-        </div>
+        </main>
       </div>
-    </AdminSuiteLayout>
+    </PageShell>
   );
 };
 

@@ -85,7 +85,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav>
+    <nav className="site-nav">
       <Link to="/" className="nav-logo">
         jer<span>SE</span>ys
       </Link>
