@@ -444,7 +444,14 @@ const buildCustomKitLineKey = (design, size) =>
       : 'no-logo-position',
   ].join('|');
 
-const buildCustomKitThumbnail = async (design, selectedPreset) => {
+const buildCustomKitArtwork = async (
+  design,
+  selectedPreset,
+  {
+    includeBadgeLogo = true,
+    includeFreeLogo = true,
+  } = {},
+) => {
   try {
     const [
       baseMaskImage,
@@ -464,8 +471,8 @@ const buildCustomKitThumbnail = async (design, selectedPreset) => {
       loadImage(sleeveTexture),
       loadImage(shadows),
       selectedPreset?.src ? loadImage(selectedPreset.src) : Promise.resolve(null),
-      design.badgeLogo ? loadImage(design.badgeLogo) : Promise.resolve(null),
-      design.freeLogo ? loadImage(design.freeLogo) : Promise.resolve(null),
+      includeBadgeLogo && design.badgeLogo ? loadImage(design.badgeLogo) : Promise.resolve(null),
+      includeFreeLogo && design.freeLogo ? loadImage(design.freeLogo) : Promise.resolve(null),
     ]);
 
     const jerseyCanvas = createCanvas(viewBox.width, viewBox.height);
@@ -573,15 +580,28 @@ const buildCustomKitThumbnail = async (design, selectedPreset) => {
     boundsContext.drawImage(sleeveLayer, 0, 0);
     boundsContext.drawImage(collarLayer, 0, 0);
 
-    if (badgeLogoImage) {
+    if (includeBadgeLogo && badgeLogoImage) {
       drawImageContain(jerseyContext, badgeLogoImage, badgeLogoX, badgeLogoY, badgeLogoSize, badgeLogoSize);
       drawImageContain(boundsContext, badgeLogoImage, badgeLogoX, badgeLogoY, badgeLogoSize, badgeLogoSize);
     }
 
-    if (freeLogoImage) {
+    if (includeFreeLogo && freeLogoImage) {
       drawImageContain(jerseyContext, freeLogoImage, freeLogoX, freeLogoY, freeLogoWidth, freeLogoHeight);
       drawImageContain(boundsContext, freeLogoImage, freeLogoX, freeLogoY, freeLogoWidth, freeLogoHeight);
     }
+
+    return { jerseyCanvas, boundsCanvas };
+  } catch (error) {
+    throw error;
+  }
+};
+
+const buildCustomKitThumbnail = async (design, selectedPreset) => {
+  try {
+    const { jerseyCanvas, boundsCanvas } = await buildCustomKitArtwork(design, selectedPreset, {
+      includeBadgeLogo: true,
+      includeFreeLogo: true,
+    });
 
     const thumbnailCanvas = createCanvas(900, 900);
     const thumbnailContext = thumbnailCanvas.getContext('2d');
@@ -651,6 +671,53 @@ const buildCustomKitThumbnail = async (design, selectedPreset) => {
   }
 };
 
+const buildCustomKitPreviewArt = async (design, selectedPreset) => {
+  try {
+    const { jerseyCanvas } = await buildCustomKitArtwork(design, selectedPreset, {
+      includeBadgeLogo: false,
+      includeFreeLogo: false,
+    });
+
+    return jerseyCanvas.toDataURL('image/png');
+  } catch {
+    const patternSrc = escapeSvgText(selectedPreset?.src || '');
+    const baseColor = escapeSvgText(design.baseColor || '#0f172a');
+    const sleeveColor = escapeSvgText(design.sleeveColor || '#ffffff');
+    const presetColor = escapeSvgText(design.presetColor || '#ffffff');
+    const collarColor = escapeSvgText(design.collarColor || '#ffffff');
+    const selectedPresetSize = selectedPreset
+      ? presetSizes[selectedPreset.fileName] || { x: 0, y: 0, width: viewBox.width, height: viewBox.height }
+      : { x: 0, y: 0, width: viewBox.width, height: viewBox.height };
+
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1114 622" role="img" aria-label="Custom jersey preview">
+        <defs>
+          <mask id="baseFillMask">
+            <image href="${baseMask}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" />
+          </mask>
+          <mask id="sleeveFillMask">
+            <image href="${sleeveMask}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" />
+          </mask>
+          <mask id="collarFillMask">
+            <image href="${collarMask}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" />
+          </mask>
+        </defs>
+        <rect width="1114" height="622" rx="24" fill="#ffffff" />
+        <rect x="0" y="0" width="1114" height="622" fill="${baseColor}" mask="url(#baseFillMask)" />
+        ${patternSrc ? `<image href="${patternSrc}" x="${selectedPresetSize.x}" y="${selectedPresetSize.y}" width="${selectedPresetSize.width}" height="${selectedPresetSize.height}" preserveAspectRatio="xMidYMid slice" mask="url(#baseFillMask)" opacity="0.98" />` : ''}
+        <rect x="0" y="0" width="1114" height="622" fill="${presetColor}" mask="url(#baseFillMask)" opacity="0.14" />
+        <image href="${baseTexture}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" opacity="0.42" mask="url(#baseFillMask)" />
+        <rect x="0" y="0" width="1114" height="622" fill="${sleeveColor}" mask="url(#sleeveFillMask)" />
+        <image href="${sleeveTexture}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" opacity="0.38" mask="url(#sleeveFillMask)" />
+        <rect x="0" y="0" width="1114" height="622" fill="${collarColor}" mask="url(#collarFillMask)" />
+        <image href="${shadows}" x="0" y="0" width="1114" height="622" preserveAspectRatio="none" opacity="0.74" />
+      </svg>
+    `;
+
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
+};
+
 const CustomJerseyBuilder = () => {
   const [design, setDesign] = useState(readInitialDesign);
   const [notice, setNotice] = useState('');
@@ -659,6 +726,7 @@ const CustomJerseyBuilder = () => {
   const [isSizePromptOpen, setIsSizePromptOpen] = useState(false);
   const [selectedCartSize, setSelectedCartSize] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
+  const [previewArtwork, setPreviewArtwork] = useState('');
   const kitPreviewRef = useRef(null);
   const freeLogoRef = useRef(null);
   const freeLogoImageRef = useRef(null);
@@ -673,49 +741,7 @@ const CustomJerseyBuilder = () => {
     [design.presetId],
   );
 
-  const selectedPresetSize = selectedPreset
-    ? presetSizes[selectedPreset.fileName] || { x: 0, y: 0, width: viewBox.width, height: viewBox.height }
-    : { x: 0, y: 0, width: viewBox.width, height: viewBox.height };
-
   const hasFreeLogo = Boolean(design.freeLogo);
-
-  const previewStyle = {
-    '--base-mask': `url(${baseMask})`,
-    '--sleeve-mask': `url(${sleeveMask})`,
-    '--collar-mask': `url(${collarMask})`,
-    '--base-color': design.baseColor,
-    '--sleeve-color': design.sleeveColor,
-    '--preset-color': design.presetColor,
-    '--collar-color': design.collarColor,
-    '--text-color': design.textColor,
-    '--text-stroke-color': design.textStrokeColor,
-    '--text-stroke-width': `${design.textStrokeWidth}px`,
-    '--texture-opacity': 0.46,
-    '--shadow-opacity': 0.8,
-  };
-
-  const patternStyle = selectedPreset
-    ? {
-        '--preset-x': `${(selectedPresetSize.x / viewBox.width) * 100}%`,
-        '--preset-y': `${(selectedPresetSize.y / viewBox.height) * 100}%`,
-        '--preset-width': `${(selectedPresetSize.width / viewBox.width) * 100}%`,
-        '--preset-height': `${(selectedPresetSize.height / viewBox.height) * 100}%`,
-      }
-    : {};
-
-  const patternMaskStyle = selectedPreset
-    ? {
-        backgroundColor: design.presetColor,
-        maskImage: `url(${selectedPreset.src})`,
-        WebkitMaskImage: `url(${selectedPreset.src})`,
-        maskPosition: 'center',
-        maskRepeat: 'no-repeat',
-        maskSize: '100% 100%',
-        WebkitMaskPosition: 'center',
-        WebkitMaskRepeat: 'no-repeat',
-        WebkitMaskSize: '100% 100%',
-      }
-    : {};
 
   const freeLogoStyle = {
     left: `${design.freeLogoPosition.left}%`,
@@ -735,6 +761,31 @@ const CustomJerseyBuilder = () => {
     setDesign((currentDesign) => ({ ...currentDesign, ...updates }));
     setNotice('');
   };
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    const renderPreview = async () => {
+      const artwork = await buildCustomKitPreviewArt(design, selectedPreset);
+
+      if (isCurrent) {
+        setPreviewArtwork(artwork);
+      }
+    };
+
+    renderPreview();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [
+    design.baseColor,
+    design.sleeveColor,
+    design.presetColor,
+    design.collarColor,
+    selectedPreset?.id,
+    selectedPreset?.src,
+  ]);
 
   const controlSections = [
     { id: 'pattern', label: 'Pattern' },
@@ -1174,21 +1225,20 @@ const CustomJerseyBuilder = () => {
       </section>
 
       <section className="section-wrap custom-builder-workspace">
-        <div className="custom-builder-preview ui-card" style={previewStyle}>
+        <div className="custom-builder-preview ui-card">
           <div
             className={`custom-builder-preview-stage ${isFreeLogoSelected ? 'is-free-logo-selected' : ''}`}
             ref={kitPreviewRef}
             aria-label="Custom kit preview"
           >
-            <div className="jersey-layer jersey-layer-base" />
-            <div className="jersey-layer jersey-layer-pattern" style={patternStyle}>
-              {selectedPreset && <div className="jersey-layer-pattern-mask" style={patternMaskStyle} />}
-            </div>
-            <img className="jersey-layer jersey-layer-texture" src={baseTexture} alt="" aria-hidden="true" />
-            <div className="jersey-layer jersey-layer-sleeve" />
-            <img className="jersey-layer jersey-layer-sleeve-texture" src={sleeveTexture} alt="" aria-hidden="true" />
-            <div className="jersey-layer jersey-layer-collar" />
-            <img className="jersey-layer jersey-layer-shadow" src={shadows} alt="" aria-hidden="true" />
+            {previewArtwork ? (
+              <img
+                className="custom-builder-preview-art"
+                src={previewArtwork}
+                alt=""
+                aria-hidden="true"
+              />
+            ) : null}
 
             {design.badgeLogo && <img className="badge-logo" src={design.badgeLogo} alt="" />}
             {(design.textName || design.textNumber) && (
