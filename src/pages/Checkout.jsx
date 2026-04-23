@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Card, FormField, PageShell, StateBlock } from '../components/ui';
 import { getShopProductById } from '../services/productService';
 import { getStoredUser } from '../utils/auth';
+import { createOrderConfirmation, writeOrderConfirmation } from '../utils/orderConfirmation';
 import '../styles/checkout.css';
 
 const CART_STORAGE_KEYS = ['jerseys-cart', 'shopping-cart', 'cartItems', 'cart'];
@@ -304,9 +305,33 @@ const Checkout = () => {
       return;
     }
 
+    const confirmation = createOrderConfirmation({
+      items: normalizedItems,
+      shippingAddress: {
+        firstName: formValues.firstName.trim(),
+        lastName: formValues.lastName.trim(),
+        email: formValues.email.trim(),
+        phone: formValues.phone.trim(),
+        address1: formValues.address1.trim(),
+        address2: formValues.address2.trim(),
+        city: formValues.city.trim(),
+        state: formValues.state.trim(),
+        zip: formValues.zip.trim(),
+      },
+      cardNumber: formValues.cardNumber,
+      shippingMethod,
+      couponCode: isCouponApplied ? appliedCoupon : '',
+      subtotal,
+      discountAmount,
+      shippingCost,
+      taxCost,
+      orderTotal,
+    });
+
+    writeOrderConfirmation(confirmation);
     clearCartStorage();
     setCartItems([]);
-    navigate('/order-history');
+    navigate('/order-confirmation', { state: { order: confirmation } });
   };
 
   const openShippingMethod = () => {
