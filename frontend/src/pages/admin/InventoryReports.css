@@ -1,0 +1,876 @@
+.inventory-report-page {
+  position: relative;
+  min-height: 100vh;
+  padding-top: 12px;
+  padding-bottom: 96px;
+  gap: var(--space-4);
+  background: transparent;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.inventory-report-page::before,
+.inventory-report-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.inventory-report-page::before {
+  background:
+    radial-gradient(ellipse 70% 55% at 72% 40%, rgba(192,21,42,0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 50% at 22% 75%, rgba(27,59,138,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 50% 95%, rgba(58,181,74,0.05) 0%, transparent 55%),
+    #FFFFFF;
+  opacity: 0;
+  animation: fadeIn 1s ease .08s forwards;
+  z-index: 0;
+}
+
+.inventory-report-page::after {
+  background: none;
+  opacity: 0;
+  animation: none;
+  z-index: 0;
+}
+
+.inventory-report-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.inventory-report-hero {
+  position: relative;
+  overflow: visible;
+  background: transparent;
+}
+
+.inventory-report-hero-inner {
+  display: grid;
+  gap: var(--space-4);
+  padding: 20px 0 24px;
+}
+
+.inventory-report-page .ui-page-header {
+  opacity: 0;
+  animation: fadeUp .8s ease .2s forwards;
+}
+
+.inventory-report-insights-card {
+  opacity: 0;
+  animation: fadeUp .85s ease .52s forwards;
+}
+
+.inventory-report-attention-card {
+  opacity: 0;
+  animation: fadeUp .85s ease .6s forwards;
+}
+
+.inventory-report-activity-card {
+  opacity: 0;
+  animation: fadeUp .85s ease .68s forwards;
+}
+
+.inventory-report-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-end;
+}
+
+.inventory-report-toolbar .ui-form-field {
+  min-width: 200px;
+}
+
+.inventory-report-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+
+.inventory-report-kpi-card {
+  opacity: 0;
+  animation: fadeUp .85s ease forwards;
+}
+
+.inventory-report-kpi-card:nth-child(1) {
+  animation-delay: .28s;
+}
+
+.inventory-report-kpi-card:nth-child(2) {
+  animation-delay: .34s;
+}
+
+.inventory-report-kpi-card:nth-child(3) {
+  animation-delay: .4s;
+}
+
+.inventory-report-kpi-card:nth-child(4) {
+  animation-delay: .46s;
+}
+
+.inventory-report-kpi-card,
+.inventory-report-chart-card,
+.inventory-report-health-card,
+.inventory-report-categories-card,
+.inventory-report-insights-card {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.inventory-report-kpi-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 196px;
+  padding: var(--space-4);
+}
+
+.inventory-report-kpi-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+}
+
+.inventory-report-kpi-card.tone-royal::before {
+  background: linear-gradient(90deg, var(--royal-blue), rgba(27, 59, 138, 0.22));
+}
+
+.inventory-report-kpi-card.tone-orange::before {
+  background: linear-gradient(90deg, var(--orange), rgba(244, 123, 32, 0.24));
+}
+
+.inventory-report-kpi-card.tone-crimson::before {
+  background: linear-gradient(90deg, var(--crimson), rgba(192, 21, 42, 0.22));
+}
+
+.inventory-report-kpi-card.tone-green::before {
+  background: linear-gradient(90deg, var(--green), rgba(42, 158, 57, 0.22));
+}
+
+.inventory-report-kpi-top,
+.inventory-report-kpi-footer,
+.inventory-report-section-heading,
+.inventory-report-category-head,
+.inventory-report-table-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.inventory-report-kpi-label,
+.inventory-report-kicker,
+.inventory-report-table th,
+.inventory-report-axis span,
+.inventory-report-grid-label {
+  font-family: var(--font-accent);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.inventory-report-kpi-label {
+  color: var(--text-2);
+}
+
+.inventory-report-kicker {
+  margin-bottom: var(--space-2);
+  color: var(--orange);
+}
+
+.inventory-report-kpi-value,
+.inventory-report-chart-spotlight strong,
+.inventory-report-chart-meta-item strong,
+.inventory-report-health-copy strong,
+.inventory-report-mini-stat strong,
+.inventory-report-category-head strong,
+.inventory-report-insight-item strong,
+.inventory-report-breakdown-item strong,
+.inventory-report-product-cell strong,
+.inventory-report-ring-copy strong {
+  font-family: var(--font-head);
+  letter-spacing: 0.8px;
+  color: var(--text-1);
+}
+
+.inventory-report-kpi-value {
+  font-size: clamp(28px, 3.2vw, 40px);
+  line-height: 1.05;
+}
+
+.inventory-report-chart-spotlight strong,
+.inventory-report-health-copy strong {
+  font-size: clamp(38px, 4vw, 48px);
+}
+
+.inventory-report-chart-meta-item strong,
+.inventory-report-mini-stat strong,
+.inventory-report-insight-item strong {
+  font-size: 24px;
+}
+
+.inventory-report-category-head strong,
+.inventory-report-product-cell strong,
+.inventory-report-breakdown-item strong,
+.inventory-report-ring-copy strong {
+  font-size: 24px;
+}
+
+.inventory-report-kpi-comparison,
+.inventory-report-chart-spotlight span,
+.inventory-report-chart-spotlight p,
+.inventory-report-chart-meta-item span,
+.inventory-report-health-copy p,
+.inventory-report-health-note,
+.inventory-report-mini-stat span,
+.inventory-report-category-head span,
+.inventory-report-category-share,
+.inventory-report-insight-item p,
+.inventory-report-table-note,
+.inventory-report-table-text,
+.inventory-report-breakdown-item span {
+  color: var(--text-2);
+  line-height: 1.4;
+}
+
+.inventory-report-kpi-footer {
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.inventory-report-trend,
+.inventory-report-chip,
+.inventory-report-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-family: var(--font-accent);
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.inventory-report-trend.is-positive {
+  background: var(--green-lt);
+  color: var(--green);
+}
+
+.inventory-report-trend.is-warning {
+  background: var(--orange-lt);
+  color: var(--orange);
+}
+
+.inventory-report-trend.is-critical {
+  background: var(--crimson-lt);
+  color: var(--crimson);
+}
+
+.inventory-report-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.inventory-report-secondary-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.1fr);
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+.inventory-report-secondary-grid > .ui-card {
+  height: 100%;
+}
+
+.inventory-report-chart-card {
+  opacity: 0;
+  animation: fadeUp .9s ease .38s forwards;
+}
+
+.inventory-report-chart-card {
+  background:
+    radial-gradient(circle at top right, rgba(27, 59, 138, 0.08), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(42, 158, 57, 0.05), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 246, 243, 0.96));
+}
+
+.inventory-report-section-heading h2,
+.inventory-report-table-header h2 {
+  font-family: var(--font-head);
+  font-size: clamp(24px, 2.2vw, 30px);
+  letter-spacing: 0.8px;
+  color: var(--text-1);
+}
+
+.inventory-report-segment {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(240, 237, 232, 0.7);
+}
+
+.inventory-report-segment button {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--font-accent);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: none;
+  transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.inventory-report-segment button.is-active {
+  background: var(--white);
+  color: var(--royal-blue);
+  box-shadow: var(--shadow-sm);
+}
+
+.inventory-report-chart-summary {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.2fr) repeat(3, minmax(120px, 1fr));
+  gap: var(--space-2);
+}
+
+.inventory-report-chart-spotlight {
+  display: grid;
+  gap: 6px;
+  padding-right: var(--space-3);
+  border-right: 1px solid var(--border);
+}
+
+.inventory-report-chart-meta-item,
+.inventory-report-mini-stat,
+.inventory-report-insight-item,
+.inventory-report-breakdown-item {
+  display: grid;
+  gap: 6px;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.inventory-report-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.inventory-report-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.inventory-report-legend-swatch {
+  display: inline-block;
+  width: 26px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.inventory-report-legend-swatch.is-available {
+  background: var(--royal-blue);
+}
+
+.inventory-report-legend-swatch.is-threshold {
+  height: 0;
+  border-top: 3px dashed rgba(244, 123, 32, 0.76);
+  border-radius: 0;
+}
+
+.inventory-report-chart-shell {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(circle at top, rgba(27, 59, 138, 0.05), transparent 46%),
+    var(--white);
+}
+
+.inventory-report-chart-svg {
+  width: 100%;
+  height: 300px;
+}
+
+.inventory-report-grid-line {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.inventory-report-grid-label {
+  fill: var(--text-3);
+}
+
+.inventory-report-threshold-line {
+  fill: none;
+  stroke: rgba(244, 123, 32, 0.7);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 7 8;
+}
+
+.inventory-report-available-line {
+  fill: none;
+  stroke: var(--royal-blue);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.inventory-report-point {
+  fill: var(--white);
+  stroke: var(--royal-blue);
+  stroke-width: 3;
+}
+
+.inventory-report-axis {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px 2px 44px;
+}
+
+.inventory-report-axis span {
+  color: var(--text-3);
+}
+
+.inventory-report-secondary-grid .inventory-report-health-card {
+  opacity: 0;
+  animation: fadeUp .9s ease .44s forwards;
+}
+
+.inventory-report-secondary-grid .inventory-report-categories-card {
+  opacity: 0;
+  animation: fadeUp .9s ease .5s forwards;
+}
+
+.inventory-report-health-card {
+  background:
+    radial-gradient(circle at top right, rgba(27, 59, 138, 0.12), transparent 44%),
+    radial-gradient(circle at bottom left, rgba(42, 158, 57, 0.08), transparent 36%),
+    var(--white);
+}
+
+.inventory-report-health-card--compact {
+  gap: var(--space-2);
+}
+
+.inventory-report-health-card--compact .inventory-report-health-hero {
+  gap: var(--space-3);
+}
+
+.inventory-report-health-card--compact .inventory-report-ring {
+  width: 112px;
+  height: 112px;
+}
+
+.inventory-report-health-card--compact .inventory-report-ring-copy strong {
+  font-size: 26px;
+}
+
+.inventory-report-health-card--compact .inventory-report-ring-copy span {
+  font-size: 13px;
+}
+
+.inventory-report-health-card--compact .inventory-report-health-copy strong {
+  font-size: clamp(28px, 2.7vw, 34px);
+}
+
+.inventory-report-health-card--compact .inventory-report-health-copy p {
+  line-height: 1.35;
+}
+
+.inventory-report-health-card--compact .inventory-report-health-note {
+  display: none;
+}
+
+.inventory-report-section-heading.is-compact {
+  align-items: center;
+}
+
+.inventory-report-chip {
+  background: var(--blue-lt);
+  color: var(--royal-blue);
+}
+
+.inventory-report-health-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.inventory-report-ring {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.inventory-report-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.inventory-report-ring-track,
+.inventory-report-ring-progress {
+  fill: none;
+  stroke-width: 10;
+}
+
+.inventory-report-ring-track {
+  stroke: rgba(27, 59, 138, 0.12);
+}
+
+.inventory-report-ring-progress {
+  stroke: var(--green);
+  stroke-linecap: round;
+  filter: drop-shadow(0 10px 16px rgba(42, 158, 57, 0.14));
+}
+
+.inventory-report-ring-copy {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+
+.inventory-report-ring-copy span {
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+.inventory-report-breakdown-bar {
+  display: flex;
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(24, 20, 14, 0.06);
+}
+
+.inventory-report-breakdown-segment {
+  width: var(--segment-width);
+  height: 100%;
+}
+
+.inventory-report-breakdown-segment.tone-green {
+  background: linear-gradient(90deg, var(--green), rgba(42, 158, 57, 0.72));
+}
+
+.inventory-report-breakdown-segment.tone-orange {
+  background: linear-gradient(90deg, var(--orange), rgba(244, 123, 32, 0.72));
+}
+
+.inventory-report-breakdown-segment.tone-crimson {
+  background: linear-gradient(90deg, var(--crimson), rgba(192, 21, 42, 0.72));
+}
+
+.inventory-report-breakdown-segment.tone-royal {
+  background: linear-gradient(90deg, var(--royal-blue), rgba(27, 59, 138, 0.72));
+}
+
+.inventory-report-breakdown-grid,
+.inventory-report-mini-grid,
+.inventory-report-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.inventory-report-category-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.inventory-report-category-head > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.inventory-report-category-share {
+  font-family: var(--font-head);
+  font-size: 20px;
+  letter-spacing: 0.7px;
+}
+
+.inventory-report-category-bar {
+  width: 100%;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.inventory-report-category-fill {
+  display: block;
+  width: var(--category-fill);
+  height: 100%;
+  border-radius: inherit;
+}
+
+.inventory-report-category-fill.tone-royal {
+  background: linear-gradient(90deg, var(--royal-blue), rgba(27, 59, 138, 0.55));
+}
+
+.inventory-report-category-fill.tone-orange {
+  background: linear-gradient(90deg, var(--orange), rgba(244, 123, 32, 0.58));
+}
+
+.inventory-report-category-fill.tone-crimson {
+  background: linear-gradient(90deg, var(--crimson), rgba(192, 21, 42, 0.56));
+}
+
+.inventory-report-category-fill.tone-green {
+  background: linear-gradient(90deg, var(--green), rgba(42, 158, 57, 0.58));
+}
+
+.inventory-report-insights-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.inventory-report-insight-item span {
+  font-family: var(--font-accent);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+.inventory-report-table-note {
+  padding-bottom: 8px;
+}
+
+.inventory-report-table-header {
+  padding: var(--space-6) var(--space-6) var(--space-4);
+}
+
+.inventory-report-table-card--compact .inventory-report-table-header {
+  padding: var(--space-4) var(--space-4) var(--space-3);
+}
+
+.inventory-report-table-card--compact .inventory-report-table th {
+  padding: 0 var(--space-4) var(--space-2);
+}
+
+.inventory-report-table-card--compact .inventory-report-table td {
+  padding: var(--space-3) var(--space-4);
+}
+
+.inventory-report-table-wrap {
+  overflow-x: auto;
+}
+
+.inventory-report-table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+}
+
+.inventory-report-table th {
+  padding: 0 var(--space-6) var(--space-3);
+  text-align: left;
+  color: var(--text-3);
+}
+
+.inventory-report-table td {
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.inventory-report-table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.inventory-report-table tbody tr:hover {
+  background: rgba(240, 237, 232, 0.44);
+}
+
+.inventory-report-product-cell {
+  display: grid;
+  gap: 4px;
+}
+
+.inventory-report-quantity {
+  font-family: var(--font-head);
+  font-size: 24px;
+  letter-spacing: 0.7px;
+}
+
+.inventory-report-quantity.is-positive {
+  color: var(--green);
+}
+
+.inventory-report-quantity.is-negative {
+  color: var(--crimson);
+}
+
+.inventory-report-status.status-low-stock,
+.inventory-report-status.status-pending {
+  background: var(--orange-lt);
+  color: var(--orange);
+}
+
+.inventory-report-status.status-critical,
+.inventory-report-status.status-out-of-stock,
+.inventory-report-status.status-review {
+  background: var(--crimson-lt);
+  color: var(--crimson);
+}
+
+.inventory-report-status.status-completed {
+  background: var(--green-lt);
+  color: var(--green);
+}
+
+.inventory-report-status.status-verified,
+.inventory-report-status.status-logged {
+  background: var(--blue-lt);
+  color: var(--royal-blue);
+}
+
+@media (max-width: 1180px) {
+  .inventory-report-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-report-secondary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .inventory-report-chart-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .inventory-report-chart-spotlight {
+    grid-column: 1 / -1;
+    padding-right: 0;
+    padding-bottom: var(--space-4);
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 840px) {
+  .inventory-report-toolbar {
+    width: 100%;
+  }
+
+  .inventory-report-toolbar .ui-form-field {
+    flex: 1 1 220px;
+  }
+
+  .inventory-report-secondary-grid,
+  .inventory-report-mini-grid,
+  .inventory-report-breakdown-grid,
+  .inventory-report-insights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-report-health-hero,
+  .inventory-report-table-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .inventory-report-chart-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-report-segment {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .inventory-report-segment button {
+    flex: 1 1 0;
+  }
+
+  .inventory-report-chart-svg {
+    height: 240px;
+  }
+
+  .inventory-report-axis {
+    padding-left: 36px;
+  }
+
+  .inventory-report-table {
+    min-width: 0;
+  }
+
+  .inventory-report-table thead {
+    display: none;
+  }
+
+  .inventory-report-table,
+  .inventory-report-table tbody,
+  .inventory-report-table tr,
+  .inventory-report-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .inventory-report-table tr {
+    padding: 0 var(--space-4);
+  }
+
+  .inventory-report-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: 14px 0;
+  }
+
+  .inventory-report-table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-family: var(--font-accent);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .inventory-report-product-cell {
+    justify-items: end;
+    text-align: right;
+  }
+
+  .inventory-report-table-header {
+    padding-bottom: var(--space-4);
+  }
+}
