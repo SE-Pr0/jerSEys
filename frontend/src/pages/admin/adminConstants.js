@@ -4,6 +4,7 @@ export const adminSectionTabs = [
   { to: '/admin/manage-orders', label: 'Orders' },
   { to: '/admin/manage-inventory', label: 'Inventory' },
   { to: '/admin/manage-products', label: 'Products' },
+  { to: '/admin/manage-patterns', label: 'Patterns' },
   { to: '/admin/sales-reports', label: 'Sales Reports' },
   { to: '/admin/inventory-reports', label: 'Stock Reports' },
 ];

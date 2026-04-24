@@ -6,6 +6,7 @@ import ManageUsers from './ManageUsers';
 import ManageOrders from './ManageOrders';
 import ManageInventory from './ManageInventory';
 import ManageProducts from './ManageProducts';
+import ManageTemplates from './ManageTemplates';
 import ManageTrades from './ManageTrades';
 import ModerateListings from './ModerateListings';
 import SalesReports from './SalesReports';
@@ -94,13 +95,14 @@ const adminSections = [
     details: ['Product cards and variants', 'Price changes', 'Feature toggles'],
   },
   {
-    id: 'manage-templates',
+    id: 'manage-patterns',
     group: 'Sisyphus Ventures',
-    title: 'Manage templates',
-    description: 'Pattern packs, jersey templates, and reusable design assets.',
-    status: 'Planned',
+    title: 'Manage patterns',
+    description: 'Pattern packs and reusable preset assets used by Custom Jersey.',
+    status: 'Live',
     tone: 'royal',
-    chips: ['Templates', 'Patterns', 'Assets'],
+    route: '/admin/manage-patterns',
+    chips: ['Patterns', 'Presets', 'Assets'],
     details: ['Design presets', 'Pattern library', 'Reusable assets'],
   },
   {
@@ -153,6 +155,7 @@ const embeddedSectionIds = new Set([
   'manage-orders',
   'manage-inventory',
   'manage-products',
+  'manage-patterns',
   'manage-trades',
   'moderate-listings',
   'sales-reports',
@@ -182,6 +185,7 @@ const AdminDashboard = () => {
     'manage-orders': ManageOrders,
     'manage-inventory': ManageInventory,
     'manage-products': ManageProducts,
+    'manage-patterns': ManageTemplates,
     'manage-trades': ManageTrades,
     'moderate-listings': ModerateListings,
     'sales-reports': SalesReports,

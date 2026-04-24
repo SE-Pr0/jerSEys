@@ -27,6 +27,8 @@ const savedFreeLogoKey = 'front-kit-free-logo';
 const savedFreeLogoPositionKey = 'front-kit-free-logo-position';
 const savedPresetKey = 'front-kit-preset';
 const savedTextKey = 'front-kit-text';
+const PATTERN_LIBRARY_KEY = 'jerseys-pattern-library-v1';
+const PATTERN_LIBRARY_EVENT = 'jerseys-pattern-library-change';
 const CART_STORAGE_KEY = 'jerseys-cart';
 const CART_EVENT_NAME = 'jerseys-cart-change';
 const CUSTOM_KIT_PRICE = 39.99;
@@ -115,7 +117,7 @@ const getPresetLabel = (fileName) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-const presets = presetFiles
+const defaultPresets = presetFiles
   .map(({ fileName, src }) => {
     const id = fileName.replace(/\.[^.]+$/, '');
 
@@ -128,10 +130,39 @@ const presets = presetFiles
   })
   .sort((first, second) => first.name.localeCompare(second.name));
 
-const getDefaultDesign = () => ({
+const mapPatternLibraryToPresets = (patterns) =>
+  patterns
+    .filter((pattern) => pattern && pattern.id && pattern.name && (pattern.image || pattern.src))
+    .map((pattern) => ({
+      id: String(pattern.id),
+      fileName: String(pattern.fileName || `${pattern.name}.png`),
+      name: String(pattern.name),
+      src: String(pattern.image || pattern.src),
+    }))
+    .sort((first, second) => first.name.localeCompare(second.name));
+
+const getActivePresets = () => {
+  if (typeof window === 'undefined') {
+    return defaultPresets;
+  }
+
+  try {
+    const storedPatterns = JSON.parse(window.localStorage.getItem(PATTERN_LIBRARY_KEY) || 'null');
+    if (!Array.isArray(storedPatterns) || !storedPatterns.length) {
+      return defaultPresets;
+    }
+
+    const mappedPatterns = mapPatternLibraryToPresets(storedPatterns);
+    return mappedPatterns.length ? mappedPatterns : defaultPresets;
+  } catch {
+    return defaultPresets;
+  }
+};
+
+const getDefaultDesign = (availablePresets = defaultPresets) => ({
   ...layerDefaults,
   ...textDefaults,
-  presetId: presets[0]?.id || '',
+  presetId: availablePresets[0]?.id || '',
   badgeLogo: '',
   freeLogo: '',
   freeLogoAspect: '1 / 1',
@@ -155,14 +186,14 @@ const parseSavedPosition = (savedPosition) => {
   };
 };
 
-const readInitialDesign = () => {
-  const defaultDesign = getDefaultDesign();
+const readInitialDesign = (availablePresets = defaultPresets) => {
+  const defaultDesign = getDefaultDesign(availablePresets);
 
   try {
     const savedColors = JSON.parse(localStorage.getItem(savedColorsKey) || 'null');
     const savedPreset = localStorage.getItem(savedPresetKey);
     const savedPresetKeyIsDeprecated = deprecatedPresetKeys.has(savedPreset);
-    const selectedPreset = presets.find((preset) => preset.fileName === savedPreset || preset.id === savedPreset);
+    const selectedPreset = availablePresets.find((preset) => preset.fileName === savedPreset || preset.id === savedPreset);
     const savedFreeLogoPosition = JSON.parse(localStorage.getItem(savedFreeLogoPositionKey) || 'null');
     const savedText = JSON.parse(localStorage.getItem(savedTextKey) || 'null');
 
@@ -719,7 +750,8 @@ const buildCustomKitPreviewArt = async (design, selectedPreset) => {
 };
 
 const CustomJerseyBuilder = () => {
-  const [design, setDesign] = useState(readInitialDesign);
+  const [presets, setPresets] = useState(() => getActivePresets());
+  const [design, setDesign] = useState(() => readInitialDesign(getActivePresets()));
   const [notice, setNotice] = useState('');
   const [isFreeLogoSelected, setIsFreeLogoSelected] = useState(false);
   const [activeControlSection, setActiveControlSection] = useState('pattern');
@@ -738,7 +770,7 @@ const CustomJerseyBuilder = () => {
 
   const selectedPreset = useMemo(
     () => presets.find((preset) => preset.id === design.presetId) || presets[0],
-    [design.presetId],
+    [design.presetId, presets],
   );
 
   const hasFreeLogo = Boolean(design.freeLogo);
@@ -1138,7 +1170,7 @@ const CustomJerseyBuilder = () => {
     localStorage.removeItem(savedFreeLogoPositionKey);
     localStorage.removeItem(savedPresetKey);
     localStorage.removeItem(savedTextKey);
-    setDesign(getDefaultDesign());
+    setDesign(getDefaultDesign(presets));
     setIsFreeLogoSelected(false);
     setActiveControlSection('pattern');
 
@@ -1156,8 +1188,39 @@ const CustomJerseyBuilder = () => {
   useEffect(() => {
     if (!design.presetId && presets[0]) {
       setDesign((currentDesign) => ({ ...currentDesign, presetId: presets[0].id }));
+      return;
     }
-  }, [design.presetId]);
+
+    if (design.presetId && !presets.some((preset) => preset.id === design.presetId) && presets[0]) {
+      setDesign((currentDesign) => ({ ...currentDesign, presetId: presets[0].id }));
+    }
+  }, [design.presetId, presets]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const syncPresets = () => {
+      setPresets(getActivePresets());
+    };
+
+    const handleStorage = (event) => {
+      if (event.key && event.key !== PATTERN_LIBRARY_KEY) {
+        return;
+      }
+
+      syncPresets();
+    };
+
+    window.addEventListener(PATTERN_LIBRARY_EVENT, syncPresets);
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener(PATTERN_LIBRARY_EVENT, syncPresets);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
 
   useEffect(() => {
     const handleDocumentPointerDown = (event) => {
