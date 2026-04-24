@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { Button, Card, FormField } from '../../components/ui';
 import AdminSuiteLayout from './AdminSuiteLayout';
 import {
-  adminSectionTabs,
   buildSearchBlob,
   getInitials,
   toneAvatarStyles,
@@ -217,21 +216,10 @@ const ManageInventory = () => {
 
   return (
     <AdminSuiteLayout
-      actions={(
-        <>
-          <Button to="/admin/inventory-reports" variant="secondary">
-            Stock reports
-          </Button>
-          <Button to="/admin/manage-orders">
-            Orders
-          </Button>
-        </>
-      )}
       className="admin-inventory-page"
       description="Watch stock levels, reorder thresholds, and item health without leaving the admin console."
       eyebrow="Admin Console"
       metrics={inventoryMetrics}
-      tabs={adminSectionTabs}
       title={(
         <>
           Manage <span>Inventory</span>
@@ -276,11 +264,6 @@ const ManageInventory = () => {
               <p className="admin-suite-table-subtitle">
                 Keep the warehouse balanced by checking reorder levels and stock coverage daily.
               </p>
-            </div>
-
-            <div className="admin-suite-filter-group">
-              <Button variant="secondary">Add stock</Button>
-              <Button variant="ghost">Export CSV</Button>
             </div>
           </div>
 

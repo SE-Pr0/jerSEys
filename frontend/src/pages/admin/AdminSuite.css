@@ -123,8 +123,9 @@
   position: relative;
   overflow: hidden;
   display: grid;
-  gap: 10px;
-  min-height: 152px;
+  gap: 8px;
+  min-height: 118px;
+  padding: 16px;
 }
 
 .admin-suite-metric-card::before {
@@ -152,17 +153,18 @@
 
 .admin-suite-metric-label {
   font-family: var(--font-accent);
-  font-size: 11px;
-  letter-spacing: 2px;
+  font-size: 10px;
+  letter-spacing: 1.6px;
   text-transform: uppercase;
   color: var(--text-2);
 }
 
 .admin-suite-metric-value {
   font-family: var(--font-head);
-  font-size: clamp(30px, 4vw, 42px);
+  font-size: clamp(28px, 3.4vw, 36px);
   letter-spacing: 0.8px;
   color: var(--text-1);
+  line-height: 1;
 }
 
 .admin-suite-metric-trend {
@@ -170,12 +172,12 @@
   align-items: center;
   justify-content: center;
   width: fit-content;
-  min-height: 32px;
-  padding: 0 12px;
+  min-height: 26px;
+  padding: 0 10px;
   border-radius: 999px;
   font-family: var(--font-accent);
-  font-size: 11px;
-  letter-spacing: 2px;
+  font-size: 10px;
+  letter-spacing: 1.4px;
   text-transform: uppercase;
   background: rgba(24, 20, 14, 0.06);
   color: var(--text-2);
@@ -198,7 +200,9 @@
 
 .admin-suite-metric-note {
   color: var(--text-2);
-  line-height: 1.65;
+  font-size: 13px;
+  line-height: 1.35;
+  max-width: 28ch;
 }
 
 .admin-suite-workspace {
@@ -206,6 +210,104 @@
   grid-template-columns: minmax(0, 1.55fr) minmax(310px, 0.85fr);
   gap: var(--space-5);
   align-items: start;
+}
+
+.admin-users-page .admin-suite-workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.admin-users-page .admin-suite-table-wrap {
+  overflow-x: hidden;
+}
+
+.admin-users-page .admin-suite-table {
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.admin-users-page .admin-suite-table th,
+.admin-users-page .admin-suite-table td {
+  padding: 12px 10px;
+}
+
+.admin-users-page .admin-suite-table th {
+  font-size: 10px;
+  letter-spacing: 1.4px;
+}
+
+.admin-users-page .admin-suite-table td {
+  font-size: 13px;
+}
+
+.admin-users-page .admin-suite-table th:nth-child(1),
+.admin-users-page .admin-suite-table td:nth-child(1) {
+  width: 36%;
+}
+
+.admin-users-page .admin-suite-table th:nth-child(2),
+.admin-users-page .admin-suite-table td:nth-child(2) {
+  width: 12%;
+}
+
+.admin-users-page .admin-suite-table th:nth-child(3),
+.admin-users-page .admin-suite-table td:nth-child(3) {
+  width: 20%;
+}
+
+.admin-users-page .admin-suite-table th:nth-child(4),
+.admin-users-page .admin-suite-table td:nth-child(4) {
+  width: 12%;
+}
+
+.admin-users-page .admin-suite-table th:nth-child(5),
+.admin-users-page .admin-suite-table td:nth-child(5) {
+  width: 10%;
+}
+
+.admin-users-page .admin-suite-table th:nth-child(6),
+.admin-users-page .admin-suite-table td:nth-child(6) {
+  width: 10%;
+}
+
+.admin-users-page .admin-suite-name-cell {
+  gap: 10px;
+}
+
+.admin-users-page .admin-suite-avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+}
+
+.admin-users-page .admin-suite-name-cell strong {
+  font-size: 15px;
+}
+
+.admin-users-page .admin-suite-subtext {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.admin-users-page .admin-suite-pill,
+.admin-users-page .admin-suite-status {
+  min-height: 24px;
+  padding: 0 8px;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+
+.admin-users-page .admin-suite-pill-group {
+  gap: 6px;
+}
+
+.admin-users-page .admin-suite-actions {
+  gap: 6px;
+}
+
+.admin-users-page .admin-suite-inline-button.ui-button {
+  min-height: 30px;
+  padding: 6px 8px;
+  font-size: 9px;
 }
 
 .admin-suite-panel,

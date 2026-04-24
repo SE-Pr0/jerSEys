@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { Button, Card, FormField } from '../../components/ui';
 import AdminSuiteLayout from './AdminSuiteLayout';
 import {
-  adminSectionTabs,
   buildSearchBlob,
   getInitials,
   toneAvatarStyles,
@@ -258,21 +257,10 @@ const ManageOrders = () => {
 
   return (
     <AdminSuiteLayout
-      actions={(
-        <>
-          <Button to="/admin/sales-reports" variant="secondary">
-            Sales reports
-          </Button>
-          <Button to="/admin/manage-inventory">
-            Inventory
-          </Button>
-        </>
-      )}
       className="admin-orders-page"
       description="Track order status, payment flow, and fulfillment progress from a single queue."
       eyebrow="Admin Console"
       metrics={orderMetrics}
-      tabs={adminSectionTabs}
       title={(
         <>
           Manage <span>Orders</span>
@@ -317,11 +305,6 @@ const ManageOrders = () => {
               <p className="admin-suite-table-subtitle">
                 Keep the store moving by checking payment, packing, and shipping status in one place.
               </p>
-            </div>
-
-            <div className="admin-suite-filter-group">
-              <Button variant="secondary">Create order</Button>
-              <Button variant="ghost">Export CSV</Button>
             </div>
           </div>
 

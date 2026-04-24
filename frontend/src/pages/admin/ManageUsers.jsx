@@ -2,12 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { Button, Card, FormField } from '../../components/ui';
 import AdminSuiteLayout from './AdminSuiteLayout';
 import {
-  adminSectionTabs,
   buildSearchBlob,
   getInitials,
   toneAvatarStyles,
   toneBadgeStyles,
-  toneBarStyles,
   normalizeText,
 } from './adminConstants';
 
@@ -170,37 +168,6 @@ const users = [
   },
 ];
 
-const roleBreakdown = [
-  { label: 'Admins', count: 12, share: 14, tone: 'crimson' },
-  { label: 'Managers', count: 27, share: 23, tone: 'royal' },
-  { label: 'Staff', count: 58, share: 37, tone: 'orange' },
-  { label: 'Customers', count: 1149, share: 26, tone: 'green' },
-];
-
-const approvalQueue = [
-  {
-    title: 'Florence Shaw',
-    detail: 'Access review approved for catalog and order control.',
-    tone: 'green',
-  },
-  {
-    title: 'Rana Haddad',
-    detail: 'Waiting on two-factor verification before promotion.',
-    tone: 'orange',
-  },
-  {
-    title: 'Karim Nasser',
-    detail: 'Account suspended until payment dispute is cleared.',
-    tone: 'crimson',
-  },
-];
-
-const securityNotes = [
-  '94% of accounts have 2FA enabled.',
-  '7 user records still need phone verification.',
-  'Bulk permission changes were last audited 3 days ago.',
-];
-
 const ManageUsers = () => {
   const [query, setQuery] = useState('');
   const [activeRole, setActiveRole] = useState('all');
@@ -225,21 +192,10 @@ const ManageUsers = () => {
 
   return (
     <AdminSuiteLayout
-      actions={(
-        <>
-          <Button to="/admin/manage-orders" variant="secondary">
-            Orders
-          </Button>
-          <Button to="/admin/manage-inventory">
-            Inventory
-          </Button>
-        </>
-      )}
       className="admin-users-page"
       description="Review team access, approvals, and account health from one control surface."
       eyebrow="Admin Console"
       metrics={userMetrics}
-      tabs={adminSectionTabs}
       title={(
         <>
           Manage <span>Users</span>
@@ -284,11 +240,6 @@ const ManageUsers = () => {
               <p className="admin-suite-table-subtitle">
                 Manage permissions, review account state, and keep the storefront team aligned.
               </p>
-            </div>
-
-            <div className="admin-suite-filter-group">
-              <Button variant="secondary">Invite user</Button>
-              <Button variant="ghost">Export CSV</Button>
             </div>
           </div>
 
@@ -357,68 +308,6 @@ const ManageUsers = () => {
           </div>
         </Card>
 
-        <div className="admin-suite-side-stack">
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Role mix</div>
-                <h2 className="admin-suite-side-title">How the account base is split.</h2>
-              </div>
-            </div>
-
-            <div className="admin-suite-bars">
-              {roleBreakdown.map((item) => (
-                <div className="admin-suite-bar-item" key={item.label}>
-                  <div className="admin-suite-side-header">
-                    <strong>{item.label}</strong>
-                    <span className="admin-suite-table-count">{item.count} users</span>
-                  </div>
-                  <div className="admin-suite-bar-track">
-                    <div className="admin-suite-bar-fill" style={{ width: `${item.share}%`, ...toneBarStyles[item.tone] }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Approval queue</div>
-                <h2 className="admin-suite-side-title">Waiting on review.</h2>
-              </div>
-            </div>
-
-            <div className="admin-suite-list">
-              {approvalQueue.map((item) => (
-                <div className="admin-suite-list-item" key={item.title}>
-                  <strong>{item.title}</strong>
-                  <span>{item.detail}</span>
-                  <span className="admin-suite-pill" style={toneBadgeStyles[item.tone]}>
-                    Review
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Security</div>
-                <h2 className="admin-suite-side-title">Quick account health checks.</h2>
-              </div>
-            </div>
-
-            <div className="admin-suite-list">
-              {securityNotes.map((note) => (
-                <div className="admin-suite-list-item" key={note}>
-                  <span>{note}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
       </div>
     </AdminSuiteLayout>
   );
