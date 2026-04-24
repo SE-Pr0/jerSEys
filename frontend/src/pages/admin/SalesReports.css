@@ -33,12 +33,9 @@
 }
 
 .sales-report-page::after {
-  background-image:
-    linear-gradient(rgba(27,59,138,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(27,59,138,0.05) 1px, transparent 1px);
-  background-size: 60px 60px;
+  background: none;
   opacity: 0;
-  animation: fadeIn 1.15s ease .18s forwards, gridMove 20s linear infinite;
+  animation: none;
   z-index: 0;
 }
 
