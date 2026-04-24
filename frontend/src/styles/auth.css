@@ -1,6 +1,60 @@
 .auth-page {
+  position: relative;
   padding-top: 20px;
   padding-bottom: 32px;
+  overflow: visible;
+}
+
+.auth-page::before,
+.auth-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.auth-page::before {
+  background:
+    radial-gradient(ellipse 70% 55% at 72% 40%, rgba(192,21,42,0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 50% at 22% 75%, rgba(27,59,138,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 50% 95%, rgba(58,181,74,0.05) 0%, transparent 55%),
+    #FFFFFF;
+  z-index: 0;
+}
+
+.auth-page::after {
+  background-image:
+    linear-gradient(rgba(27,59,138,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,59,138,0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: authGridMove 20s linear infinite;
+  z-index: 0;
+}
+
+.auth-page .ui-page-stack {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-page .ui-page-stack > * {
+  opacity: 0;
+  animation: fadeUp 0.85s ease forwards;
+}
+
+.auth-page .ui-page-stack > *:nth-child(1) {
+  animation-delay: 0.15s;
+}
+
+.auth-page .ui-page-stack > *:nth-child(2) {
+  animation-delay: 0.25s;
+}
+
+.auth-page .ui-page-stack > *:nth-child(3) {
+  animation-delay: 0.35s;
 }
 
 .auth-card {
@@ -111,6 +165,15 @@
   padding-top: 4px;
   padding-bottom: 4px;
   font-size: 10px;
+}
+
+@keyframes authGridMove {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 60px 60px;
+  }
 }
 
 @media (max-width: 768px) {
