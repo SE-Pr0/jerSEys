@@ -63,6 +63,23 @@
   animation: fadeUp 0.8s ease 0.2s forwards;
 }
 
+.admin-suite-page .ui-page-stack > * {
+  opacity: 0;
+  animation: fadeUp 0.85s ease forwards;
+}
+
+.admin-suite-page .ui-page-stack > *:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.admin-suite-page .ui-page-stack > *:nth-child(2) {
+  animation-delay: 0.22s;
+}
+
+.admin-suite-page .ui-page-stack > *:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
 .admin-suite-page .ui-page-eyebrow,
 .admin-hub-page .ui-page-eyebrow,
 .sales-report-page .ui-page-eyebrow,
@@ -1075,6 +1092,27 @@
   gap: 26px;
 }
 
+.admin-hub-content > * {
+  opacity: 0;
+  animation: fadeUp 0.85s ease forwards;
+}
+
+.admin-hub-content > *:nth-child(1) {
+  animation-delay: 0.12s;
+}
+
+.admin-hub-content > *:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.admin-hub-content > *:nth-child(3) {
+  animation-delay: 0.28s;
+}
+
+.admin-hub-content > *:nth-child(4) {
+  animation-delay: 0.36s;
+}
+
 .admin-hub-embedded-view {
   min-height: 0;
 }
@@ -1260,6 +1298,24 @@
   gap: var(--space-4);
   position: relative;
   overflow: hidden;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards;
+}
+
+.admin-hub-section-grid .admin-hub-section-card:nth-child(1) {
+  animation-delay: 0.18s;
+}
+
+.admin-hub-section-grid .admin-hub-section-card:nth-child(2) {
+  animation-delay: 0.24s;
+}
+
+.admin-hub-section-grid .admin-hub-section-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.admin-hub-section-grid .admin-hub-section-card:nth-child(4) {
+  animation-delay: 0.36s;
 }
 
 .admin-hub-section-card::before {
