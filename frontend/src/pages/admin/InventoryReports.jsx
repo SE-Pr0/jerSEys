@@ -793,7 +793,7 @@ const InventoryReportPage = () => {
       </section>
 
       <div className="inventory-report-grid">
-        <Card className="inventory-report-chart-card">
+        <Card className="inventory-report-chart-card inventory-report-chart-card--full">
           <div className="inventory-report-section-heading">
             <div>
               <p className="inventory-report-kicker">Inventory overview</p>
@@ -893,8 +893,8 @@ const InventoryReportPage = () => {
           </div>
         </Card>
 
-        <div className="inventory-report-side-column">
-          <Card className="inventory-report-health-card">
+        <div className="inventory-report-secondary-grid">
+          <Card className="inventory-report-health-card inventory-report-health-card--compact">
             <div className="inventory-report-section-heading is-compact">
               <div>
                 <p className="inventory-report-kicker">Stock status breakdown</p>
@@ -958,14 +958,6 @@ const InventoryReportPage = () => {
               ))}
             </div>
 
-            <div className="inventory-report-mini-grid">
-              {activeReport.health.highlights.map((item) => (
-                <div key={item.label} className="inventory-report-mini-stat">
-                  <strong>{item.value}</strong>
-                  <span>{item.label}</span>
-                </div>
-              ))}
-            </div>
           </Card>
 
           <Card className="inventory-report-categories-card">
@@ -1019,7 +1011,7 @@ const InventoryReportPage = () => {
         </div>
       </Card>
 
-      <Card className="inventory-report-attention-card" padded={false}>
+      <Card className="inventory-report-attention-card inventory-report-table-card--compact" padded={false}>
         <div className="inventory-report-table-header">
           <div>
             <p className="inventory-report-kicker">Needs attention</p>
@@ -1076,7 +1068,7 @@ const InventoryReportPage = () => {
         </div>
       </Card>
 
-      <Card className="inventory-report-activity-card" padded={false}>
+      <Card className="inventory-report-activity-card inventory-report-table-card--compact" padded={false}>
         <div className="inventory-report-table-header">
           <div>
             <p className="inventory-report-kicker">Recent inventory activity</p>

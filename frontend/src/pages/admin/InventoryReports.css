@@ -55,8 +55,8 @@
 
 .inventory-report-hero-inner {
   display: grid;
-  gap: var(--space-5);
-  padding: 28px 0 32px;
+  gap: var(--space-4);
+  padding: 20px 0 24px;
 }
 
 .inventory-report-page .ui-page-header {
@@ -92,8 +92,8 @@
 
 .inventory-report-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
 }
 
 .inventory-report-kpi-card {
@@ -123,12 +123,14 @@
 .inventory-report-categories-card,
 .inventory-report-insights-card {
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-3);
 }
 
 .inventory-report-kpi-card {
   position: relative;
   overflow: hidden;
+  min-height: 196px;
+  padding: var(--space-4);
 }
 
 .inventory-report-kpi-card::before {
@@ -201,7 +203,8 @@
 }
 
 .inventory-report-kpi-value {
-  font-size: clamp(32px, 4vw, 42px);
+  font-size: clamp(28px, 3.2vw, 40px);
+  line-height: 1.05;
 }
 
 .inventory-report-chart-spotlight strong,
@@ -212,7 +215,7 @@
 .inventory-report-chart-meta-item strong,
 .inventory-report-mini-stat strong,
 .inventory-report-insight-item strong {
-  font-size: 30px;
+  font-size: 24px;
 }
 
 .inventory-report-category-head strong,
@@ -236,11 +239,14 @@
 .inventory-report-table-text,
 .inventory-report-breakdown-item span {
   color: var(--text-2);
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 .inventory-report-kpi-footer {
   align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .inventory-report-trend,
@@ -249,12 +255,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 28px;
+  padding: 0 10px;
   border-radius: 999px;
   font-family: var(--font-accent);
-  font-size: 11px;
-  letter-spacing: 2px;
+  font-size: 10px;
+  letter-spacing: 1.6px;
   text-transform: uppercase;
 }
 
@@ -275,9 +281,20 @@
 
 .inventory-report-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
   align-items: start;
+}
+
+.inventory-report-secondary-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.1fr);
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+.inventory-report-secondary-grid > .ui-card {
+  height: 100%;
 }
 
 .inventory-report-chart-card {
@@ -295,7 +312,7 @@
 .inventory-report-section-heading h2,
 .inventory-report-table-header h2 {
   font-family: var(--font-head);
-  font-size: 30px;
+  font-size: clamp(24px, 2.2vw, 30px);
   letter-spacing: 0.8px;
   color: var(--text-1);
 }
@@ -311,8 +328,8 @@
 }
 
 .inventory-report-segment button {
-  min-height: 36px;
-  padding: 0 14px;
+  min-height: 32px;
+  padding: 0 12px;
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -333,14 +350,14 @@
 
 .inventory-report-chart-summary {
   display: grid;
-  grid-template-columns: minmax(220px, 1.3fr) repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: minmax(180px, 1.2fr) repeat(3, minmax(120px, 1fr));
+  gap: var(--space-2);
 }
 
 .inventory-report-chart-spotlight {
   display: grid;
-  gap: var(--space-1);
-  padding-right: var(--space-4);
+  gap: 6px;
+  padding-right: var(--space-3);
   border-right: 1px solid var(--border);
 }
 
@@ -349,8 +366,8 @@
 .inventory-report-insight-item,
 .inventory-report-breakdown-item {
   display: grid;
-  gap: var(--space-1);
-  padding: var(--space-4);
+  gap: 6px;
+  padding: var(--space-3);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.72);
@@ -447,17 +464,12 @@
   color: var(--text-3);
 }
 
-.inventory-report-side-column {
-  display: grid;
-  gap: var(--space-4);
-}
-
-.inventory-report-side-column .inventory-report-health-card {
+.inventory-report-secondary-grid .inventory-report-health-card {
   opacity: 0;
   animation: fadeUp .9s ease .44s forwards;
 }
 
-.inventory-report-side-column .inventory-report-categories-card {
+.inventory-report-secondary-grid .inventory-report-categories-card {
   opacity: 0;
   animation: fadeUp .9s ease .5s forwards;
 }
@@ -467,6 +479,39 @@
     radial-gradient(circle at top right, rgba(27, 59, 138, 0.12), transparent 44%),
     radial-gradient(circle at bottom left, rgba(42, 158, 57, 0.08), transparent 36%),
     var(--white);
+}
+
+.inventory-report-health-card--compact {
+  gap: var(--space-2);
+}
+
+.inventory-report-health-card--compact .inventory-report-health-hero {
+  gap: var(--space-3);
+}
+
+.inventory-report-health-card--compact .inventory-report-ring {
+  width: 112px;
+  height: 112px;
+}
+
+.inventory-report-health-card--compact .inventory-report-ring-copy strong {
+  font-size: 26px;
+}
+
+.inventory-report-health-card--compact .inventory-report-ring-copy span {
+  font-size: 13px;
+}
+
+.inventory-report-health-card--compact .inventory-report-health-copy strong {
+  font-size: clamp(28px, 2.7vw, 34px);
+}
+
+.inventory-report-health-card--compact .inventory-report-health-copy p {
+  line-height: 1.35;
+}
+
+.inventory-report-health-card--compact .inventory-report-health-note {
+  display: none;
 }
 
 .inventory-report-section-heading.is-compact {
@@ -566,18 +611,26 @@
 
 .inventory-report-category-list {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-3);
+}
+
+.inventory-report-category-head > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
 }
 
 .inventory-report-category-share {
   font-family: var(--font-head);
-  font-size: 24px;
+  font-size: 20px;
   letter-spacing: 0.7px;
 }
 
 .inventory-report-category-bar {
   width: 100%;
-  height: 10px;
+  height: 9px;
   border-radius: 999px;
   background: var(--bg);
   overflow: hidden;
@@ -624,6 +677,18 @@
 
 .inventory-report-table-header {
   padding: var(--space-6) var(--space-6) var(--space-4);
+}
+
+.inventory-report-table-card--compact .inventory-report-table-header {
+  padding: var(--space-4) var(--space-4) var(--space-3);
+}
+
+.inventory-report-table-card--compact .inventory-report-table th {
+  padding: 0 var(--space-4) var(--space-2);
+}
+
+.inventory-report-table-card--compact .inventory-report-table td {
+  padding: var(--space-3) var(--space-4);
 }
 
 .inventory-report-table-wrap {
@@ -700,15 +765,11 @@
 }
 
 @media (max-width: 1180px) {
-  .inventory-report-kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .inventory-report-grid {
     grid-template-columns: 1fr;
   }
 
-  .inventory-report-side-column {
+  .inventory-report-secondary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -734,7 +795,7 @@
     flex: 1 1 220px;
   }
 
-  .inventory-report-side-column,
+  .inventory-report-secondary-grid,
   .inventory-report-mini-grid,
   .inventory-report-breakdown-grid,
   .inventory-report-insights-grid {
@@ -749,7 +810,6 @@
 }
 
 @media (max-width: 640px) {
-  .inventory-report-kpi-grid,
   .inventory-report-chart-summary {
     grid-template-columns: 1fr;
   }
