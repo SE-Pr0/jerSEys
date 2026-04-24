@@ -56,8 +56,8 @@
 
 .sales-report-hero-inner {
   display: grid;
-  gap: var(--space-5);
-  padding: 28px 0 32px;
+  gap: var(--space-4);
+  padding: 20px 0 24px;
 }
 
 .sales-report-page .ui-page-header {
@@ -98,8 +98,8 @@
 
 .sales-report-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
 }
 
 .sales-report-kpi-card,
@@ -108,12 +108,14 @@
 .sales-report-categories-card,
 .sales-report-insights-card {
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-3);
 }
 
 .sales-report-kpi-card {
   position: relative;
   overflow: hidden;
+  min-height: 196px;
+  padding: var(--space-4);
 }
 
 .sales-report-kpi-card::before {
@@ -185,7 +187,8 @@
 }
 
 .sales-report-kpi-value {
-  font-size: clamp(32px, 4vw, 42px);
+  font-size: clamp(28px, 3.2vw, 40px);
+  line-height: 1.05;
 }
 
 .sales-report-chart-spotlight strong,
@@ -197,7 +200,7 @@
 .sales-report-mini-stat strong,
 .sales-report-insight-item strong,
 .sales-report-amount-cell strong {
-  font-size: 30px;
+  font-size: 24px;
 }
 
 .sales-report-category-head strong,
@@ -220,11 +223,14 @@
 .sales-report-order-cell span,
 .sales-report-customer-cell span {
   color: var(--text-2);
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 .sales-report-kpi-footer {
   align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .sales-report-trend,
@@ -233,12 +239,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 28px;
+  padding: 0 10px;
   border-radius: 999px;
   font-family: var(--font-accent);
-  font-size: 11px;
-  letter-spacing: 2px;
+  font-size: 10px;
+  letter-spacing: 1.6px;
   text-transform: uppercase;
 }
 
@@ -254,9 +260,20 @@
 
 .sales-report-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
   align-items: start;
+}
+
+.sales-report-secondary-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.1fr);
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+.sales-report-secondary-grid > .ui-card {
+  height: 100%;
 }
 
 .sales-report-chart-card {
@@ -268,7 +285,7 @@
 .sales-report-section-heading h2,
 .sales-report-table-header h2 {
   font-family: var(--font-head);
-  font-size: 30px;
+  font-size: clamp(24px, 2.2vw, 30px);
   letter-spacing: 0.8px;
   color: var(--text-1);
 }
@@ -284,8 +301,8 @@
 }
 
 .sales-report-segment button {
-  min-height: 36px;
-  padding: 0 14px;
+  min-height: 32px;
+  padding: 0 12px;
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -306,23 +323,27 @@
 
 .sales-report-chart-summary {
   display: grid;
-  grid-template-columns: minmax(220px, 1.3fr) repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: minmax(180px, 1.2fr) repeat(3, minmax(120px, 1fr));
+  gap: var(--space-2);
 }
 
 .sales-report-chart-spotlight {
   display: grid;
-  gap: var(--space-1);
-  padding-right: var(--space-4);
+  gap: 6px;
+  padding-right: var(--space-3);
   border-right: 1px solid var(--border);
+}
+
+.sales-report-chart-spotlight strong {
+  line-height: 1.05;
 }
 
 .sales-report-chart-meta-item,
 .sales-report-mini-stat,
 .sales-report-insight-item {
   display: grid;
-  gap: var(--space-1);
-  padding: var(--space-4);
+  gap: 6px;
+  padding: var(--space-3);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.72);
@@ -419,16 +440,44 @@
   color: var(--text-3);
 }
 
-.sales-report-side-column {
-  display: grid;
-  gap: var(--space-4);
-}
-
 .sales-report-target-card {
   background:
     radial-gradient(circle at top right, rgba(27, 59, 138, 0.12), transparent 44%),
     radial-gradient(circle at bottom left, rgba(244, 123, 32, 0.08), transparent 34%),
     var(--white);
+}
+
+.sales-report-target-card--compact {
+  gap: var(--space-2);
+}
+
+.sales-report-target-card--compact .sales-report-target-hero {
+  gap: var(--space-3);
+}
+
+.sales-report-target-card--compact .sales-report-ring {
+  width: 112px;
+  height: 112px;
+}
+
+.sales-report-target-card--compact .sales-report-ring-copy strong {
+  font-size: 26px;
+}
+
+.sales-report-target-card--compact .sales-report-ring-copy span {
+  font-size: 13px;
+}
+
+.sales-report-target-card--compact .sales-report-target-copy strong {
+  font-size: clamp(28px, 2.7vw, 34px);
+}
+
+.sales-report-target-card--compact .sales-report-target-copy p {
+  line-height: 1.35;
+}
+
+.sales-report-target-card--compact .sales-report-target-note {
+  display: none;
 }
 
 .sales-report-section-heading.is-compact {
@@ -503,7 +552,7 @@
 .sales-report-insights-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .sales-report-categories-card {
@@ -512,18 +561,26 @@
 
 .sales-report-category-list {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-3);
+}
+
+.sales-report-category-head > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
 }
 
 .sales-report-category-share {
   font-family: var(--font-head);
-  font-size: 24px;
+  font-size: 20px;
   letter-spacing: 0.7px;
 }
 
 .sales-report-category-bar {
   width: 100%;
-  height: 10px;
+  height: 9px;
   border-radius: 999px;
   background: var(--bg);
   overflow: hidden;
@@ -630,15 +687,11 @@
 }
 
 @media (max-width: 1180px) {
-  .sales-report-kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .sales-report-grid {
     grid-template-columns: 1fr;
   }
 
-  .sales-report-side-column {
+  .sales-report-secondary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -664,7 +717,7 @@
     flex: 1 1 220px;
   }
 
-  .sales-report-side-column,
+  .sales-report-secondary-grid,
   .sales-report-mini-grid,
   .sales-report-insights-grid {
     grid-template-columns: 1fr;
@@ -678,7 +731,6 @@
 }
 
 @media (max-width: 640px) {
-  .sales-report-kpi-grid,
   .sales-report-chart-summary {
     grid-template-columns: 1fr;
   }

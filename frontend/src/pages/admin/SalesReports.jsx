@@ -80,10 +80,9 @@ const reportSnapshots = {
       ],
     },
     categories: [
-      { name: 'Football Kits', amount: '$18.4K', share: 43, tone: 'royal' },
-      { name: 'Basketball Jerseys', amount: '$10.5K', share: 25, tone: 'orange' },
-      { name: 'Custom Orders', amount: '$8.1K', share: 19, tone: 'crimson' },
-      { name: 'Training Wear', amount: '$5.8K', share: 13, tone: 'green' },
+      { name: 'Football Kits', amount: '$18.4K', share: 50, tone: 'royal' },
+      { name: 'Basketball', amount: '$10.5K', share: 28, tone: 'orange' },
+      { name: 'Custom Orders', amount: '$8.1K', share: 22, tone: 'crimson' },
     ],
     insights: [
       {
@@ -211,10 +210,9 @@ const reportSnapshots = {
       ],
     },
     categories: [
-      { name: 'Football Kits', amount: '$88.3K', share: 48, tone: 'royal' },
-      { name: 'Basketball Jerseys', amount: '$47.8K', share: 26, tone: 'orange' },
-      { name: 'Custom Orders', amount: '$30.4K', share: 16, tone: 'crimson' },
-      { name: 'Training Wear', amount: '$18.1K', share: 10, tone: 'green' },
+      { name: 'Football Kits', amount: '$88.3K', share: 53, tone: 'royal' },
+      { name: 'Basketball', amount: '$47.8K', share: 29, tone: 'orange' },
+      { name: 'Custom Orders', amount: '$30.4K', share: 18, tone: 'crimson' },
     ],
     insights: [
       {
@@ -351,10 +349,9 @@ const reportSnapshots = {
       ],
     },
     categories: [
-      { name: 'Football Kits', amount: '$287.4K', share: 47, tone: 'royal' },
-      { name: 'Basketball Jerseys', amount: '$165.3K', share: 27, tone: 'orange' },
-      { name: 'Custom Orders', amount: '$104.1K', share: 17, tone: 'crimson' },
-      { name: 'Training Wear', amount: '$55.6K', share: 9, tone: 'green' },
+      { name: 'Football Kits', amount: '$287.4K', share: 52, tone: 'royal' },
+      { name: 'Basketball', amount: '$165.3K', share: 30, tone: 'orange' },
+      { name: 'Custom Orders', amount: '$104.1K', share: 18, tone: 'crimson' },
     ],
     insights: [
       {
@@ -606,7 +603,7 @@ const SalesReportPage = () => {
       </section>
 
       <div className="sales-report-grid">
-        <Card className="sales-report-chart-card">
+        <Card className="sales-report-chart-card sales-report-chart-card--full">
           <div className="sales-report-section-heading">
             <div>
               <p className="sales-report-kicker">Performance overview</p>
@@ -706,8 +703,8 @@ const SalesReportPage = () => {
           </div>
         </Card>
 
-        <div className="sales-report-side-column">
-          <Card className="sales-report-target-card">
+        <div className="sales-report-secondary-grid">
+          <Card className="sales-report-target-card sales-report-target-card--compact">
             <div className="sales-report-section-heading is-compact">
               <div>
                 <p className="sales-report-kicker">Revenue progress</p>
