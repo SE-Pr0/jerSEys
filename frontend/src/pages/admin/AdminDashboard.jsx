@@ -6,6 +6,8 @@ import ManageUsers from './ManageUsers';
 import ManageOrders from './ManageOrders';
 import ManageInventory from './ManageInventory';
 import ManageProducts from './ManageProducts';
+import ManageTrades from './ManageTrades';
+import ModerateListings from './ModerateListings';
 import SalesReports from './SalesReports';
 import InventoryReports from './InventoryReports';
 
@@ -106,8 +108,9 @@ const adminSections = [
     group: 'Sisyphus Ventures',
     title: 'Manage trades',
     description: 'Review trade listings and approval workflows.',
-    status: 'Planned',
+    status: 'Live',
     tone: 'green',
+    route: '/admin/manage-trades',
     chips: ['Listings', 'Approvals', 'Review'],
     details: ['Trade moderation', 'Request handling', 'Listing review'],
   },
@@ -116,8 +119,9 @@ const adminSections = [
     group: 'Sisyphus Ventures',
     title: 'Moderate listings',
     description: 'Flagged content, review queues, and marketplace moderation.',
-    status: 'Planned',
+    status: 'Live',
     tone: 'orange',
+    route: '/admin/manage-listings',
     chips: ['Flags', 'Queue', 'Reports'],
     details: ['Content moderation', 'Flag resolution', 'Marketplace safety'],
   },
@@ -149,6 +153,8 @@ const embeddedSectionIds = new Set([
   'manage-orders',
   'manage-inventory',
   'manage-products',
+  'manage-trades',
+  'moderate-listings',
   'sales-reports',
   'inventory-reports',
 ]);
@@ -176,6 +182,8 @@ const AdminDashboard = () => {
     'manage-orders': ManageOrders,
     'manage-inventory': ManageInventory,
     'manage-products': ManageProducts,
+    'manage-trades': ManageTrades,
+    'moderate-listings': ModerateListings,
     'sales-reports': SalesReports,
     'inventory-reports': InventoryReports,
   };

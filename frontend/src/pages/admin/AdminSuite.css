@@ -245,6 +245,14 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+.admin-trades-page .admin-suite-workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.admin-listings-page .admin-suite-workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .admin-users-page .admin-suite-table-wrap {
   overflow-x: hidden;
 }
@@ -258,6 +266,14 @@
 }
 
 .admin-products-page .admin-suite-table-wrap {
+  overflow-x: hidden;
+}
+
+.admin-trades-page .admin-suite-table-wrap {
+  overflow-x: hidden;
+}
+
+.admin-listings-page .admin-suite-table-wrap {
   overflow-x: hidden;
 }
 
@@ -281,6 +297,16 @@
   table-layout: auto;
 }
 
+.admin-trades-page .admin-suite-table {
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.admin-listings-page .admin-suite-table {
+  min-width: 0;
+  table-layout: fixed;
+}
+
 .admin-users-page .admin-suite-table th,
 .admin-users-page .admin-suite-table td {
   padding: 12px 10px;
@@ -298,6 +324,16 @@
 
 .admin-products-page .admin-suite-table th,
 .admin-products-page .admin-suite-table td {
+  padding: 12px 10px;
+}
+
+.admin-trades-page .admin-suite-table th,
+.admin-trades-page .admin-suite-table td {
+  padding: 12px 10px;
+}
+
+.admin-listings-page .admin-suite-table th,
+.admin-listings-page .admin-suite-table td {
   padding: 12px 10px;
 }
 
@@ -321,6 +357,16 @@
   letter-spacing: 1.4px;
 }
 
+.admin-trades-page .admin-suite-table th {
+  font-size: 10px;
+  letter-spacing: 1.4px;
+}
+
+.admin-listings-page .admin-suite-table th {
+  font-size: 10px;
+  letter-spacing: 1.4px;
+}
+
 .admin-users-page .admin-suite-table td {
   font-size: 13px;
 }
@@ -334,6 +380,14 @@
 }
 
 .admin-products-page .admin-suite-table td {
+  font-size: 13px;
+}
+
+.admin-trades-page .admin-suite-table td {
+  font-size: 13px;
+}
+
+.admin-listings-page .admin-suite-table td {
   font-size: 13px;
 }
 
@@ -457,6 +511,76 @@
   text-align: center;
 }
 
+.admin-trades-page .admin-suite-table th:nth-child(1),
+.admin-trades-page .admin-suite-table td:nth-child(1) {
+  width: 24%;
+}
+
+.admin-trades-page .admin-suite-table th:nth-child(2),
+.admin-trades-page .admin-suite-table td:nth-child(2) {
+  width: 18%;
+}
+
+.admin-trades-page .admin-suite-table th:nth-child(3),
+.admin-trades-page .admin-suite-table td:nth-child(3) {
+  width: 18%;
+}
+
+.admin-trades-page .admin-suite-table th:nth-child(4),
+.admin-trades-page .admin-suite-table td:nth-child(4) {
+  width: 13%;
+}
+
+.admin-trades-page .admin-suite-table th:nth-child(5),
+.admin-trades-page .admin-suite-table td:nth-child(5) {
+  width: 11%;
+}
+
+.admin-trades-page .admin-suite-table th:nth-child(6),
+.admin-trades-page .admin-suite-table td:nth-child(6) {
+  width: 9%;
+}
+
+.admin-trades-page .admin-suite-table th:nth-child(7),
+.admin-trades-page .admin-suite-table td:nth-child(7) {
+  width: 7%;
+}
+
+.admin-listings-page .admin-suite-table th:nth-child(1),
+.admin-listings-page .admin-suite-table td:nth-child(1) {
+  width: 22%;
+}
+
+.admin-listings-page .admin-suite-table th:nth-child(2),
+.admin-listings-page .admin-suite-table td:nth-child(2) {
+  width: 22%;
+}
+
+.admin-listings-page .admin-suite-table th:nth-child(3),
+.admin-listings-page .admin-suite-table td:nth-child(3) {
+  width: 10%;
+}
+
+.admin-listings-page .admin-suite-table th:nth-child(4),
+.admin-listings-page .admin-suite-table td:nth-child(4) {
+  width: 12%;
+}
+
+.admin-listings-page .admin-suite-table th:nth-child(5),
+.admin-listings-page .admin-suite-table td:nth-child(5) {
+  width: 10%;
+}
+
+.admin-listings-page .admin-suite-table th:nth-child(6),
+.admin-listings-page .admin-suite-table td:nth-child(6) {
+  width: 10%;
+}
+
+.admin-listings-page .admin-suite-table th:nth-child(7),
+.admin-listings-page .admin-suite-table td:nth-child(7) {
+  width: 14%;
+}
+
 .admin-users-page .admin-suite-name-cell {
   gap: 10px;
 }
@@ -470,6 +594,14 @@
 }
 
 .admin-products-page .admin-suite-name-cell {
+  gap: 10px;
+}
+
+.admin-trades-page .admin-suite-name-cell {
+  gap: 10px;
+}
+
+.admin-listings-page .admin-suite-name-cell {
   gap: 10px;
 }
 
@@ -497,6 +629,18 @@
   font-size: 12px;
 }
 
+.admin-trades-page .admin-suite-avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+}
+
+.admin-listings-page .admin-suite-avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+}
+
 .admin-users-page .admin-suite-name-cell strong {
   font-size: 15px;
 }
@@ -518,6 +662,14 @@
   max-width: 34ch;
 }
 
+.admin-trades-page .admin-suite-name-cell strong {
+  font-size: 15px;
+}
+
+.admin-listings-page .admin-suite-name-cell strong {
+  font-size: 15px;
+}
+
 .admin-users-page .admin-suite-subtext {
   font-size: 11px;
   line-height: 1.35;
@@ -534,6 +686,16 @@
 }
 
 .admin-products-page .admin-suite-subtext {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.admin-trades-page .admin-suite-subtext {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.admin-listings-page .admin-suite-subtext {
   font-size: 11px;
   line-height: 1.35;
 }
@@ -570,6 +732,22 @@
   letter-spacing: 1.2px;
 }
 
+.admin-trades-page .admin-suite-pill,
+.admin-trades-page .admin-suite-status {
+  min-height: 24px;
+  padding: 0 8px;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+
+.admin-listings-page .admin-suite-pill,
+.admin-listings-page .admin-suite-status {
+  min-height: 24px;
+  padding: 0 8px;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+
 .admin-users-page .admin-suite-pill-group {
   gap: 6px;
 }
@@ -583,6 +761,14 @@
 }
 
 .admin-products-page .admin-suite-pill-group {
+  gap: 6px;
+}
+
+.admin-trades-page .admin-suite-pill-group {
+  gap: 6px;
+}
+
+.admin-listings-page .admin-suite-pill-group {
   gap: 6px;
 }
 
@@ -604,6 +790,14 @@
   justify-content: center;
 }
 
+.admin-trades-page .admin-suite-actions {
+  gap: 6px;
+}
+
+.admin-listings-page .admin-suite-actions {
+  gap: 6px;
+}
+
 .admin-users-page .admin-suite-inline-button.ui-button {
   min-height: 30px;
   padding: 6px 8px;
@@ -623,6 +817,18 @@
 }
 
 .admin-products-page .admin-suite-inline-button.ui-button {
+  min-height: 30px;
+  padding: 6px 8px;
+  font-size: 9px;
+}
+
+.admin-trades-page .admin-suite-inline-button.ui-button {
+  min-height: 30px;
+  padding: 6px 8px;
+  font-size: 9px;
+}
+
+.admin-listings-page .admin-suite-inline-button.ui-button {
   min-height: 30px;
   padding: 6px 8px;
   font-size: 9px;
