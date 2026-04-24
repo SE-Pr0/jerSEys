@@ -21,6 +21,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageUsers from './pages/admin/ManageUsers';
 import ManageOrders from './pages/admin/ManageOrders';
 import ManageInventory from './pages/admin/ManageInventory';
+import ManageProducts from './pages/admin/ManageProducts';
 import SalesReports from './pages/admin/SalesReports';
 import InventoryReports from './pages/admin/InventoryReports';
 
@@ -57,6 +58,7 @@ const Router = () => {
           <Route path="admin/manage-users" element={<ManageUsers />} />
           <Route path="admin/manage-orders" element={<ManageOrders />} />
           <Route path="admin/manage-inventory" element={<ManageInventory />} />
+          <Route path="admin/manage-products" element={<ManageProducts />} />
           <Route path="admin/sales-reports" element={<SalesReports />} />
           <Route path="admin/inventory-reports" element={<InventoryReports />} />
           <Route path="trade" element={<TradeMarketplace />} />

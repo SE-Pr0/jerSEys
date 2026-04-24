@@ -5,6 +5,7 @@ import { toneBadgeStyles } from './adminConstants';
 import ManageUsers from './ManageUsers';
 import ManageOrders from './ManageOrders';
 import ManageInventory from './ManageInventory';
+import ManageProducts from './ManageProducts';
 import SalesReports from './SalesReports';
 import InventoryReports from './InventoryReports';
 
@@ -84,8 +85,9 @@ const adminSections = [
     group: 'Sisyphus Ventures',
     title: 'Manage products',
     description: 'Catalog editing, pricing updates, and product visibility.',
-    status: 'Planned',
+    status: 'Live',
     tone: 'crimson',
+    route: '/admin/manage-products',
     chips: ['Catalog', 'Pricing', 'Visibility'],
     details: ['Product cards and variants', 'Price changes', 'Feature toggles'],
   },
@@ -146,6 +148,7 @@ const embeddedSectionIds = new Set([
   'user-management',
   'manage-orders',
   'manage-inventory',
+  'manage-products',
   'sales-reports',
   'inventory-reports',
 ]);
@@ -172,6 +175,7 @@ const AdminDashboard = () => {
     'user-management': ManageUsers,
     'manage-orders': ManageOrders,
     'manage-inventory': ManageInventory,
+    'manage-products': ManageProducts,
     'sales-reports': SalesReports,
     'inventory-reports': InventoryReports,
   };
