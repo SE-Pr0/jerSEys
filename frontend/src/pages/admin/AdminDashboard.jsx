@@ -305,9 +305,6 @@ const AdminDashboard = () => {
                             <h3 className="admin-hub-section-title">{section.title}</h3>
                             <p className="admin-hub-section-subtitle">{section.description}</p>
                           </div>
-                          <span className="admin-suite-pill" style={toneBadgeStyles[section.tone]}>
-                            {section.status}
-                          </span>
                         </div>
 
                         <div className="admin-hub-chip-list" aria-label={`${section.title} highlights`}>
@@ -335,9 +332,6 @@ const AdminDashboard = () => {
                               Coming soon
                             </Button>
                           )}
-                          <Button variant="ghost" onClick={() => handleSidebarSelect(section.id)}>
-                            Focus section
-                          </Button>
                         </div>
                       </Card>
                     ))}

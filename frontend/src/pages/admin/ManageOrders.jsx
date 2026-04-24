@@ -53,6 +53,12 @@ const statusFilters = [
   { value: 'refunded', label: 'Refunded' },
 ];
 
+const paymentOptions = [
+  { value: 'Paid', tone: 'green' },
+  { value: 'Pending', tone: 'orange' },
+  { value: 'Refunded', tone: 'crimson' },
+];
+
 const orders = [
   {
     orderId: 'SR-4182',
@@ -193,34 +199,87 @@ const orders = [
 ];
 
 const ManageOrders = () => {
+  const [orderRecords, setOrderRecords] = useState(orders);
   const [query, setQuery] = useState('');
   const [activeStatus, setActiveStatus] = useState('all');
+  const [reviewOrderId, setReviewOrderId] = useState(null);
+  const [reviewDraft, setReviewDraft] = useState(null);
 
   const filteredOrders = useMemo(() => {
     const search = normalizeText(query);
 
-    return orders.filter((order) => {
+    return orderRecords.filter((order) => {
       const matchesStatus = activeStatus === 'all' || order.statusKey === activeStatus;
       const matchesSearch = buildSearchBlob([
         order.orderId,
         order.customer,
         order.email,
         order.date,
-        order.channel,
         order.payment,
         order.total,
         order.status,
-        order.fulfillment,
       ]).includes(search);
 
       return matchesStatus && matchesSearch;
     });
-  }, [activeStatus, query]);
+  }, [activeStatus, orderRecords, query]);
+
+  const reviewedOrder = useMemo(
+    () => orderRecords.find((order) => order.orderId === reviewOrderId) || null,
+    [orderRecords, reviewOrderId],
+  );
+
+  const handleOpenReview = (order) => {
+    setReviewOrderId(order.orderId);
+    setReviewDraft({
+      ...order,
+      internalNote: order.internalNote || '',
+    });
+  };
+
+  const handleCloseReview = () => {
+    setReviewOrderId(null);
+    setReviewDraft(null);
+  };
+
+  const handleReviewChange = (field, value) => {
+    setReviewDraft((current) => (current ? { ...current, [field]: value } : current));
+  };
+
+  const handleSaveReview = () => {
+    if (!reviewDraft) {
+      return;
+    }
+
+    const normalizedStatus = statusFilters.find((option) => option.value === reviewDraft.statusKey && option.value !== 'all');
+    const normalizedPayment = paymentOptions.find((option) => option.value === reviewDraft.payment);
+
+    const nextOrder = {
+      ...reviewDraft,
+      statusKey: normalizedStatus?.value || 'processing',
+      status: normalizedStatus?.label || 'Processing',
+      statusTone: normalizedStatus?.value === 'completed'
+        ? 'green'
+        : normalizedStatus?.value === 'packed'
+          ? 'royal'
+          : normalizedStatus?.value === 'refunded'
+            ? 'crimson'
+            : 'orange',
+      payment: normalizedPayment?.value || 'Pending',
+      paymentTone: normalizedPayment?.tone || 'orange',
+      internalNote: String(reviewDraft.internalNote || '').trim(),
+    };
+
+    setOrderRecords((currentOrders) =>
+      currentOrders.map((order) => (order.orderId === reviewOrderId ? nextOrder : order)),
+    );
+    handleCloseReview();
+  };
 
   return (
     <AdminSuiteLayout
       className="admin-orders-page"
-      description="Track order status, payment flow, and fulfillment progress from a single queue."
+      description=""
       eyebrow="Admin Console"
       metrics={orderMetrics}
       title={(
@@ -236,7 +295,7 @@ const ManageOrders = () => {
               <input
                 className="ui-input"
                 id="admin-order-search"
-                placeholder="Search order ID, customer, or channel"
+                placeholder="Search order ID or customer"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
@@ -276,11 +335,9 @@ const ManageOrders = () => {
                 <tr>
                   <th>Order</th>
                   <th>Customer</th>
-                  <th>Channel</th>
                   <th>Payment</th>
                   <th>Total</th>
                   <th>Status</th>
-                  <th>Fulfillment</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -302,7 +359,6 @@ const ManageOrders = () => {
                         </div>
                       </div>
                     </td>
-                    <td>{order.channel}</td>
                     <td>
                       <span className="admin-suite-pill" style={toneBadgeStyles[order.paymentTone]}>
                         {order.payment}
@@ -316,13 +372,12 @@ const ManageOrders = () => {
                       <span className={`admin-suite-status is-${order.statusTone}`}>{order.status}</span>
                     </td>
                     <td>
-                      <span className="admin-suite-pill" style={toneBadgeStyles[order.fulfillmentTone]}>
-                        {order.fulfillment}
-                      </span>
-                    </td>
-                    <td>
                       <div className="admin-suite-actions">
-                        <Button className="admin-suite-inline-button" variant="ghost">
+                        <Button
+                          className="admin-suite-inline-button"
+                          variant="ghost"
+                          onClick={() => handleOpenReview(order)}
+                        >
                           Review
                         </Button>
                         <Button className="admin-suite-inline-button" variant="secondary">
@@ -337,11 +392,93 @@ const ManageOrders = () => {
           </div>
 
           <div className="admin-suite-footnote">
-            Showing {filteredOrders.length} of {orders.length} orders. Payment and shipping checks stay visible at a glance.
+            Showing {filteredOrders.length} of {orderRecords.length} orders. Payment and status checks stay visible at a glance.
           </div>
         </Card>
 
       </div>
+
+      {reviewDraft && reviewedOrder ? (
+        <div
+          className="admin-order-review-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="admin-order-review-title"
+          onClick={handleCloseReview}
+        >
+          <div className="admin-order-review-modal ui-card" onClick={(event) => event.stopPropagation()}>
+            <div className="admin-order-review-head">
+              <div>
+                <div className="admin-suite-kicker">Order review</div>
+                <h2 className="admin-suite-table-title" id="admin-order-review-title">
+                  {reviewedOrder.orderId}
+                </h2>
+              </div>
+              <Button variant="ghost" onClick={handleCloseReview}>Close</Button>
+            </div>
+
+            <div className="admin-order-review-summary">
+              <div>
+                <span>Customer</span>
+                <strong>{reviewedOrder.customer}</strong>
+                <small>{reviewedOrder.email}</small>
+              </div>
+              <div>
+                <span>Date</span>
+                <strong>{reviewedOrder.date}</strong>
+              </div>
+              <div>
+                <span>Total</span>
+                <strong>{reviewedOrder.total}</strong>
+                <small>{reviewedOrder.items}</small>
+              </div>
+            </div>
+
+            <div className="admin-order-review-form">
+              <FormField label="Payment" htmlFor="admin-order-review-payment">
+                <select
+                  className="ui-select"
+                  id="admin-order-review-payment"
+                  value={reviewDraft.payment}
+                  onChange={(event) => handleReviewChange('payment', event.target.value)}
+                >
+                  {paymentOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.value}</option>
+                  ))}
+                </select>
+              </FormField>
+
+              <FormField label="Status" htmlFor="admin-order-review-status">
+                <select
+                  className="ui-select"
+                  id="admin-order-review-status"
+                  value={reviewDraft.statusKey}
+                  onChange={(event) => handleReviewChange('statusKey', event.target.value)}
+                >
+                  {statusFilters.filter((option) => option.value !== 'all').map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </FormField>
+
+              <FormField label="Internal note" htmlFor="admin-order-review-note">
+                <textarea
+                  className="ui-textarea"
+                  id="admin-order-review-note"
+                  value={reviewDraft.internalNote}
+                  onChange={(event) => handleReviewChange('internalNote', event.target.value)}
+                  placeholder="Add context for payment checks, escalation, or shipping updates."
+                />
+              </FormField>
+            </div>
+
+            <div className="admin-order-review-actions">
+              <Button variant="ghost" onClick={handleCloseReview}>Cancel</Button>
+              <Button onClick={handleSaveReview}>Save review</Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </AdminSuiteLayout>
   );
 };
