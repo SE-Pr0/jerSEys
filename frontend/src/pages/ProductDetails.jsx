@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { getRelatedShopProducts, getShopProductById } from '../services/productService';
+import { getStoredUser } from '../utils/auth';
 import '../styles/product-details.css';
 
 const CART_STORAGE_KEY = 'jerseys-cart';
@@ -121,6 +122,7 @@ const buildCartLineItem = (product, details) => {
 const ProductDetails = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const product = getShopProductById(productId);
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || '');
   const [quantity, setQuantity] = useState(1);
@@ -156,6 +158,13 @@ const ProductDetails = () => {
   }
 
   const handleAddToCart = () => {
+    if (!getStoredUser()) {
+      navigate('/login', {
+        state: { from: `${location.pathname}${location.search}${location.hash}` },
+      });
+      return;
+    }
+
     if (!selectedSize && product.sizes.length > 0) {
       setNotice('Choose a size first.');
       return;

@@ -25,8 +25,21 @@ import ManageProducts from './pages/admin/ManageProducts';
 import ManageTemplates from './pages/admin/ManageTemplates';
 import SalesReports from './pages/admin/SalesReports';
 import InventoryReports from './pages/admin/InventoryReports';
+import { getStoredUser } from './utils/auth';
 
 const CustomJerseyBuilder = lazy(() => import('./pages/CustomJerseyBuilder'));
+
+const RequireAuth = ({ children }) => {
+  const location = useLocation();
+  const user = getStoredUser();
+
+  if (!user) {
+    const from = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate to="/login" replace state={{ from }} />;
+  }
+
+  return children;
+};
 
 const Router = () => {
   const location = useLocation();
@@ -41,20 +54,57 @@ const Router = () => {
           <Route
             path="customize"
             element={(
-              <Suspense fallback={<div className="ui-page-shell">Loading builder...</div>}>
-                <CustomJerseyBuilder />
-              </Suspense>
+              <RequireAuth>
+                <Suspense fallback={<div className="ui-page-shell">Loading builder...</div>}>
+                  <CustomJerseyBuilder />
+                </Suspense>
+              </RequireAuth>
             )}
           />
           <Route path="shop/:productId" element={<ProductDetails />} />
           <Route path="login" element={<Login />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="register" element={<Register />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="order-confirmation" element={<OrderConfirmation />} />
-          <Route path="order-history" element={<OrderHistory />} />
+          <Route
+            path="profile"
+            element={(
+              <RequireAuth>
+                <Profile />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="cart"
+            element={(
+              <RequireAuth>
+                <Cart />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="checkout"
+            element={(
+              <RequireAuth>
+                <Checkout />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="order-confirmation"
+            element={(
+              <RequireAuth>
+                <OrderConfirmation />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="order-history"
+            element={(
+              <RequireAuth>
+                <OrderHistory />
+              </RequireAuth>
+            )}
+          />
           <Route path="admin" element={<AdminDashboard />} />
           <Route path="admin/manage-users" element={<ManageUsers />} />
           <Route path="admin/manage-orders" element={<ManageOrders />} />
@@ -65,17 +115,37 @@ const Router = () => {
           <Route path="admin/inventory-reports" element={<InventoryReports />} />
           <Route path="trade" element={<TradeMarketplace />} />
           <Route path="trade/marketplace" element={<Navigate to="/trade" replace />} />
-          <Route path="trade/requests" element={<TradeRequests />} />
-          <Route path="trade/create" element={<CreateTradeListing />} />
+          <Route
+            path="trade/requests"
+            element={(
+              <RequireAuth>
+                <TradeRequests />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="trade/create"
+            element={(
+              <RequireAuth>
+                <CreateTradeListing />
+              </RequireAuth>
+            )}
+          />
           <Route path="trade/:listingId" element={<TradeListingDetails />} />
-          <Route path="cart" element={<Cart />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
 
       {backgroundLocation ? (
         <Routes>
-          <Route path="/cart" element={<Cart />} />
+          <Route
+            path="/cart"
+            element={(
+              <RequireAuth>
+                <Cart />
+              </RequireAuth>
+            )}
+          />
         </Routes>
       ) : null}
     </>

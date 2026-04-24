@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Button, Card, FormField, PageHeader, PageShell, StateBlock } from '../components/ui';
 import { useTrade } from '../context/TradeContext';
 import { getStoredUser } from '../utils/auth';
@@ -7,6 +7,8 @@ import '../styles/trade.css';
 
 const TradeListingDetails = () => {
   const { listingId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { listings, addRequest } = useTrade();
   const listing = listings.find((l) => l.id === listingId);
 
@@ -63,9 +65,25 @@ const TradeListingDetails = () => {
   const showPrice = price && listingType !== 'trade';
   const canTrade  = listingType === 'trade' || listingType === 'both';
 
+  const redirectToLogin = () => {
+    navigate('/login', {
+      state: { from: `${location.pathname}${location.search}${location.hash}` },
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    addRequest(listing.id, offerJersey, message);
+    if (!user) {
+      redirectToLogin();
+      return;
+    }
+
+    const created = addRequest(listing.id, offerJersey, message);
+    if (!created) {
+      redirectToLogin();
+      return;
+    }
+
     setSent(true);
   };
 
@@ -196,7 +214,17 @@ const TradeListingDetails = () => {
                     </div>
                   </div>
                 ) : (
-                  <Button block onClick={() => setBought(true)}>
+                  <Button
+                    block
+                    onClick={() => {
+                      if (!user) {
+                        redirectToLogin();
+                        return;
+                      }
+
+                      setBought(true);
+                    }}
+                  >
                     Buy Now — ${price}
                   </Button>
                 )}

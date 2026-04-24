@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import baseMask from './Assets/Base.svg';
 import baseTexture from './Assets/Base_Texture.svg';
 import collarMask from './Assets/Collar.svg';
@@ -19,6 +20,7 @@ import voronoiFracturePreset from './Assets/Presets/Voronoi-Fracture.png';
 import zagsPreset from './Assets/Presets/Zags.png';
 import zigZagPreset from './Assets/Presets/Zig-Zag.png';
 import { Button, Card } from '../../components/ui';
+import { getStoredUser } from '../../utils/auth';
 import './CustomJerseyBuilder.css';
 
 const savedColorsKey = 'front-kit-layer-colors-v3';
@@ -750,6 +752,8 @@ const buildCustomKitPreviewArt = async (design, selectedPreset) => {
 };
 
 const CustomJerseyBuilder = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [presets, setPresets] = useState(() => getActivePresets());
   const [design, setDesign] = useState(() => readInitialDesign(getActivePresets()));
   const [notice, setNotice] = useState('');
@@ -1059,12 +1063,26 @@ const CustomJerseyBuilder = () => {
   };
 
   const handleOpenAddToCart = () => {
+    if (!getStoredUser()) {
+      navigate('/login', {
+        state: { from: `${location.pathname}${location.search}${location.hash}` },
+      });
+      return;
+    }
+
     setSelectedCartSize('');
     setIsSizePromptOpen(true);
     setNotice('');
   };
 
   const handleConfirmAddToCart = async () => {
+    if (!getStoredUser()) {
+      navigate('/login', {
+        state: { from: `${location.pathname}${location.search}${location.hash}` },
+      });
+      return;
+    }
+
     if (!selectedCartSize) {
       setNotice('Pick a size first.');
       return;

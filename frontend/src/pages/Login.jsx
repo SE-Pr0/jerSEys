@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -43,6 +43,7 @@ const PasswordVisibilityIcon = ({ isVisible }) => (
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -96,7 +97,8 @@ const Login = () => {
       email: existingUser?.email || (typedIdentity.includes('@') ? typedIdentity : ''),
     });
 
-    navigate('/shop');
+    const returnPath = typeof location.state?.from === 'string' ? location.state.from : null;
+    navigate(returnPath || '/shop');
   };
 
   return (

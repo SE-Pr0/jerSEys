@@ -58,7 +58,14 @@ const CreateTradeListing = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    addListing(form);
+    const createdListingId = addListing(form);
+    if (!createdListingId) {
+      navigate('/login', {
+        state: { from: '/trade/create' },
+      });
+      return;
+    }
+
     setSubmitted(true);
   };
 
