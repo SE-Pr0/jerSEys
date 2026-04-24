@@ -1520,6 +1520,175 @@
   letter-spacing: 1.4px;
 }
 
+.admin-listing-review-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: rgba(15, 14, 14, 0.52);
+  backdrop-filter: blur(4px);
+  z-index: 120;
+}
+
+.admin-listing-review-modal {
+  width: min(860px, calc(100vw - 24px));
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.admin-listing-review-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-listing-review-content {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.95fr) minmax(0, 1.2fr);
+  gap: 10px;
+}
+
+.admin-listing-review-media {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: grid;
+  gap: 0;
+  height: fit-content;
+}
+
+.admin-listing-review-image-wrap {
+  background: rgba(251, 248, 243, 0.9);
+  height: clamp(170px, 25vh, 260px);
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.admin-listing-review-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.admin-listing-review-item-meta {
+  padding: 7px 8px;
+  display: grid;
+  gap: 2px;
+}
+
+.admin-listing-review-item-meta span {
+  color: var(--text-2);
+  font-size: 11px;
+}
+
+.admin-listing-review-item-meta strong {
+  color: var(--text-1);
+  font-size: 15px;
+  font-family: var(--font-head);
+}
+
+.admin-listing-review-details {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-listing-review-description {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+
+.admin-listing-review-meta {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 10px;
+}
+
+.admin-listing-review-meta > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.admin-listing-review-meta > div > span {
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.admin-listing-review-meta > div > strong {
+  color: var(--text-1);
+  font-size: 13px;
+  text-align: right;
+}
+
+.admin-listing-review-note {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  display: grid;
+  gap: 4px;
+}
+
+.admin-listing-review-note span {
+  color: var(--text-2);
+  font-size: 11px;
+}
+
+.admin-listing-review-note strong {
+  color: var(--text-1);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.admin-listing-review-form {
+  display: grid;
+  grid-template-columns: minmax(200px, 0.55fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.admin-listing-review-form .ui-form-label {
+  font-size: 9px;
+  letter-spacing: 1.4px;
+}
+
+.admin-listing-review-form .ui-select {
+  min-height: 34px;
+  padding: 5px 9px;
+}
+
+.admin-listing-review-form .ui-textarea {
+  min-height: 76px;
+  padding: 7px 9px;
+}
+
+.admin-listing-review-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.admin-listing-review-modal .ui-button {
+  min-height: 32px;
+  padding: 5px 10px;
+  font-size: 9px;
+  letter-spacing: 1.4px;
+}
+
 .admin-inventory-editor-overlay {
   position: fixed;
   inset: 0;
@@ -2703,6 +2872,32 @@
 
   .admin-trade-review-image-wrap {
     height: clamp(130px, 22vh, 180px);
+    min-height: 0;
+  }
+
+  .admin-listing-review-overlay {
+    padding: 14px;
+  }
+
+  .admin-listing-review-modal {
+    max-height: calc(100dvh - 28px);
+    padding: 14px;
+  }
+
+  .admin-listing-review-content {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-listing-review-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-listing-review-form {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-listing-review-image-wrap {
+    height: clamp(150px, 24vh, 220px);
     min-height: 0;
   }
 }
