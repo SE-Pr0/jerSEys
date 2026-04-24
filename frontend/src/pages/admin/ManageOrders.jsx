@@ -6,7 +6,6 @@ import {
   getInitials,
   toneAvatarStyles,
   toneBadgeStyles,
-  toneBarStyles,
   normalizeText,
 } from './adminConstants';
 
@@ -193,43 +192,6 @@ const orders = [
   },
 ];
 
-const fulfillmentMix = [
-  { label: 'Completed', count: 186, share: 58, tone: 'green' },
-  { label: 'Processing', count: 84, share: 26, tone: 'orange' },
-  { label: 'Pending', count: 34, share: 11, tone: 'royal' },
-  { label: 'Refunded', count: 14, share: 5, tone: 'crimson' },
-];
-
-const paymentMix = [
-  { label: 'Paid', count: 264, share: 83, tone: 'green' },
-  { label: 'Pending', count: 38, share: 12, tone: 'orange' },
-  { label: 'Refunded', count: 16, share: 5, tone: 'crimson' },
-];
-
-const orderAlerts = [
-  {
-    title: 'SR-4175',
-    detail: 'Pending payment needs manual verification before fulfillment.',
-    tone: 'orange',
-  },
-  {
-    title: 'SR-4159',
-    detail: 'Refund closed but the return label still needs a warehouse note.',
-    tone: 'crimson',
-  },
-  {
-    title: 'SR-4144',
-    detail: 'Buyer has not completed payment within the expected window.',
-    tone: 'orange',
-  },
-];
-
-const orderNotes = [
-  'Same-day pickup queues are clear for the morning batch.',
-  'Three premium custom orders are waiting on name-set confirmation.',
-  'Instagram Shop orders continue to convert above the site average.',
-];
-
 const ManageOrders = () => {
   const [query, setQuery] = useState('');
   const [activeStatus, setActiveStatus] = useState('all');
@@ -379,91 +341,6 @@ const ManageOrders = () => {
           </div>
         </Card>
 
-        <div className="admin-suite-side-stack">
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Fulfillment mix</div>
-                <h2 className="admin-suite-side-title">How the queue is moving.</h2>
-              </div>
-            </div>
-
-            <div className="admin-suite-bars">
-              {fulfillmentMix.map((item) => (
-                <div className="admin-suite-bar-item" key={item.label}>
-                  <div className="admin-suite-side-header">
-                    <strong>{item.label}</strong>
-                    <span className="admin-suite-table-count">{item.count} orders</span>
-                  </div>
-                  <div className="admin-suite-bar-track">
-                    <div className="admin-suite-bar-fill" style={{ width: `${item.share}%`, ...toneBarStyles[item.tone] }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Payment channels</div>
-                <h2 className="admin-suite-side-title">Payment confidence.</h2>
-              </div>
-            </div>
-
-            <div className="admin-suite-bars">
-              {paymentMix.map((item) => (
-                <div className="admin-suite-bar-item" key={item.label}>
-                  <div className="admin-suite-side-header">
-                    <strong>{item.label}</strong>
-                    <span className="admin-suite-table-count">{item.count} orders</span>
-                  </div>
-                  <div className="admin-suite-bar-track">
-                    <div className="admin-suite-bar-fill" style={{ width: `${item.share}%`, ...toneBarStyles[item.tone] }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Priority review</div>
-                <h2 className="admin-suite-side-title">Orders that need a human check.</h2>
-              </div>
-            </div>
-
-            <div className="admin-suite-list">
-              {orderAlerts.map((item) => (
-                <div className="admin-suite-list-item" key={item.title}>
-                  <strong>{item.title}</strong>
-                  <span>{item.detail}</span>
-                  <span className="admin-suite-pill" style={toneBadgeStyles[item.tone]}>
-                    Flagged
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Notes</div>
-                <h2 className="admin-suite-side-title">Operational context.</h2>
-              </div>
-            </div>
-
-            <div className="admin-suite-list">
-              {orderNotes.map((note) => (
-                <div className="admin-suite-list-item" key={note}>
-                  <span>{note}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
       </div>
     </AdminSuiteLayout>
   );
