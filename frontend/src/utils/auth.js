@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'jerseys-auth-user';
+export const ADMIN_EMAIL = 'admin@jerseys.com';
 
 export const getStoredUser = () => {
   if (typeof window === 'undefined') {
@@ -35,4 +36,9 @@ export const clearStoredUser = () => {
 
   window.localStorage.removeItem(STORAGE_KEY);
   window.dispatchEvent(new Event('jerseys-auth-change'));
+};
+
+export const isAdminUser = (user) => {
+  const email = typeof user?.email === 'string' ? user.email.trim().toLowerCase() : '';
+  return email === ADMIN_EMAIL;
 };

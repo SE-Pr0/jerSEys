@@ -25,7 +25,7 @@ import ManageProducts from './pages/admin/ManageProducts';
 import ManageTemplates from './pages/admin/ManageTemplates';
 import SalesReports from './pages/admin/SalesReports';
 import InventoryReports from './pages/admin/InventoryReports';
-import { getStoredUser } from './utils/auth';
+import { getStoredUser, isAdminUser } from './utils/auth';
 
 const CustomJerseyBuilder = lazy(() => import('./pages/CustomJerseyBuilder'));
 
@@ -36,6 +36,22 @@ const RequireAuth = ({ children }) => {
   if (!user) {
     const from = `${location.pathname}${location.search}${location.hash}`;
     return <Navigate to="/login" replace state={{ from }} />;
+  }
+
+  return children;
+};
+
+const RequireAdmin = ({ children }) => {
+  const location = useLocation();
+  const user = getStoredUser();
+
+  if (!user) {
+    const from = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate to="/login" replace state={{ from }} />;
+  }
+
+  if (!isAdminUser(user)) {
+    return <Navigate to="/" replace />;
   }
 
   return children;
@@ -105,14 +121,70 @@ const Router = () => {
               </RequireAuth>
             )}
           />
-          <Route path="admin" element={<AdminDashboard />} />
-          <Route path="admin/manage-users" element={<ManageUsers />} />
-          <Route path="admin/manage-orders" element={<ManageOrders />} />
-          <Route path="admin/manage-inventory" element={<ManageInventory />} />
-          <Route path="admin/manage-products" element={<ManageProducts />} />
-          <Route path="admin/manage-patterns" element={<ManageTemplates />} />
-          <Route path="admin/sales-reports" element={<SalesReports />} />
-          <Route path="admin/inventory-reports" element={<InventoryReports />} />
+          <Route
+            path="admin"
+            element={(
+              <RequireAdmin>
+                <AdminDashboard />
+              </RequireAdmin>
+            )}
+          />
+          <Route
+            path="admin/manage-users"
+            element={(
+              <RequireAdmin>
+                <ManageUsers />
+              </RequireAdmin>
+            )}
+          />
+          <Route
+            path="admin/manage-orders"
+            element={(
+              <RequireAdmin>
+                <ManageOrders />
+              </RequireAdmin>
+            )}
+          />
+          <Route
+            path="admin/manage-inventory"
+            element={(
+              <RequireAdmin>
+                <ManageInventory />
+              </RequireAdmin>
+            )}
+          />
+          <Route
+            path="admin/manage-products"
+            element={(
+              <RequireAdmin>
+                <ManageProducts />
+              </RequireAdmin>
+            )}
+          />
+          <Route
+            path="admin/manage-patterns"
+            element={(
+              <RequireAdmin>
+                <ManageTemplates />
+              </RequireAdmin>
+            )}
+          />
+          <Route
+            path="admin/sales-reports"
+            element={(
+              <RequireAdmin>
+                <SalesReports />
+              </RequireAdmin>
+            )}
+          />
+          <Route
+            path="admin/inventory-reports"
+            element={(
+              <RequireAdmin>
+                <InventoryReports />
+              </RequireAdmin>
+            )}
+          />
           <Route path="trade" element={<TradeMarketplace />} />
           <Route path="trade/marketplace" element={<Navigate to="/trade" replace />} />
           <Route

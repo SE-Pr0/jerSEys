@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import '../styles/navbar.css';
-import { clearStoredUser, getStoredUser } from '../utils/auth';
+import { clearStoredUser, getStoredUser, isAdminUser } from '../utils/auth';
 
 const CART_STORAGE_KEYS = ['jerseys-cart', 'shopping-cart', 'cartItems', 'cart'];
 
@@ -110,6 +110,13 @@ const Navbar = () => {
             Trade Marketplace
           </NavLink>
         </li>
+        {isAdminUser(user) ? (
+          <li>
+            <NavLink to="/admin" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+              Admin Dashboard
+            </NavLink>
+          </li>
+        ) : null}
       </ul>
       <div className="nav-actions">
         {user ? (
