@@ -513,37 +513,48 @@
 
 .admin-trades-page .admin-suite-table th:nth-child(1),
 .admin-trades-page .admin-suite-table td:nth-child(1) {
-  width: 24%;
+  width: 26%;
 }
 
 .admin-trades-page .admin-suite-table th:nth-child(2),
 .admin-trades-page .admin-suite-table td:nth-child(2) {
-  width: 18%;
+  width: 26%;
 }
 
 .admin-trades-page .admin-suite-table th:nth-child(3),
 .admin-trades-page .admin-suite-table td:nth-child(3) {
-  width: 18%;
+  width: 12%;
 }
 
 .admin-trades-page .admin-suite-table th:nth-child(4),
 .admin-trades-page .admin-suite-table td:nth-child(4) {
-  width: 13%;
+  width: 14%;
 }
 
 .admin-trades-page .admin-suite-table th:nth-child(5),
 .admin-trades-page .admin-suite-table td:nth-child(5) {
-  width: 11%;
+  width: 10%;
 }
 
 .admin-trades-page .admin-suite-table th:nth-child(6),
 .admin-trades-page .admin-suite-table td:nth-child(6) {
-  width: 9%;
+  width: 12%;
 }
 
-.admin-trades-page .admin-suite-table th:nth-child(7),
-.admin-trades-page .admin-suite-table td:nth-child(7) {
-  width: 7%;
+.admin-trades-page .admin-suite-table th:nth-child(4),
+.admin-trades-page .admin-suite-table td:nth-child(4),
+.admin-trades-page .admin-suite-table th:nth-child(3),
+.admin-trades-page .admin-suite-table td:nth-child(3),
+.admin-trades-page .admin-suite-table th:nth-child(5),
+.admin-trades-page .admin-suite-table td:nth-child(5),
+.admin-trades-page .admin-suite-table th:nth-child(6),
+.admin-trades-page .admin-suite-table td:nth-child(6) {
+  text-align: center;
+}
+
+.admin-trades-page .admin-suite-table td:nth-child(3) .admin-suite-pill,
+.admin-trades-page .admin-suite-table td:nth-child(5) .admin-suite-status {
+  white-space: nowrap;
 }
 
 .admin-listings-page .admin-suite-table th:nth-child(1),
@@ -579,6 +590,23 @@
 .admin-listings-page .admin-suite-table th:nth-child(7),
 .admin-listings-page .admin-suite-table td:nth-child(7) {
   width: 14%;
+}
+
+.admin-listings-page .admin-suite-table th:nth-child(3),
+.admin-listings-page .admin-suite-table td:nth-child(3),
+.admin-listings-page .admin-suite-table th:nth-child(4),
+.admin-listings-page .admin-suite-table td:nth-child(4),
+.admin-listings-page .admin-suite-table th:nth-child(5),
+.admin-listings-page .admin-suite-table td:nth-child(5),
+.admin-listings-page .admin-suite-table th:nth-child(6),
+.admin-listings-page .admin-suite-table td:nth-child(6),
+.admin-listings-page .admin-suite-table th:nth-child(7),
+.admin-listings-page .admin-suite-table td:nth-child(7) {
+  text-align: center;
+}
+
+.admin-listings-page .admin-suite-table td:nth-child(3) .admin-suite-pill {
+  white-space: nowrap;
 }
 
 .admin-users-page .admin-suite-name-cell {
@@ -791,11 +819,15 @@
 }
 
 .admin-trades-page .admin-suite-actions {
+  width: 100%;
   gap: 6px;
+  justify-content: center;
 }
 
 .admin-listings-page .admin-suite-actions {
+  width: 100%;
   gap: 6px;
+  justify-content: center;
 }
 
 .admin-users-page .admin-suite-inline-button.ui-button {

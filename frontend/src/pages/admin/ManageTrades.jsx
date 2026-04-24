@@ -58,6 +58,8 @@ const trades = [
     id: 'TR-001',
     userName: 'Sarah Chen',
     userEmail: 'sarah@jerseysys.com',
+    counterpartyName: 'David Moore',
+    counterpartyEmail: 'david@jerseysys.com',
     offering: 'Barcelona Home 2023',
     seeking: 'Man United Away 2023',
     submitted: 'Apr 21, 2026',
@@ -72,6 +74,8 @@ const trades = [
     id: 'TR-002',
     userName: 'Marco Silva',
     userEmail: 'marco@jerseysys.com',
+    counterpartyName: 'Lucia Torres',
+    counterpartyEmail: 'lucia@jerseysys.com',
     offering: 'Brazil 2002 Vintage',
     seeking: 'Argentina 2022 Home',
     submitted: 'Apr 20, 2026',
@@ -86,6 +90,8 @@ const trades = [
     id: 'TR-003',
     userName: 'Priya Nair',
     userEmail: 'priya@jerseysys.com',
+    counterpartyName: 'Omar Haddad',
+    counterpartyEmail: 'omar@jerseysys.com',
     offering: 'PSG Home 2024',
     seeking: 'Real Madrid Third 2024',
     submitted: 'Apr 19, 2026',
@@ -100,6 +106,8 @@ const trades = [
     id: 'TR-004',
     userName: 'Jake Owens',
     userEmail: 'jake@jerseysys.com',
+    counterpartyName: 'Sana Malik',
+    counterpartyEmail: 'sana@jerseysys.com',
     offering: 'Lakers City Edition',
     seeking: 'Bulls Classic Home',
     submitted: 'Apr 18, 2026',
@@ -114,6 +122,8 @@ const trades = [
     id: 'TR-005',
     userName: 'Lena Fischer',
     userEmail: 'lena@jerseysys.com',
+    counterpartyName: 'Noah Reed',
+    counterpartyEmail: 'noah@jerseysys.com',
     offering: 'Bayern Munich 2023 Home',
     seeking: 'Dortmund Away 2023',
     submitted: 'Apr 17, 2026',
@@ -128,6 +138,8 @@ const trades = [
     id: 'TR-006',
     userName: 'Carlos Diaz',
     userEmail: 'carlos@jerseysys.com',
+    counterpartyName: 'Eli Romero',
+    counterpartyEmail: 'eli@jerseysys.com',
     offering: 'Inter Miami Home',
     seeking: 'LAFC Away 2024',
     submitted: 'Apr 16, 2026',
@@ -142,6 +154,8 @@ const trades = [
     id: 'TR-007',
     userName: 'Hana Kobayashi',
     userEmail: 'hana@jerseysys.com',
+    counterpartyName: 'Yuna Park',
+    counterpartyEmail: 'yuna@jerseysys.com',
     offering: 'Japan World Cup 2022',
     seeking: 'South Korea 2022 Home',
     submitted: 'Apr 15, 2026',
@@ -167,6 +181,8 @@ const ManageTrades = () => {
         trade.id,
         trade.userName,
         trade.userEmail,
+        trade.counterpartyName,
+        trade.counterpartyEmail,
         trade.offering,
         trade.seeking,
         trade.type,
@@ -196,7 +212,7 @@ const ManageTrades = () => {
               <input
                 className="ui-input"
                 id="admin-trade-search"
-                placeholder="Search ID, user, or items"
+                placeholder="Search trade ID or users"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
@@ -235,9 +251,8 @@ const ManageTrades = () => {
               <thead>
                 <tr>
                   <th>Trader</th>
-                  <th>Offering</th>
-                  <th>Seeking</th>
-                  <th>Type</th>
+                  <th>Counterparty</th>
+                  <th>Trade ID</th>
                   <th>Submitted</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -257,11 +272,20 @@ const ManageTrades = () => {
                         </div>
                       </div>
                     </td>
-                    <td>{trade.offering}</td>
-                    <td>{trade.seeking}</td>
+                    <td>
+                      <div className="admin-suite-name-cell">
+                        <span className="admin-suite-avatar" style={toneAvatarStyles[trade.avatarTone]}>
+                          {getInitials(trade.counterpartyName)}
+                        </span>
+                        <div>
+                          <strong>{trade.counterpartyName}</strong>
+                          <span className="admin-suite-subtext">{trade.counterpartyEmail}</span>
+                        </div>
+                      </div>
+                    </td>
                     <td>
                       <span className="admin-suite-pill" style={toneBadgeStyles[trade.typeTone]}>
-                        {trade.type}
+                        {trade.id}
                       </span>
                     </td>
                     <td>{trade.submitted}</td>
