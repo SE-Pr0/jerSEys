@@ -6,7 +6,6 @@ import {
   getInitials,
   toneAvatarStyles,
   toneBadgeStyles,
-  toneBarStyles,
   normalizeText,
 } from './adminConstants';
 
@@ -51,6 +50,14 @@ const categoryFilters = [
   { value: 'basketball', label: 'Basketball' },
   { value: 'custom', label: 'Custom' },
   { value: 'training', label: 'Training' },
+];
+
+const stockFilters = [
+  { value: 'all', label: 'All stock levels' },
+  { value: 'critical', label: 'Critical (5 or less)' },
+  { value: 'low', label: 'Low (10 or less)' },
+  { value: 'medium', label: 'Medium (11 to 20)' },
+  { value: 'healthy', label: 'Healthy (21+)' },
 ];
 
 const inventoryRows = [
@@ -160,46 +167,25 @@ const inventoryRows = [
   },
 ];
 
-const stockHealth = [
-  { label: 'Healthy', count: 409, share: 84, tone: 'green' },
-  { label: 'Low stock', count: 57, share: 12, tone: 'orange' },
-  { label: 'Critical', count: 14, share: 3, tone: 'crimson' },
-  { label: 'Out of stock', count: 6, share: 1, tone: 'royal' },
-];
-
-const urgentRestocks = [
-  {
-    title: 'Barcelona 24/25 Home Jersey',
-    detail: 'Only 12 units left against a reorder level of 24.',
-    tone: 'orange',
-  },
-  {
-    title: 'Lakers City Edition Swingman',
-    detail: 'Stock is below immediate dispatch demand and needs a top-up.',
-    tone: 'crimson',
-  },
-  {
-    title: 'Custom Arsenal Home Kit',
-    detail: 'Print queue needs blank stock replenishment before the weekend.',
-    tone: 'crimson',
-  },
-];
-
-const inventoryNotes = [
-  'Manual count verification completed this morning.',
-  'Training wear is stable, with no immediate reorder risk.',
-  'Custom print stock should be replenished before the next drop.',
-];
+const getStockUnits = (stockLabel) => Number.parseInt(String(stockLabel).replace(/[^\d]/g, ''), 10) || 0;
 
 const ManageInventory = () => {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [activeStockFilter, setActiveStockFilter] = useState('all');
 
   const filteredRows = useMemo(() => {
     const search = normalizeText(query);
 
     return inventoryRows.filter((item) => {
       const matchesCategory = activeCategory === 'all' || item.categoryKey === activeCategory;
+      const stockUnits = getStockUnits(item.stock);
+      const matchesStockFilter =
+        activeStockFilter === 'all' ||
+        (activeStockFilter === 'critical' && stockUnits <= 5) ||
+        (activeStockFilter === 'low' && stockUnits <= 10) ||
+        (activeStockFilter === 'medium' && stockUnits >= 11 && stockUnits <= 20) ||
+        (activeStockFilter === 'healthy' && stockUnits >= 21);
       const matchesSearch = buildSearchBlob([
         item.product,
         item.sku,
@@ -210,9 +196,9 @@ const ManageInventory = () => {
         item.status,
       ]).includes(search);
 
-      return matchesCategory && matchesSearch;
+      return matchesCategory && matchesStockFilter && matchesSearch;
     });
-  }, [activeCategory, query]);
+  }, [activeCategory, activeStockFilter, query]);
 
   return (
     <AdminSuiteLayout
@@ -253,6 +239,21 @@ const ManageInventory = () => {
                 ))}
               </select>
             </FormField>
+
+            <FormField label="Amount left in stock" htmlFor="admin-inventory-stock-range">
+              <select
+                className="ui-select"
+                id="admin-inventory-stock-range"
+                value={activeStockFilter}
+                onChange={(event) => setActiveStockFilter(event.target.value)}
+              >
+                {stockFilters.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </FormField>
           </div>
 
           <div className="admin-suite-table-header">
@@ -278,7 +279,6 @@ const ManageInventory = () => {
                   <th>Reorder</th>
                   <th>Vendor</th>
                   <th>Status</th>
-                  <th>Last count</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -310,7 +310,6 @@ const ManageInventory = () => {
                     <td>
                       <span className={`admin-suite-status is-${item.statusTone}`}>{item.status}</span>
                     </td>
-                    <td>{item.lastCount}</td>
                     <td>
                       <div className="admin-suite-actions">
                         <Button className="admin-suite-inline-button" variant="ghost">
@@ -331,69 +330,6 @@ const ManageInventory = () => {
             Showing {filteredRows.length} of {inventoryRows.length} items. Watch the low-stock queue before the next print run.
           </div>
         </Card>
-
-        <div className="admin-suite-side-stack">
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Stock health</div>
-                <h2 className="admin-suite-side-title">Coverage across the warehouse.</h2>
-              </div>
-            </div>
-
-            <div className="admin-suite-bars">
-              {stockHealth.map((item) => (
-                <div className="admin-suite-bar-item" key={item.label}>
-                  <div className="admin-suite-side-header">
-                    <strong>{item.label}</strong>
-                    <span className="admin-suite-table-count">{item.count} SKUs</span>
-                  </div>
-                  <div className="admin-suite-bar-track">
-                    <div className="admin-suite-bar-fill" style={{ width: `${item.share}%`, ...toneBarStyles[item.tone] }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Urgent restocks</div>
-                <h2 className="admin-suite-side-title">Replenishment watchlist.</h2>
-              </div>
-            </div>
-
-            <div className="admin-suite-list">
-              {urgentRestocks.map((item) => (
-                <div className="admin-suite-list-item" key={item.title}>
-                  <strong>{item.title}</strong>
-                  <span>{item.detail}</span>
-                  <span className="admin-suite-pill" style={toneBadgeStyles[item.tone]}>
-                    Restock
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="admin-suite-side-card">
-            <div className="admin-suite-side-header">
-              <div>
-                <div className="admin-suite-kicker">Recent activity</div>
-                <h2 className="admin-suite-side-title">Last inventory notes.</h2>
-              </div>
-            </div>
-
-            <div className="admin-suite-list">
-              {inventoryNotes.map((note) => (
-                <div className="admin-suite-list-item" key={note}>
-                  <span>{note}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
       </div>
     </AdminSuiteLayout>
   );

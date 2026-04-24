@@ -220,11 +220,19 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+.admin-inventory-page .admin-suite-workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .admin-users-page .admin-suite-table-wrap {
   overflow-x: hidden;
 }
 
 .admin-orders-page .admin-suite-table-wrap {
+  overflow-x: hidden;
+}
+
+.admin-inventory-page .admin-suite-table-wrap {
   overflow-x: hidden;
 }
 
@@ -234,6 +242,11 @@
 }
 
 .admin-orders-page .admin-suite-table {
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.admin-inventory-page .admin-suite-table {
   min-width: 0;
   table-layout: fixed;
 }
@@ -248,6 +261,11 @@
   padding: 12px 10px;
 }
 
+.admin-inventory-page .admin-suite-table th,
+.admin-inventory-page .admin-suite-table td {
+  padding: 12px 10px;
+}
+
 .admin-users-page .admin-suite-table th {
   font-size: 10px;
   letter-spacing: 1.4px;
@@ -258,11 +276,20 @@
   letter-spacing: 1.4px;
 }
 
+.admin-inventory-page .admin-suite-table th {
+  font-size: 10px;
+  letter-spacing: 1.4px;
+}
+
 .admin-users-page .admin-suite-table td {
   font-size: 13px;
 }
 
 .admin-orders-page .admin-suite-table td {
+  font-size: 13px;
+}
+
+.admin-inventory-page .admin-suite-table td {
   font-size: 13px;
 }
 
@@ -336,11 +363,60 @@
   width: 10%;
 }
 
+.admin-inventory-page .admin-suite-table th:nth-child(1),
+.admin-inventory-page .admin-suite-table td:nth-child(1) {
+  width: 25%;
+}
+
+.admin-inventory-page .admin-suite-table th:nth-child(2),
+.admin-inventory-page .admin-suite-table td:nth-child(2) {
+  width: 10%;
+}
+
+.admin-inventory-page .admin-suite-table th:nth-child(3),
+.admin-inventory-page .admin-suite-table td:nth-child(3) {
+  width: 10%;
+}
+
+.admin-inventory-page .admin-suite-table th:nth-child(4),
+.admin-inventory-page .admin-suite-table td:nth-child(4) {
+  width: 9%;
+}
+
+.admin-inventory-page .admin-suite-table th:nth-child(5),
+.admin-inventory-page .admin-suite-table td:nth-child(5) {
+  width: 10%;
+}
+
+.admin-inventory-page .admin-suite-table th:nth-child(6),
+.admin-inventory-page .admin-suite-table td:nth-child(6) {
+  width: 14%;
+}
+
+.admin-inventory-page .admin-suite-table th:nth-child(7),
+.admin-inventory-page .admin-suite-table td:nth-child(7) {
+  width: 9%;
+}
+
+.admin-inventory-page .admin-suite-table th:nth-child(8),
+.admin-inventory-page .admin-suite-table td:nth-child(8) {
+  width: 8%;
+}
+
+.admin-inventory-page .admin-suite-table th:nth-child(9),
+.admin-inventory-page .admin-suite-table td:nth-child(9) {
+  width: 5%;
+}
+
 .admin-users-page .admin-suite-name-cell {
   gap: 10px;
 }
 
 .admin-orders-page .admin-suite-name-cell {
+  gap: 10px;
+}
+
+.admin-inventory-page .admin-suite-name-cell {
   gap: 10px;
 }
 
@@ -356,11 +432,21 @@
   font-size: 12px;
 }
 
+.admin-inventory-page .admin-suite-avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+}
+
 .admin-users-page .admin-suite-name-cell strong {
   font-size: 15px;
 }
 
 .admin-orders-page .admin-suite-name-cell strong {
+  font-size: 15px;
+}
+
+.admin-inventory-page .admin-suite-name-cell strong {
   font-size: 15px;
 }
 
@@ -370,6 +456,11 @@
 }
 
 .admin-orders-page .admin-suite-subtext {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.admin-inventory-page .admin-suite-subtext {
   font-size: 11px;
   line-height: 1.35;
 }
@@ -390,11 +481,23 @@
   letter-spacing: 1.2px;
 }
 
+.admin-inventory-page .admin-suite-pill,
+.admin-inventory-page .admin-suite-status {
+  min-height: 24px;
+  padding: 0 8px;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+
 .admin-users-page .admin-suite-pill-group {
   gap: 6px;
 }
 
 .admin-orders-page .admin-suite-pill-group {
+  gap: 6px;
+}
+
+.admin-inventory-page .admin-suite-pill-group {
   gap: 6px;
 }
 
@@ -406,6 +509,10 @@
   gap: 6px;
 }
 
+.admin-inventory-page .admin-suite-actions {
+  gap: 6px;
+}
+
 .admin-users-page .admin-suite-inline-button.ui-button {
   min-height: 30px;
   padding: 6px 8px;
@@ -413,6 +520,12 @@
 }
 
 .admin-orders-page .admin-suite-inline-button.ui-button {
+  min-height: 30px;
+  padding: 6px 8px;
+  font-size: 9px;
+}
+
+.admin-inventory-page .admin-suite-inline-button.ui-button {
   min-height: 30px;
   padding: 6px 8px;
   font-size: 9px;
@@ -810,7 +923,7 @@
 
 .admin-hub-shell {
   display: grid;
-  grid-template-columns: 284px minmax(0, 1fr);
+  grid-template-columns: 228px minmax(0, 1fr);
   height: 100%;
   max-height: 100%;
   overflow: hidden;
