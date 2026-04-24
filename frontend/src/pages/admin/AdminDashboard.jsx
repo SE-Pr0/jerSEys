@@ -2,6 +2,11 @@ import React, { useRef, useState } from 'react';
 import { Button, Card, PageHeader, PageShell } from '../../components/ui';
 import './AdminSuite.css';
 import { toneBadgeStyles } from './adminConstants';
+import ManageUsers from './ManageUsers';
+import ManageOrders from './ManageOrders';
+import ManageInventory from './ManageInventory';
+import SalesReports from './SalesReports';
+import InventoryReports from './InventoryReports';
 
 const adminSections = [
   {
@@ -127,6 +132,24 @@ const sidebarGroups = [
   },
 ];
 
+const routeToSectionId = adminSections.reduce(
+  (accumulator, section) => {
+    if (section.route) {
+      accumulator[section.route] = section.id;
+    }
+
+    return accumulator;
+  },
+  { '/admin': 'dashboard' },
+);
+const embeddedSectionIds = new Set([
+  'user-management',
+  'manage-orders',
+  'manage-inventory',
+  'sales-reports',
+  'inventory-reports',
+]);
+
 const AdminDashboard = () => {
   const mainRef = useRef(null);
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -145,14 +168,35 @@ const AdminDashboard = () => {
       items: group.items.filter((section) => section.id !== 'dashboard'),
     }))
     .filter((group) => group.items.length > 0);
+  const embeddedPanels = {
+    'user-management': ManageUsers,
+    'manage-orders': ManageOrders,
+    'manage-inventory': ManageInventory,
+    'sales-reports': SalesReports,
+    'inventory-reports': InventoryReports,
+  };
+  const ActivePanel = embeddedPanels[activeSection];
+  const isEmbeddedSection = (sectionId) => embeddedSectionIds.has(sectionId);
 
   const handleSidebarSelect = (sectionId) => {
     setActiveSection(sectionId);
 
-    const sectionElement = document.getElementById(sectionId);
     const mainElement = mainRef.current;
+    if (!mainElement) {
+      return;
+    }
 
-    if (!sectionElement || !mainElement) {
+    if (isEmbeddedSection(sectionId)) {
+      mainElement.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+      return;
+    }
+
+    const sectionElement = document.getElementById(sectionId);
+
+    if (!sectionElement) {
       return;
     }
 
@@ -160,6 +204,32 @@ const AdminDashboard = () => {
       top: Math.max(sectionElement.offsetTop - 8, 0),
       behavior: 'smooth',
     });
+  };
+
+  const handleAdminLinkClick = (event) => {
+    const anchor = event.target.closest('a[href]');
+
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+
+    if (!href) {
+      return;
+    }
+
+    const parsedHref = new URL(href, window.location.origin);
+    const normalizedPath = parsedHref.pathname.replace(/\/+$/, '') || '/';
+    if (!normalizedPath.startsWith('/admin')) {
+      return;
+    }
+
+    const mappedSection = routeToSectionId[normalizedPath] || 'dashboard';
+
+    event.preventDefault();
+    event.stopPropagation();
+    handleSidebarSelect(mappedSection);
   };
 
   return (
@@ -185,74 +255,81 @@ const AdminDashboard = () => {
           </nav>
         </aside>
 
-        <main className="admin-hub-main" ref={mainRef}>
-          <PageHeader
-            title={(
-              <>
-                Admin <span>Dashboard</span>
-              </>
-            )}
-          />
+        <main className="admin-hub-main" ref={mainRef} onClickCapture={handleAdminLinkClick}>
+          {!ActivePanel ? (
+            <PageHeader
+              title={(
+                <>
+                  Admin <span>Dashboard</span>
+                </>
+              )}
+            />
+          ) : null}
 
-          <div className="admin-hub-content">
-            <div id="dashboard" />
+          {ActivePanel ? (
+            <div className="admin-hub-embedded-view">
+              <ActivePanel />
+            </div>
+          ) : (
+            <div className="admin-hub-content">
+              <div id="dashboard" />
 
-            {groupedContentSections.map((group) => (
-              <section className="admin-hub-group" key={group.title}>
-                <div className="admin-hub-section-grid">
-                  {group.items.map((section) => (
-                    <Card
-                      className={`admin-hub-section-card tone-${section.tone}`}
-                      id={section.id}
-                      key={section.id}
-                      onMouseEnter={() => setActiveSection(section.id)}
-                    >
-                      <div className="admin-hub-section-head">
-                        <div>
-                          <div className="admin-suite-kicker">{section.group}</div>
-                          <h3 className="admin-hub-section-title">{section.title}</h3>
-                          <p className="admin-hub-section-subtitle">{section.description}</p>
-                        </div>
-                        <span className="admin-suite-pill" style={toneBadgeStyles[section.tone]}>
-                          {section.status}
-                        </span>
-                      </div>
-
-                      <div className="admin-hub-chip-list" aria-label={`${section.title} highlights`}>
-                        {section.chips.map((chip) => (
-                          <span className="admin-hub-chip" key={chip} style={toneBadgeStyles[section.tone]}>
-                            {chip}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className="admin-hub-section-list">
-                        {section.details.map((detail) => (
-                          <div className="admin-hub-section-item" key={detail}>
-                            <span className="admin-hub-section-dot" aria-hidden="true" />
-                            <span>{detail}</span>
+              {groupedContentSections.map((group) => (
+                <section className="admin-hub-group" key={group.title}>
+                  <div className="admin-hub-section-grid">
+                    {group.items.map((section) => (
+                      <Card
+                        className={`admin-hub-section-card tone-${section.tone}`}
+                        id={section.id}
+                        key={section.id}
+                      >
+                        <div className="admin-hub-section-head">
+                          <div>
+                            <div className="admin-suite-kicker">{section.group}</div>
+                            <h3 className="admin-hub-section-title">{section.title}</h3>
+                            <p className="admin-hub-section-subtitle">{section.description}</p>
                           </div>
-                        ))}
-                      </div>
+                          <span className="admin-suite-pill" style={toneBadgeStyles[section.tone]}>
+                            {section.status}
+                          </span>
+                        </div>
 
-                      <div className="admin-hub-section-actions">
-                        {section.route ? (
-                          <Button to={section.route}>Open page</Button>
-                        ) : (
-                          <Button disabled variant="secondary">
-                            Coming soon
+                        <div className="admin-hub-chip-list" aria-label={`${section.title} highlights`}>
+                          {section.chips.map((chip) => (
+                            <span className="admin-hub-chip" key={chip} style={toneBadgeStyles[section.tone]}>
+                              {chip}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="admin-hub-section-list">
+                          {section.details.map((detail) => (
+                            <div className="admin-hub-section-item" key={detail}>
+                              <span className="admin-hub-section-dot" aria-hidden="true" />
+                              <span>{detail}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="admin-hub-section-actions">
+                          {section.route ? (
+                            <Button onClick={() => handleSidebarSelect(section.id)}>Open page</Button>
+                          ) : (
+                            <Button disabled variant="secondary">
+                              Coming soon
+                            </Button>
+                          )}
+                          <Button variant="ghost" onClick={() => handleSidebarSelect(section.id)}>
+                            Focus section
                           </Button>
-                        )}
-                        <Button variant="ghost" onClick={() => setActiveSection(section.id)}>
-                          Focus section
-                        </Button>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
         </main>
       </div>
     </PageShell>

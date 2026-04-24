@@ -552,7 +552,11 @@ const SalesReportPage = () => {
         <div className="sales-report-hero-inner">
           <PageHeader
             eyebrow="Admin Analytics"
-            title="Sales Report"
+            title={(
+              <>
+                <span>Sales</span> Report
+              </>
+            )}
             description="Monitor revenue momentum, order performance, and category trends from one clean sales dashboard."
             actions={(
               <div className="sales-report-toolbar">

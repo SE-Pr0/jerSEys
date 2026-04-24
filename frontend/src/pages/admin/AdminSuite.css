@@ -63,6 +63,16 @@
   animation: fadeUp 0.8s ease 0.2s forwards;
 }
 
+.admin-suite-page .ui-page-eyebrow,
+.admin-hub-page .ui-page-eyebrow,
+.sales-report-page .ui-page-eyebrow,
+.inventory-report-page .ui-page-eyebrow,
+.admin-suite-page .admin-suite-kicker,
+.sales-report-page .sales-report-kicker,
+.inventory-report-page .inventory-report-kicker {
+  display: none;
+}
+
 .admin-suite-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -740,6 +750,43 @@
 .admin-hub-content {
   display: grid;
   gap: 26px;
+}
+
+.admin-hub-embedded-view {
+  min-height: 0;
+}
+
+.admin-hub-embedded-view .ui-page-shell {
+  max-width: none;
+  margin: 0;
+  min-height: 0;
+  padding: 0;
+}
+
+.admin-hub-embedded-view .ui-page-stack {
+  gap: var(--space-5);
+}
+
+.admin-hub-page .ui-page-title,
+.admin-hub-embedded-view .ui-page-title {
+  white-space: nowrap;
+  font-size: clamp(36px, 4.2vw, 64px);
+}
+
+.admin-hub-page .ui-page-title span,
+.admin-hub-embedded-view .ui-page-title span {
+  color: var(--crimson);
+}
+
+.admin-hub-embedded-view .admin-suite-page.ui-page-shell {
+  min-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.admin-hub-embedded-view .admin-suite-page::before,
+.admin-hub-embedded-view .admin-suite-page::after {
+  display: none;
 }
 
 .admin-hub-section,

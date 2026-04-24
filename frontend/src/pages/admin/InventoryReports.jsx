@@ -742,7 +742,11 @@ const InventoryReportPage = () => {
         <div className="inventory-report-hero-inner">
           <PageHeader
             eyebrow="Admin Analytics"
-            title="Inventory Report"
+            title={(
+              <>
+                <span>Inventory</span> Report
+              </>
+            )}
             description="Track stock health, restock pressure, category balance, and recent inventory movement from one clean reporting view."
             actions={(
               <div className="inventory-report-toolbar">
