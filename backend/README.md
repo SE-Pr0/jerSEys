@@ -215,6 +215,95 @@ Example:
 DELETE /api/cart
 ```
 
+## Orders API
+
+All order routes are available under `http://localhost:5000/api/orders`.
+
+These routes are protected and require a Bearer token for a logged-in user.
+
+### `POST /api/orders`
+
+Places an order using the current logged-in user's cart.
+
+Behavior:
+
+- Returns an error if the cart is empty
+- Checks stock for every cart item
+- Creates an order with status `pending`
+- Inserts matching `order_items`
+- Reduces product stock
+- Clears the user's cart
+- Uses a transaction so all changes succeed or roll back together
+
+Example:
+
+```http
+POST /api/orders
+```
+
+No request body is required.
+
+### `GET /api/orders`
+
+Returns the current logged-in user's order history, sorted newest first.
+
+Example:
+
+```http
+GET /api/orders
+```
+
+### `GET /api/orders/:id`
+
+Returns one order with its items and product info.
+
+Example:
+
+```http
+GET /api/orders/1
+```
+
+Response shape:
+
+```json
+{
+  "id": 1,
+  "user_id": 4,
+  "total_price": "179.98",
+  "status": "pending",
+  "created_at": "2026-04-26T12:00:00.000Z",
+  "items": [
+    {
+      "id": 1,
+      "product_id": 12,
+      "name": "Chicago Bulls Swingman Jersey",
+      "image_url": "https://example.com/images/bulls.jpg",
+      "quantity": 2,
+      "price": "89.99"
+    }
+  ]
+}
+```
+
+### `PATCH /api/orders/:id/cancel`
+
+Cancels one pending order owned by the logged-in user.
+
+Behavior:
+
+- Only the owner can cancel
+- Only `pending` orders can be cancelled
+- Product stock is restored
+- Uses a transaction
+
+Example:
+
+```http
+PATCH /api/orders/1/cancel
+```
+
+No request body is required.
+
 ## Product Migration
 
 If your database already exists from an older schema, run:
