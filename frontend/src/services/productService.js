@@ -1,6 +1,8 @@
 import footballKits from '../data/mrfootball-men-kits.json';
 import basketballJerseys from '../data/projersey-nba-men-jerseys.json';
 
+const PRODUCTS_API_URL = 'http://localhost:5000/api/products';
+
 const NATIONAL_TEAM_NAMES = new Set([
   'argentina',
   'australia',
@@ -103,6 +105,54 @@ const catalog = rawCatalog.map((kit, index) => {
 
 const uniqueClubTeams = new Set(catalog.filter((product) => product.category === 'club').map((product) => product.team));
 const uniqueCountries = new Set(catalog.filter((product) => product.category === 'national').map((product) => product.team));
+
+const handleProductApiResponse = async (response, fallbackMessage) => {
+  let payload = null;
+
+  try {
+    payload = await response.json();
+  } catch {
+    payload = null;
+  }
+
+  if (!response.ok) {
+    throw new Error(payload?.message || fallbackMessage);
+  }
+
+  return payload?.data;
+};
+
+export const getAllProducts = async () => {
+  try {
+    const response = await fetch(PRODUCTS_API_URL);
+    return await handleProductApiResponse(response, 'Failed to fetch products');
+  } catch (error) {
+    throw new Error(error.message || 'Failed to fetch products');
+  }
+};
+
+export const getProductById = async (id) => {
+  try {
+    const response = await fetch(`${PRODUCTS_API_URL}/${encodeURIComponent(id)}`);
+    return await handleProductApiResponse(response, 'Failed to fetch product');
+  } catch (error) {
+    throw new Error(error.message || 'Failed to fetch product');
+  }
+};
+
+export const searchProducts = async (query) => {
+  try {
+    const searchTerm = typeof query === 'string' ? query.trim() : '';
+    const url = searchTerm
+      ? `${PRODUCTS_API_URL}?search=${encodeURIComponent(searchTerm)}`
+      : PRODUCTS_API_URL;
+    const response = await fetch(url);
+
+    return await handleProductApiResponse(response, 'Failed to search products');
+  } catch (error) {
+    throw new Error(error.message || 'Failed to search products');
+  }
+};
 
 export const getShopProducts = () => catalog;
 
