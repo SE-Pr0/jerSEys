@@ -140,6 +140,81 @@ Example:
 DELETE /api/products/1
 ```
 
+## Cart API
+
+All cart routes are available under `http://localhost:5000/api/cart`.
+
+These routes are protected and require a Bearer token for a logged-in user.
+
+### `GET /api/cart`
+
+Returns the current logged-in user's cart items.
+
+Example:
+
+```http
+GET /api/cart
+```
+
+Response item shape:
+
+```json
+{
+  "id": 1,
+  "product_id": 12,
+  "name": "Chicago Bulls Swingman Jersey",
+  "price": "89.99",
+  "image_url": "https://example.com/images/bulls.jpg",
+  "quantity": 2,
+  "stock": 8
+}
+```
+
+### `POST /api/cart`
+
+Adds a product to the logged-in user's cart. If the product is already in the cart, the quantity is increased.
+
+Example body:
+
+```json
+{
+  "product_id": 12,
+  "quantity": 2
+}
+```
+
+### `PUT /api/cart/:itemId`
+
+Updates the quantity of one cart item owned by the logged-in user.
+
+Example body:
+
+```json
+{
+  "quantity": 3
+}
+```
+
+### `DELETE /api/cart/:itemId`
+
+Deletes one cart item owned by the logged-in user.
+
+Example:
+
+```http
+DELETE /api/cart/5
+```
+
+### `DELETE /api/cart`
+
+Clears the logged-in user's cart.
+
+Example:
+
+```http
+DELETE /api/cart
+```
+
 ## Product Migration
 
 If your database already exists from an older schema, run:
