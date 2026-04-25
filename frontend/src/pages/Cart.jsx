@@ -11,6 +11,7 @@ const FREE_SHIPPING_THRESHOLD = 150;
 const TAX_RATE = 0.085;
 const VALID_COUPON_CODE = 'KAREEM';
 const COUPON_DISCOUNT_RATE = 0.5;
+const COUPON_STORAGE_KEY = 'jerseys-applied-coupon';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -177,6 +178,31 @@ const readCartFromStorage = () => {
   return [];
 };
 
+const readStoredCoupon = () => {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  const storedCoupon = window.localStorage.getItem(COUPON_STORAGE_KEY);
+  return typeof storedCoupon === 'string' ? storedCoupon.trim().toUpperCase() : '';
+};
+
+const writeStoredCoupon = (couponCode) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const normalizedCode = String(couponCode || '').trim().toUpperCase();
+
+  if (normalizedCode) {
+    window.localStorage.setItem(COUPON_STORAGE_KEY, normalizedCode);
+  } else {
+    window.localStorage.removeItem(COUPON_STORAGE_KEY);
+  }
+
+  window.dispatchEvent(new Event('jerseys-coupon-change'));
+};
+
 const persistCart = (items) => {
   if (typeof window === 'undefined') {
     return;
@@ -273,9 +299,9 @@ const Cart = () => {
   const navigate = useNavigate();
   const closeTimerRef = useRef(null);
   const [cartItems, setCartItems] = useState(readCartFromStorage);
-  const [promoCode, setPromoCode] = useState('');
+  const [promoCode, setPromoCode] = useState(readStoredCoupon);
   const [promoMessage, setPromoMessage] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(readStoredCoupon);
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
@@ -283,13 +309,22 @@ const Cart = () => {
     const syncCart = () => {
       setCartItems(readCartFromStorage());
     };
+    const syncCoupon = () => {
+      const storedCoupon = readStoredCoupon();
+      setPromoCode(storedCoupon);
+      setAppliedCoupon(storedCoupon);
+    };
 
     window.addEventListener('storage', syncCart);
     window.addEventListener('jerseys-cart-change', syncCart);
+    window.addEventListener('storage', syncCoupon);
+    window.addEventListener('jerseys-coupon-change', syncCoupon);
 
     return () => {
       window.removeEventListener('storage', syncCart);
       window.removeEventListener('jerseys-cart-change', syncCart);
+      window.removeEventListener('storage', syncCoupon);
+      window.removeEventListener('jerseys-coupon-change', syncCoupon);
     };
   }, []);
 
@@ -378,6 +413,7 @@ const Cart = () => {
     setPromoCode('');
     setPromoMessage('');
     setAppliedCoupon('');
+    writeStoredCoupon('');
     if (typeof window !== 'undefined') {
       CART_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key));
     }
@@ -390,17 +426,21 @@ const Cart = () => {
     if (!normalizedCode) {
       setAppliedCoupon('');
       setPromoMessage('');
+      writeStoredCoupon('');
       return;
     }
 
     if (normalizedCode !== VALID_COUPON_CODE) {
       setAppliedCoupon('');
       setPromoMessage('Invalid coupon');
+      writeStoredCoupon('');
       return;
     }
 
     setAppliedCoupon(normalizedCode);
+    setPromoCode(normalizedCode);
     setPromoMessage(`Coupon ${normalizedCode} was successfully applied.`);
+    writeStoredCoupon(normalizedCode);
   };
 
   const closeCart = () => {
@@ -639,7 +679,6 @@ const Cart = () => {
                     <span>Shipping</span>
                     <strong className="cart-summary-shipping">
                       <span>{buildShippingLabel(discountedSubtotal)}</span>
-                      <em>(ghalyen el benzeen)</em>
                     </strong>
                   </div>
                   <div className="cart-summary-row">

@@ -13,6 +13,7 @@ const EXPRESS_SHIPPING_FEE = 18.95;
 const TAX_RATE = 0.085;
 const VALID_COUPON_CODE = 'KAREEM';
 const COUPON_DISCOUNT_RATE = 0.5;
+const COUPON_STORAGE_KEY = 'jerseys-applied-coupon';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -63,6 +64,15 @@ const firstText = (...values) => {
   return '';
 };
 
+const splitFullName = (value) => {
+  const parts = String(value || '').trim().split(/\s+/).filter(Boolean);
+
+  return {
+    firstName: parts[0] || '',
+    lastName: parts.slice(1).join(' '),
+  };
+};
+
 const normalizeStoredItem = (item, index) => {
   const rawItem = typeof item === 'string' ? { productId: item } : { ...item };
   const rawId = firstText(rawItem.id, rawItem.productId, rawItem.slug, rawItem.cartKey) || `cart-item-${index + 1}`;
@@ -107,37 +117,61 @@ const readCartFromStorage = () => {
   return [];
 };
 
+const readStoredCoupon = () => {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  const storedCoupon = window.localStorage.getItem(COUPON_STORAGE_KEY);
+  return typeof storedCoupon === 'string' ? storedCoupon.trim().toUpperCase() : '';
+};
+
+const writeStoredCoupon = (couponCode) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const normalizedCode = String(couponCode || '').trim().toUpperCase();
+
+  if (normalizedCode) {
+    window.localStorage.setItem(COUPON_STORAGE_KEY, normalizedCode);
+  } else {
+    window.localStorage.removeItem(COUPON_STORAGE_KEY);
+  }
+
+  window.dispatchEvent(new Event('jerseys-coupon-change'));
+};
+
 const clearCartStorage = () => {
   if (typeof window === 'undefined') {
     return;
   }
 
   CART_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key));
+  window.localStorage.removeItem(COUPON_STORAGE_KEY);
   window.dispatchEvent(new Event('jerseys-cart-change'));
 };
 
 const Checkout = () => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState(readCartFromStorage);
-  const [promoCode, setPromoCode] = useState('');
+  const [promoCode, setPromoCode] = useState(readStoredCoupon);
   const [promoMessage, setPromoMessage] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(readStoredCoupon);
   const [shippingMethod, setShippingMethod] = useState('standard');
   const [currentStep, setCurrentStep] = useState(1);
   const [formValues, setFormValues] = useState(() => {
     const storedUser = getStoredUser();
     const username = storedUser?.username || '';
-    const nameParts = username.split(' ').filter(Boolean);
 
     return {
-      firstName: nameParts[0] || username || '',
-      lastName: nameParts.slice(1).join(' ') || '',
+      country: 'Lebanon',
+      fullName: username || '',
       email: storedUser?.email || '',
       phone: '',
       address1: '',
       address2: '',
       city: '',
-      state: '',
       zip: '',
       cardName: storedUser?.username || '',
       cardNumber: '',
@@ -151,13 +185,24 @@ const Checkout = () => {
     const syncCart = () => {
       setCartItems(readCartFromStorage());
     };
+    const syncCoupon = () => {
+      const storedCoupon = readStoredCoupon();
+      setPromoCode(storedCoupon);
+      setAppliedCoupon(storedCoupon);
+    };
 
     window.addEventListener('storage', syncCart);
     window.addEventListener('jerseys-cart-change', syncCart);
+    window.addEventListener('storage', syncCoupon);
+    window.addEventListener('jerseys-coupon-change', syncCoupon);
+
+    syncCoupon();
 
     return () => {
       window.removeEventListener('storage', syncCart);
       window.removeEventListener('jerseys-cart-change', syncCart);
+      window.removeEventListener('storage', syncCoupon);
+      window.removeEventListener('jerseys-coupon-change', syncCoupon);
     };
   }, []);
 
@@ -179,6 +224,13 @@ const Checkout = () => {
   const isCouponApplied = appliedCoupon === VALID_COUPON_CODE;
   const discountAmount = isCouponApplied ? subtotal * COUPON_DISCOUNT_RATE : 0;
   const discountedSubtotal = Math.max(subtotal - discountAmount, 0);
+  const originalShippingCost = shippingMethod === 'express'
+    ? EXPRESS_SHIPPING_FEE
+    : subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0
+      ? 0
+      : SHIPPING_FEE;
+  const originalTaxCost = subtotal * TAX_RATE;
+  const originalOrderTotal = subtotal + originalShippingCost + originalTaxCost;
   const shippingCost = shippingMethod === 'express'
     ? EXPRESS_SHIPPING_FEE
     : discountedSubtotal >= FREE_SHIPPING_THRESHOLD || discountedSubtotal === 0
@@ -197,12 +249,11 @@ const Checkout = () => {
   const validateShippingStep = () => {
     const nextErrors = {};
     const requiredFields = [
-      ['firstName', 'First name is required.'],
-      ['lastName', 'Last name is required.'],
+      ['fullName', 'Full name is required.'],
+      ['country', 'Country / Region is required.'],
       ['email', 'Email address is required.'],
       ['address1', 'Address line 1 is required.'],
       ['city', 'City is required.'],
-      ['state', 'State is required.'],
       ['zip', 'ZIP code is required.'],
     ];
 
@@ -282,17 +333,21 @@ const Checkout = () => {
     if (!normalizedCode) {
       setAppliedCoupon('');
       setPromoMessage('');
+      writeStoredCoupon('');
       return;
     }
 
     if (normalizedCode !== VALID_COUPON_CODE) {
       setAppliedCoupon('');
       setPromoMessage('Invalid coupon');
+      writeStoredCoupon('');
       return;
     }
 
     setAppliedCoupon(normalizedCode);
+    setPromoCode(normalizedCode);
     setPromoMessage(`Coupon ${normalizedCode} was successfully applied.`);
+    writeStoredCoupon(normalizedCode);
   };
 
   const handlePlaceOrder = (event) => {
@@ -305,17 +360,19 @@ const Checkout = () => {
       return;
     }
 
+    const { firstName, lastName } = splitFullName(formValues.fullName);
+
     const confirmation = createOrderConfirmation({
       items: normalizedItems,
       shippingAddress: {
-        firstName: formValues.firstName.trim(),
-        lastName: formValues.lastName.trim(),
+        country: formValues.country.trim(),
+        firstName,
+        lastName,
         email: formValues.email.trim(),
         phone: formValues.phone.trim(),
         address1: formValues.address1.trim(),
         address2: formValues.address2.trim(),
         city: formValues.city.trim(),
-        state: formValues.state.trim(),
         zip: formValues.zip.trim(),
       },
       cardNumber: formValues.cardNumber,
@@ -430,34 +487,39 @@ const Checkout = () => {
               <div className="checkout-step-heading">
                 <div>
                   <p className="checkout-step-kicker">Step 1</p>
-                  <h2>Shipping address</h2>
-                  <p className="checkout-step-copy">Enter the delivery details for this order.</p>
+                  <h2>Enter a new shipping address</h2>
+                  <p className="checkout-step-copy">Add the delivery details for this order.</p>
                 </div>
               </div>
 
               {isStepOpen(1) ? (
-                <form className="checkout-form-grid" id="checkout-shipping-address" onSubmit={(event) => event.preventDefault()} noValidate>
-                  <FormField label="First name" htmlFor="checkout-first-name" error={formErrors.firstName}>
+                <form className="checkout-form-grid checkout-address-form" id="checkout-shipping-address" onSubmit={(event) => event.preventDefault()} noValidate>
+                  <FormField label="Full name" htmlFor="checkout-full-name" error={formErrors.fullName}>
                     <input
-                      id="checkout-first-name"
-                      name="firstName"
+                      id="checkout-full-name"
+                      name="fullName"
                       className="ui-input"
-                      value={formValues.firstName}
+                      value={formValues.fullName}
                       onChange={handleFieldChange}
-                      placeholder="First name"
-                      autoComplete="given-name"
+                      placeholder="John Newman"
+                      autoComplete="name"
                     />
                   </FormField>
 
-                  <FormField label="Last name" htmlFor="checkout-last-name" error={formErrors.lastName}>
+                  <FormField
+                    label="Phone number"
+                    htmlFor="checkout-phone"
+                    error={formErrors.phone}
+                    hint="May be used to assist delivery."
+                  >
                     <input
-                      id="checkout-last-name"
-                      name="lastName"
+                      id="checkout-phone"
+                      name="phone"
                       className="ui-input"
-                      value={formValues.lastName}
+                      value={formValues.phone}
                       onChange={handleFieldChange}
-                      placeholder="Last name"
-                      autoComplete="family-name"
+                      placeholder="Phone number"
+                      autoComplete="tel"
                     />
                   </FormField>
 
@@ -479,20 +541,20 @@ const Checkout = () => {
                     />
                   </FormField>
 
-                  <FormField label="Phone" htmlFor="checkout-phone" error={formErrors.phone}>
+                  <FormField label="Country / Region" htmlFor="checkout-country" error={formErrors.country}>
                     <input
-                      id="checkout-phone"
-                      name="phone"
+                      id="checkout-country"
+                      name="country"
                       className="ui-input"
-                      value={formValues.phone}
+                      value={formValues.country}
                       onChange={handleFieldChange}
-                      placeholder="Phone number"
-                      autoComplete="tel"
+                      placeholder="Lebanon"
+                      autoComplete="country-name"
                     />
                   </FormField>
 
                   <FormField
-                    label="Address line 1"
+                    label="Address"
                     htmlFor="checkout-address-1"
                     error={formErrors.address1}
                   >
@@ -508,7 +570,7 @@ const Checkout = () => {
                   </FormField>
 
                   <FormField
-                    label="Address line 2"
+                    label="Apartment, suite, unit, building"
                     htmlFor="checkout-address-2"
                     error={formErrors.address2}
                   >
@@ -523,41 +585,31 @@ const Checkout = () => {
                     />
                   </FormField>
 
-                  <FormField label="City" htmlFor="checkout-city" error={formErrors.city}>
-                    <input
-                      id="checkout-city"
-                      name="city"
-                      className="ui-input"
-                      value={formValues.city}
-                      onChange={handleFieldChange}
-                      placeholder="City"
-                      autoComplete="address-level2"
-                    />
-                  </FormField>
+                  <div className="checkout-address-location-row">
+                    <FormField label="City" htmlFor="checkout-city" error={formErrors.city}>
+                      <input
+                        id="checkout-city"
+                        name="city"
+                        className="ui-input"
+                        value={formValues.city}
+                        onChange={handleFieldChange}
+                        placeholder="City"
+                        autoComplete="address-level2"
+                      />
+                    </FormField>
 
-                  <FormField label="State" htmlFor="checkout-state" error={formErrors.state}>
-                    <input
-                      id="checkout-state"
-                      name="state"
-                      className="ui-input"
-                      value={formValues.state}
-                      onChange={handleFieldChange}
-                      placeholder="State"
-                      autoComplete="address-level1"
-                    />
-                  </FormField>
-
-                  <FormField label="ZIP code" htmlFor="checkout-zip" error={formErrors.zip}>
-                    <input
-                      id="checkout-zip"
-                      name="zip"
-                      className="ui-input"
-                      value={formValues.zip}
-                      onChange={handleFieldChange}
-                      placeholder="ZIP code"
-                      autoComplete="postal-code"
-                    />
-                  </FormField>
+                    <FormField label="ZIP code" htmlFor="checkout-zip" error={formErrors.zip}>
+                      <input
+                        id="checkout-zip"
+                        name="zip"
+                        className="ui-input"
+                        value={formValues.zip}
+                        onChange={handleFieldChange}
+                        placeholder="ZIP code"
+                        autoComplete="postal-code"
+                      />
+                    </FormField>
+                  </div>
 
                   <div className="checkout-form-actions">
                     <Button type="button" block onClick={openShippingMethod}>
@@ -859,37 +911,36 @@ const Checkout = () => {
           </Card>
 
           <Card className="checkout-summary-items-card">
-            <div className="checkout-summary-heading">
-              <h2>Cart ({itemCount} items)</h2>
+            <div className="checkout-summary-items-topbar">
+              <span className="checkout-summary-items-count">{itemCount} Total Items</span>
+              <Button className="checkout-summary-items-edit" variant="ghost" to="/cart">
+                Edit
+              </Button>
             </div>
 
-            <div className="checkout-summary-items">
-              {normalizedItems.map((item) => {
-                const lineTotal = item.unitPrice * item.quantity;
-
-                return (
-                  <div key={item.cartKey} className="checkout-summary-item">
-                    <div className="checkout-summary-item-media">
-                      {item.image ? <img src={item.image} alt={item.name} /> : null}
-                    </div>
-
-                    <div className="checkout-summary-item-body">
-                      <div className="checkout-summary-item-top">
-                        <h3>{item.name}</h3>
-                        <strong>{formatPrice(lineTotal)}</strong>
-                      </div>
-                      <p>
-                        {item.team}
-                        {item.size ? ` / Size ${item.size}` : ''}
-                      </p>
-                      <div className="checkout-summary-item-meta">
-                        <span>Qty {item.quantity}</span>
-                        {item.badge ? <span>{item.badge}</span> : null}
-                      </div>
-                    </div>
+            <div className="checkout-summary-items-strip" aria-label={`Cart preview with ${itemCount} items`}>
+              {normalizedItems.map((item) => (
+                <div key={item.cartKey} className="checkout-summary-item">
+                  <div className="checkout-summary-item-media">
+                    {item.image ? <img src={item.image} alt={item.name} /> : null}
                   </div>
-                );
-              })}
+                </div>
+              ))}
+            </div>
+
+            <div className="checkout-summary-items-footer">
+              <div className="checkout-summary-items-pricing">
+                {isCouponApplied ? (
+                  <p className="checkout-summary-items-savings">You saved {formatPrice(discountAmount)}!</p>
+                ) : (
+                  <p className="checkout-summary-items-savings is-muted">Your cart is ready for checkout.</p>
+                )}
+
+                <div className="checkout-summary-items-price-row">
+                  <strong className="checkout-summary-items-total">{formatPrice(orderTotal)}</strong>
+                  {isCouponApplied ? <span className="checkout-summary-items-original">{formatPrice(originalOrderTotal)}</span> : null}
+                </div>
+              </div>
             </div>
           </Card>
 

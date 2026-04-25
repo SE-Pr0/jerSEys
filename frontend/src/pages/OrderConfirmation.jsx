@@ -19,6 +19,7 @@ const buildBillingLines = (order) => {
   }
 
   const {
+    country,
     firstName,
     lastName,
     email,
@@ -26,12 +27,11 @@ const buildBillingLines = (order) => {
     address1,
     address2,
     city,
-    state,
     zip,
   } = order.shippingAddress;
   const fullName = [firstName, lastName].filter(Boolean).join(' ');
   const address = [address1, address2].filter(Boolean).join(', ');
-  const location = [city, state, zip].filter(Boolean).join(', ');
+  const location = [city, zip, country].filter(Boolean).join(', ');
 
   return [
     ['Name', fullName],
