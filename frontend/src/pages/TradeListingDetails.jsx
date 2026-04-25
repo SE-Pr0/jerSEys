@@ -5,6 +5,39 @@ import { useTrade } from '../context/TradeContext';
 import { getStoredUser } from '../utils/auth';
 import '../styles/trade.css';
 
+const CART_STORAGE_KEY = 'jerseys-cart';
+const CART_EVENT_NAME = 'jerseys-cart-change';
+
+const readStoredCart = () => {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(CART_STORAGE_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeStoredCart = (items) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  window.dispatchEvent(new Event(CART_EVENT_NAME));
+};
+
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => resolve(reader.result));
+    reader.addEventListener('error', reject);
+    reader.readAsDataURL(file);
+  });
+
 const TradeListingDetails = () => {
   const { listingId } = useParams();
   const navigate = useNavigate();
@@ -14,9 +47,11 @@ const TradeListingDetails = () => {
 
   const [offerJersey, setOfferJersey] = useState('');
   const [message, setMessage] = useState('');
+  const [offerImage, setOfferImage] = useState('');
+  const [offerImageName, setOfferImageName] = useState('');
   const [sent, setSent] = useState(false);
   const [user, setUser] = useState(() => getStoredUser());
-  const [bought, setBought] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
 
   useEffect(() => {
     const handler = () => setUser(getStoredUser());
@@ -78,13 +113,82 @@ const TradeListingDetails = () => {
       return;
     }
 
-    const created = addRequest(listing.id, offerJersey, message);
+    if (!offerImage) {
+      return;
+    }
+
+    const created = addRequest(listing.id, offerJersey, message, offerImage);
     if (!created) {
       redirectToLogin();
       return;
     }
 
     setSent(true);
+  };
+
+  const handleOfferImageChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setOfferImage('');
+      setOfferImageName('');
+      return;
+    }
+
+    try {
+      const imageDataUrl = await readFileAsDataUrl(file);
+      setOfferImage(String(imageDataUrl));
+      setOfferImageName(file.name || 'kit-image');
+    } catch {
+      setOfferImage('');
+      setOfferImageName('');
+    }
+  };
+
+  const handleBuyNow = () => {
+    if (!user) {
+      redirectToLogin();
+      return;
+    }
+
+    const cartKey = `trade-listing|${listing.id}`;
+    const unitPrice = Number(price) || 0;
+    const nextCartItem = {
+      cartKey,
+      id: listing.id,
+      productId: listing.id,
+      itemType: 'trade-listing',
+      name: jerseyName,
+      title: jerseyName,
+      team: club,
+      sportLabel: 'Trade marketplace',
+      categoryLabel: listingType === 'both' ? 'Trade + Buy now' : 'Buy now listing',
+      season: listedDate || '',
+      image,
+      badge: '',
+      price: unitPrice,
+      unitPrice,
+      quantity: 1,
+      size,
+      selectedSize: size,
+      sellerName: seller?.name || '',
+      sellerId: seller?.id || '',
+      listingType,
+    };
+
+    const currentCart = readStoredCart();
+    const existingItemIndex = currentCart.findIndex((item) => item.cartKey === cartKey);
+
+    if (existingItemIndex >= 0) {
+      currentCart[existingItemIndex] = {
+        ...currentCart[existingItemIndex],
+        quantity: Number(currentCart[existingItemIndex].quantity || 1) + 1,
+      };
+    } else {
+      currentCart.push(nextCartItem);
+    }
+
+    writeStoredCart(currentCart);
+    setAddedToCart(true);
   };
 
   return (
@@ -205,12 +309,12 @@ const TradeListingDetails = () => {
                       <Button variant="secondary" to="/register">Create Account</Button>
                     </div>
                   </div>
-                ) : bought ? (
+                ) : addedToCart ? (
                   <div className="trade-offer-sent" style={{ marginBottom: 0 }}>
                     <span className="trade-offer-sent-icon">✓</span>
                     <div>
-                      <strong>Purchase confirmed!</strong>
-                      <p>{seller.name} will be in touch to arrange the handoff.</p>
+                      <strong>Added to cart!</strong>
+                      <p>You can review this item in your cart whenever you're ready.</p>
                     </div>
                   </div>
                 ) : (
@@ -222,7 +326,7 @@ const TradeListingDetails = () => {
                         return;
                       }
 
-                      setBought(true);
+                      handleBuyNow();
                     }}
                   >
                     Buy Now — ${price}
@@ -276,20 +380,47 @@ const TradeListingDetails = () => {
                     />
                   </FormField>
 
-                  <FormField
-                    label="Message"
-                    htmlFor="offer-message"
-                    hint="Introduce yourself and give them a reason to say yes."
-                  >
-                    <textarea
-                      id="offer-message"
-                      className="ui-textarea"
-                      placeholder="Tell them about your jersey's condition and why you're interested in theirs…"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      required
-                    />
-                  </FormField>
+                  <div className="trade-offer-form-row">
+                    <FormField
+                      label="Message"
+                      htmlFor="offer-message"
+                      hint="Introduce yourself and give them a reason to say yes."
+                    >
+                      <textarea
+                        id="offer-message"
+                        className="ui-textarea"
+                        placeholder="Tell them about your jersey's condition and why you're interested in theirs..."
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        required
+                      />
+                    </FormField>
+
+                    <FormField
+                      label="Kit Image"
+                      htmlFor="offer-image"
+                      hint="Required: upload a clear photo of the jersey you are offering."
+                    >
+                      <div className="trade-offer-image-wrap">
+                        <input
+                          id="offer-image"
+                          className="ui-input"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleOfferImageChange}
+                          required
+                        />
+                        {offerImage ? (
+                          <div className="trade-offer-image-preview">
+                            <img src={offerImage} alt="Your offered jersey" />
+                            <span>{offerImageName || 'Selected image'}</span>
+                          </div>
+                        ) : (
+                          <p className="trade-offer-image-placeholder">No image selected yet.</p>
+                        )}
+                      </div>
+                    </FormField>
+                  </div>
 
                   <Button type="submit" block>
                     Send Trade Offer
@@ -324,3 +455,4 @@ const TradeListingDetails = () => {
 };
 
 export default TradeListingDetails;
+

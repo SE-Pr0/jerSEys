@@ -16,13 +16,13 @@ const TradeRequests = () => {
     <PageShell className="trade-page">
       <PageHeader
         eyebrow="Trade Activity"
-        title={
-          <>
-            Trade
-            <br />
-            <span>Requests</span>
-          </>
-        }
+        title={(
+          <span className="trade-requests-title">
+            <span className="trade-requests-title-trade">Trade</span>
+            {' '}
+            <span className="trade-requests-title-requests">Requests</span>
+          </span>
+        )}
         description="Review offers you've received and track the requests you've sent out to other traders."
         actions={
           <>

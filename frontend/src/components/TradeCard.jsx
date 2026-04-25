@@ -16,13 +16,12 @@ const TradeCard = ({ listing }) => {
     estimatedValue,
   } = listing;
 
-  const isAvailable  = status === 'available';
-  const isTradeOnly  = listingType === 'trade';
-  const showPrice    = price && !isTradeOnly;
-  const canTrade     = isTradeOnly || listingType === 'both';
+  const isAvailable = status === 'available';
+  const isTradeOnly = listingType === 'trade';
+  const showPrice = price && !isTradeOnly;
 
   return (
-    <article className="trade-card">
+    <Link to={`/trade/${id}`} className="trade-card trade-card-link" aria-label={`View trade for ${jerseyName}`}>
       <div className="trade-card-visual">
         <img
           src={image}
@@ -32,7 +31,7 @@ const TradeCard = ({ listing }) => {
         />
         <div className="trade-card-badge">
           <span className={`trade-badge trade-badge--${status}`}>
-            {isAvailable ? '✓ Available' : '⏳ Pending'}
+            {isAvailable ? 'Available' : 'Pending'}
           </span>
         </div>
         {showPrice && isAvailable && (
@@ -61,25 +60,10 @@ const TradeCard = ({ listing }) => {
             ? <span className="trade-card-price">${price}</span>
             : <span className="trade-card-value">~{estimatedValue}</span>
           }
-          {isAvailable ? (
-            <div className="trade-card-actions">
-              {showPrice && (
-                <Link to={`/trade/${id}`} className="trade-card-buy-btn">
-                  Buy Now
-                </Link>
-              )}
-              {canTrade && (
-                <Link to={`/trade/${id}`} className="trade-card-offer-btn">
-                  {listingType === 'both' ? 'Offer' : 'Make Offer →'}
-                </Link>
-              )}
-            </div>
-          ) : (
-            <span className="trade-card-offer-btn is-disabled">In Negotiation</span>
-          )}
+          <span className="trade-card-offer-btn">View Trade</span>
         </div>
       </div>
-    </article>
+    </Link>
   );
 };
 

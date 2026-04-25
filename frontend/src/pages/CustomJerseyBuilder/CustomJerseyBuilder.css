@@ -44,7 +44,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
   gap: var(--space-6);
   align-items: end;
-  padding-top: 42px;
+  padding-top: 20px;
   padding-bottom: 28px;
 }
 
@@ -770,7 +770,7 @@
 
 @media (max-width: 720px) {
   .custom-builder-hero-inner {
-    padding-top: 32px;
+    padding-top: 20px;
   }
 
   .custom-builder-summary,

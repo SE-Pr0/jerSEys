@@ -55,7 +55,7 @@ export const TradeProvider = ({ children }) => {
     setListings((prev) => prev.map((listing) => (listing.id === id ? { ...listing, status } : listing)));
   }, []);
 
-  const addRequest = useCallback((listingId, offerJersey, message) => {
+  const addRequest = useCallback((listingId, offerJersey, message, offerImage) => {
     const user = getStoredUser();
     if (!user) {
       return false;
@@ -71,10 +71,15 @@ export const TradeProvider = ({ children }) => {
     const newRequest = {
       id: `req-${Date.now()}`,
       direction: 'outgoing',
+      listingId: listing.id,
       listing: {
         jerseyName: listing.jerseyName,
         emoji: listing.sport === 'basketball' ? '\uD83C\uDFC0' : '\u26BD',
         owner: listing.seller.name,
+        image: listing.image || '',
+        description: listing.description || '',
+        size: listing.size || '',
+        condition: listing.condition || '',
       },
       offer: {
         jerseyName: offerJersey,
@@ -82,6 +87,8 @@ export const TradeProvider = ({ children }) => {
         from: requesterName,
         initial: requesterName[0].toUpperCase(),
         color: '#1B3B8A',
+        image: offerImage || '',
+        description: message || '',
       },
       message,
       status: 'pending',

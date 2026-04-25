@@ -476,9 +476,6 @@ const Shop = () => {
         <div className="section-header shop-results-header">
           <div>
             <div className="section-eyebrow">Catalog Results</div>
-            <h2 className="section-title">
-              Built For <span>Discovery</span>
-            </h2>
           </div>
           <div className="shop-results-meta">
             Showing {visibleProducts.length} of {filteredProducts.length} matches

@@ -136,47 +136,20 @@ const CreateTradeListing = () => {
 
   /* ── Form screen ── */
   return (
-    <PageShell narrow className="trade-page">
+    <PageShell narrow className="trade-page trade-page--create">
       <PageHeader
         eyebrow="Jersey Trading"
-        title={
+        title={(
           <>
-            List Your
-            <br />
-            <span>Jersey</span>
+            List Your <span>Jersey</span>
           </>
-        }
-        description="Put your jersey up for trade. Other members will browse your listing and make you offers from their own collections."
+        )}
+        description={(
+          <span className="trade-create-description">
+            Put your jersey up for trade. Other members will browse your listing and make you offers from their own collections.
+          </span>
+        )}
       />
-
-      {/* Live preview */}
-      <Card>
-        <div className="trade-kicker" style={{ marginBottom: 'var(--space-3)' }}>
-          Listing Preview
-        </div>
-        <div className="create-listing-preview">
-          <div className="create-listing-preview-emoji">
-            {EMOJIS[form.sport] || '⚽'}
-          </div>
-          <div className="create-listing-preview-info">
-            <div className="trade-kicker" style={{ marginBottom: '6px' }}>
-              {form.club || 'Club / Team Name'}
-            </div>
-            <div className="create-listing-preview-name">
-              {form.jerseyName || 'Jersey Name'}
-            </div>
-            <div className="create-listing-preview-meta">
-              {[form.size && `Size ${form.size}`, form.condition]
-                .filter(Boolean)
-                .join(' · ') || 'Size · Condition'}
-            </div>
-            {form.price && (
-              <div className="create-listing-preview-price">${form.price}</div>
-            )}
-          </div>
-          <span className="trade-badge trade-badge--available">✓ Available</span>
-        </div>
-      </Card>
 
       {/* Form */}
       <Card>
@@ -397,3 +370,4 @@ const CreateTradeListing = () => {
 };
 
 export default CreateTradeListing;
+

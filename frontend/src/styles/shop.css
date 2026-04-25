@@ -45,6 +45,9 @@
 }
 
 .shop-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-accent);
   font-size: 11px;
   letter-spacing: 5px;
@@ -53,6 +56,13 @@
   margin-bottom: 14px;
   opacity: 0;
   animation: fadeUp .8s ease .15s forwards;
+}
+
+.shop-eyebrow::before {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: var(--orange);
 }
 
 .shop-title {

@@ -130,6 +130,10 @@ const getCustomizationVisuals = (item) => ({
   patternImage: firstText(item.presetImage, item.customization?.presetImage),
 });
 
+const isTradeMarketplaceLineItem = (item) =>
+  firstText(item.itemType).toLowerCase() === 'trade-listing'
+  || firstText(item.sportLabel).toLowerCase() === 'trade marketplace';
+
 const normalizeStoredItem = (item, index) => {
   const rawItem = typeof item === 'string' ? { productId: item } : { ...item };
   const rawId = firstText(rawItem.id, rawItem.productId, rawItem.slug, rawItem.cartKey) || `cart-item-${index + 1}`;
@@ -335,6 +339,13 @@ const Cart = () => {
 
   const updateItemQuantity = (index, nextQuantity) => {
     setCartItems((currentItems) => {
+      const selectedItem = typeof currentItems[index] === 'string'
+        ? { productId: currentItems[index] }
+        : currentItems[index];
+      if (isTradeMarketplaceLineItem(selectedItem)) {
+        return currentItems;
+      }
+
       const nextItems = currentItems.map((item, currentIndex) => {
         if (currentIndex !== index) {
           return item;
@@ -443,6 +454,7 @@ const Cart = () => {
                     const customVisuals = getCustomizationVisuals(item);
                     const lineTotal = item.unitPrice * item.quantity;
                     const isCustomKit = firstText(item.itemType, item.productId).startsWith('custom-kit');
+                    const isTradeMarketplaceItem = isTradeMarketplaceLineItem(item);
 
                     return (
                       <Card
@@ -541,23 +553,27 @@ const Cart = () => {
                           <div className="cart-item-footer">
                             <div className="cart-quantity-shell">
                               <div className="cart-quantity-stepper" aria-label={`Quantity for ${item.name}`}>
-                                <button
-                                  type="button"
-                                  className="cart-stepper-button"
-                                  onClick={() => updateItemQuantity(index, Math.max(item.quantity - 1, 0))}
-                                  aria-label={`Decrease quantity for ${item.name}`}
-                                >
-                                  -
-                                </button>
+                                {isTradeMarketplaceItem ? null : (
+                                  <button
+                                    type="button"
+                                    className="cart-stepper-button"
+                                    onClick={() => updateItemQuantity(index, Math.max(item.quantity - 1, 0))}
+                                    aria-label={`Decrease quantity for ${item.name}`}
+                                  >
+                                    -
+                                  </button>
+                                )}
                                 <span className="cart-quantity-value">{item.quantity}</span>
-                                <button
-                                  type="button"
-                                  className="cart-stepper-button"
-                                  onClick={() => updateItemQuantity(index, item.quantity + 1)}
-                                  aria-label={`Increase quantity for ${item.name}`}
-                                >
-                                  +
-                                </button>
+                                {isTradeMarketplaceItem ? null : (
+                                  <button
+                                    type="button"
+                                    className="cart-stepper-button"
+                                    onClick={() => updateItemQuantity(index, item.quantity + 1)}
+                                    aria-label={`Increase quantity for ${item.name}`}
+                                  >
+                                    +
+                                  </button>
+                                )}
                               </div>
                             </div>
 
