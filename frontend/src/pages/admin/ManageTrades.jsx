@@ -292,9 +292,6 @@ const ManageTrades = () => {
               <h2 className="admin-suite-table-title">
                 {filteredTrades.length} trades in view
               </h2>
-              <p className="admin-suite-table-subtitle">
-                Approve incoming requests, handle counter offers, and move trades through the workflow.
-              </p>
             </div>
           </div>
 

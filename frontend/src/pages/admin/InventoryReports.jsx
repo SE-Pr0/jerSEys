@@ -846,7 +846,7 @@ const InventoryReportPage = () => {
               viewBox={`0 0 ${chartGeometry.width} ${chartGeometry.height}`}
               role="img"
               aria-label={`Inventory on-hand stock and threshold chart for ${selectedPeriod.label}`}
-              preserveAspectRatio="none"
+              preserveAspectRatio="xMidYMid meet"
             >
               <defs>
                 <linearGradient id="inventory-report-area-gradient" x1="0" y1="0" x2="0" y2="1">
@@ -991,25 +991,6 @@ const InventoryReportPage = () => {
           </Card>
         </div>
       </div>
-
-      <Card className="inventory-report-insights-card">
-        <div className="inventory-report-section-heading is-compact">
-          <div>
-            <p className="inventory-report-kicker">Quick insights</p>
-            <h2>Inventory Signals</h2>
-          </div>
-        </div>
-
-        <div className="inventory-report-insights-grid">
-          {activeReport.insights.map((item) => (
-            <div key={item.label} className="inventory-report-insight-item">
-              <strong>{item.value}</strong>
-              <span>{item.label}</span>
-              <p>{item.note}</p>
-            </div>
-          ))}
-        </div>
-      </Card>
 
       <Card className="inventory-report-attention-card inventory-report-table-card--compact" padded={false}>
         <div className="inventory-report-table-header">

@@ -279,22 +279,24 @@ const AdminDashboard = () => {
     <PageShell className="admin-suite-page admin-hub-page">
       <div className="admin-hub-shell ui-card">
         <aside className="admin-hub-sidebar" aria-label="Admin menu" ref={menuRef}>
-          <div className="admin-hub-sidebar-head">
+          <button
+            type="button"
+            className="admin-hub-sidebar-head"
+            aria-expanded={isMenuOpen}
+            aria-controls="admin-hub-sidebar-menu"
+            aria-label={isMenuOpen ? 'Collapse admin menu' : 'Expand admin menu'}
+            onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
+          >
             <div className="admin-hub-sidebar-head-copy">
               <strong>Admin Menu</strong>
               <span>{activeMenuLabel}</span>
             </div>
-            <button
-              type="button"
-              className={`admin-hub-sidebar-toggle${isMenuOpen ? ' is-open' : ''}`}
-              aria-expanded={isMenuOpen}
-              aria-controls="admin-hub-sidebar-menu"
-              onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
-            >
-              <span>Sections</span>
-              <span>{isMenuOpen ? 'Hide' : 'Show'}</span>
-            </button>
-          </div>
+            <span className={`admin-hub-sidebar-toggle${isMenuOpen ? ' is-open' : ''}`}>
+              <span className="admin-hub-sidebar-toggle-arrow" aria-hidden="true">
+                {isMenuOpen ? '▾' : '▴'}
+              </span>
+            </span>
+          </button>
 
           <nav
             className={`admin-hub-sidebar-menu${isMenuOpen ? ' is-open' : ''}`}

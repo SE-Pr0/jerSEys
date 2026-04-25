@@ -65,11 +65,6 @@
 }
 
 .home-catalog-card {
-  opacity: 0;
-  transform: translateY(28px);
-}
-
-.reveal.visible .home-catalog-card {
   animation: homeCatalogCardIn .7s cubic-bezier(.22, 1, .36, 1) forwards;
   animation-delay: var(--catalog-card-delay, 0ms);
 }
@@ -156,6 +151,12 @@
 
   .home-catalog-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-catalog-card {
+    opacity: 1;
+    transform: none;
+    animation: none;
   }
 
   .home-catalog-intro {

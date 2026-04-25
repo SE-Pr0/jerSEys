@@ -451,9 +451,6 @@ const ManageUsers = () => {
               <h2 className="admin-suite-table-title">
                 {filteredUsers.length} records matched
               </h2>
-              <p className="admin-suite-table-subtitle">
-                Manage permissions, review account state, and keep the storefront team aligned.
-              </p>
             </div>
           </div>
 

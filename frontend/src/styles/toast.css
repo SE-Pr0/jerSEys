@@ -38,3 +38,17 @@
   display: block;
   margin-top: 2px;
 }
+
+@media (max-width: 680px) {
+  .toast {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    padding: 14px 16px;
+    transform: translateY(140%);
+  }
+
+  .toast.show {
+    transform: translateY(0);
+  }
+}

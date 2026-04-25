@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { getRelatedShopProducts, getShopProductById } from '../services/productService';
+import { showToast } from '../services/notificationService';
 import { getStoredUser } from '../utils/auth';
 import '../styles/product-details.css';
 
@@ -190,7 +191,11 @@ const ProductDetails = () => {
     }
 
     writeStoredCart(currentCart);
-    setNotice(`Added to cart: ${product.name}${selectedSize ? ` in ${selectedSize}` : ''}.`);
+    setNotice('');
+    showToast({
+      message: 'Added to cart!',
+      subtext: `${product.name}${selectedSize ? ` in ${selectedSize}` : ''}`,
+    });
   };
 
   const incrementQuantity = () => {

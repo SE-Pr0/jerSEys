@@ -391,7 +391,8 @@
 
 .sales-report-chart-svg {
   width: 100%;
-  height: 300px;
+  height: auto;
+  aspect-ratio: 640 / 280;
 }
 
 .sales-report-grid-line {
@@ -728,6 +729,25 @@
 }
 
 @media (max-width: 640px) {
+  .sales-report-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .sales-report-kpi-card {
+    min-height: 148px;
+    padding: 14px;
+  }
+
+  .sales-report-kpi-value {
+    font-size: 30px;
+  }
+
+  .sales-report-kpi-comparison {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
   .sales-report-chart-summary {
     grid-template-columns: 1fr;
   }
@@ -741,8 +761,13 @@
     flex: 1 1 0;
   }
 
+  .sales-report-chart-shell {
+    padding: var(--space-3);
+  }
+
   .sales-report-chart-svg {
-    height: 240px;
+    max-width: 100%;
+    height: auto;
   }
 
   .sales-report-axis {
@@ -766,14 +791,19 @@
   }
 
   .sales-report-table tr {
-    padding: 0 var(--space-4);
+    padding: 8px var(--space-4);
+    border-top: 1px solid var(--border);
+  }
+
+  .sales-report-table tbody tr:first-child {
+    border-top: none;
   }
 
   .sales-report-table td {
     display: flex;
     justify-content: space-between;
     gap: var(--space-4);
-    padding: 14px 0;
+    padding: 10px 0;
   }
 
   .sales-report-table td::before {
@@ -791,6 +821,26 @@
   .sales-report-amount-cell {
     justify-items: end;
     text-align: right;
+  }
+
+  .sales-report-order-cell strong,
+  .sales-report-amount-cell strong {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .sales-report-order-cell span,
+  .sales-report-table-text,
+  .sales-report-customer-cell strong {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .sales-report-status {
+    min-height: 24px;
+    padding: 0 8px;
+    font-size: 8px;
+    letter-spacing: 1.2px;
   }
 
   .sales-report-table-header {

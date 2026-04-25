@@ -323,9 +323,6 @@ const ManageOrders = () => {
               <h2 className="admin-suite-table-title">
                 {filteredOrders.length} orders in view
               </h2>
-              <p className="admin-suite-table-subtitle">
-                Keep the store moving by checking payment, packing, and shipping status in one place.
-              </p>
             </div>
           </div>
 

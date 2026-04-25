@@ -415,9 +415,6 @@ const ModerateListings = () => {
               <h2 className="admin-suite-table-title">
                 {filteredListings.length} listings in view
               </h2>
-              <p className="admin-suite-table-subtitle">
-                Investigate flagged posts, dismiss false reports, and remove content that breaks policy.
-              </p>
             </div>
           </div>
 

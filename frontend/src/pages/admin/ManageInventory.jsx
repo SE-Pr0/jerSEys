@@ -359,9 +359,6 @@ const ManageInventory = () => {
               <h2 className="admin-suite-table-title">
                 {filteredRows.length} products in view
               </h2>
-              <p className="admin-suite-table-subtitle">
-                Keep the warehouse balanced by checking reorder levels and stock coverage daily.
-              </p>
             </div>
           </div>
 

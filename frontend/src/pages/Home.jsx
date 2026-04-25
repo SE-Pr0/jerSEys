@@ -12,9 +12,9 @@ const Home = () => {
       <RevealSection as="section">
         <MarqueeSection />
       </RevealSection>
-      <RevealSection as="section">
+      <section>
         <HomeCatalogSection />
-      </RevealSection>
+      </section>
       <RevealSection as="section">
         <FeaturesStrip />
       </RevealSection>

@@ -233,9 +233,6 @@ const ManageTemplates = () => {
               <h2 className="admin-suite-table-title">
                 {filteredTemplates.length} patterns in view
               </h2>
-              <p className="admin-suite-table-subtitle">
-                These are the same presets used in Custom Jersey. Hover any pattern tile to edit it.
-              </p>
             </div>
           </div>
 

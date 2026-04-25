@@ -20,6 +20,7 @@ import voronoiFracturePreset from './Assets/Presets/Voronoi-Fracture.png';
 import zagsPreset from './Assets/Presets/Zags.png';
 import zigZagPreset from './Assets/Presets/Zig-Zag.png';
 import { Button, Card } from '../../components/ui';
+import { showToast } from '../../services/notificationService';
 import { getStoredUser } from '../../utils/auth';
 import './CustomJerseyBuilder.css';
 
@@ -1173,7 +1174,11 @@ const CustomJerseyBuilder = () => {
 
     writeStoredCart(currentCart);
     setIsSizePromptOpen(false);
-    setNotice(`Added to cart: Custom jersey in ${selectedCartSize}.`);
+    setNotice('');
+    showToast({
+      message: 'Added to cart!',
+      subtext: `Custom jersey in ${selectedCartSize}`,
+    });
   };
 
   const handleResetSizePrompt = () => {

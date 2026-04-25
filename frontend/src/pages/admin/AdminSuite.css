@@ -254,27 +254,27 @@
 }
 
 .admin-users-page .admin-suite-table-wrap {
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .admin-orders-page .admin-suite-table-wrap {
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .admin-inventory-page .admin-suite-table-wrap {
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .admin-products-page .admin-suite-table-wrap {
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .admin-trades-page .admin-suite-table-wrap {
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .admin-listings-page .admin-suite-table-wrap {
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .admin-users-page .admin-suite-table {
@@ -2298,26 +2298,29 @@
 
 .admin-hub-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: 280px minmax(0, 1fr);
   height: 100%;
   max-height: 100%;
   overflow: hidden;
   align-items: stretch;
-  position: relative;
+  gap: 24px;
 }
 
 .admin-hub-sidebar {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  z-index: 5;
-  width: min(320px, calc(100% - 36px));
+  position: relative;
+  top: auto;
+  left: auto;
+  z-index: 1;
+  width: 100%;
   display: grid;
-  gap: 10px;
-  padding: 0;
-  overflow: visible;
-  background: transparent;
-  border: none;
+  gap: 0;
+  padding: 10px;
+  overflow: hidden;
+  background: rgba(251, 248, 243, 0.98);
+  border: 1px solid rgba(24, 20, 14, 0.08);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  align-content: start;
 }
 
 .admin-hub-sidebar-head {
@@ -2326,10 +2329,13 @@
   justify-content: space-between;
   gap: 10px;
   padding: 12px 14px;
-  border: 1px solid rgba(24, 20, 14, 0.08);
-  border-radius: 14px;
-  box-shadow: var(--shadow-sm);
-  background: rgba(251, 248, 243, 0.98);
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  text-align: left;
+  cursor: none;
 }
 
 .admin-hub-sidebar-head-copy {
@@ -2354,11 +2360,12 @@
 }
 
 .admin-hub-sidebar-toggle {
-  display: inline-flex;
+  display: none;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: center;
+  gap: 0;
   min-height: 38px;
+  min-width: 44px;
   padding: 0 12px;
   border: 1px solid rgba(24, 20, 14, 0.1);
   border-radius: 999px;
@@ -2379,21 +2386,25 @@
   background: rgba(192, 21, 42, 0.05);
 }
 
+.admin-hub-sidebar-toggle-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+}
+
 .admin-hub-sidebar-menu {
   min-height: auto;
-  overflow: hidden;
-  display: none;
+  overflow: auto;
+  display: grid;
   align-content: start;
   gap: 2px;
   padding: 10px;
-  background: rgba(251, 248, 243, 0.98);
-  border: 1px solid rgba(24, 20, 14, 0.08);
-  border-radius: 16px;
-  box-shadow: var(--shadow-md);
-}
-
-.admin-hub-sidebar-menu.is-open {
-  display: grid;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .admin-hub-sidebar-option {
@@ -2458,7 +2469,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   align-content: start;
-  padding: 88px 24px 24px;
+  padding: 24px 24px 24px 0;
 }
 
 .admin-hub-toolbar-card {
@@ -2825,6 +2836,7 @@
     grid-template-columns: 1fr;
     height: auto;
     max-height: none;
+    gap: 0;
   }
 
   .admin-hub-sidebar {
@@ -2832,6 +2844,11 @@
     overflow: visible;
     border-right: none;
     border-bottom: none;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .admin-hub-main {
@@ -2851,14 +2868,69 @@
 }
 
 @media (max-width: 768px) {
-  .admin-hub-main {
-    padding: 84px 18px 18px;
+  .admin-users-page .admin-suite-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .admin-users-page .admin-suite-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-users-page .admin-suite-table {
+    min-width: 860px;
+    table-layout: auto;
   }
 
   .admin-hub-sidebar {
+    position: absolute;
     top: 14px;
     left: 14px;
-    width: min(320px, calc(100% - 28px));
+    z-index: 5;
+    width: calc(100% - 28px);
+    overflow: hidden;
+    gap: 0;
+    padding: 10px;
+    background: rgba(251, 248, 243, 0.98);
+    border: 1px solid rgba(24, 20, 14, 0.08);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .admin-hub-sidebar-toggle {
+    display: inline-flex;
+  }
+
+  .admin-hub-sidebar:has(.admin-hub-sidebar-menu.is-open) {
+    gap: 0;
+  }
+
+  .admin-hub-sidebar:has(.admin-hub-sidebar-menu.is-open) .admin-hub-sidebar-head {
+    padding-bottom: 8px;
+  }
+
+  .admin-hub-sidebar-head {
+    padding: 12px 14px;
+  }
+
+  .admin-hub-sidebar-menu {
+    overflow: hidden;
+    display: none;
+    margin-top: 0;
+    padding: 0 10px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .admin-hub-sidebar-menu.is-open {
+    display: grid;
+  }
+
+  .admin-hub-main {
+    padding: 118px 18px 18px;
   }
 
   .admin-hub-toolbar .ui-form-field {
@@ -2956,6 +3028,11 @@
 }
 
 @media (max-width: 768px) {
+  .admin-template-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
   .admin-suite-tabs {
     gap: 8px;
   }
@@ -2965,7 +3042,11 @@
     padding: 9px 12px;
   }
 
-  .admin-suite-metrics,
+  .admin-suite-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
   .admin-suite-link-grid {
     grid-template-columns: 1fr;
   }
@@ -2974,7 +3055,27 @@
     min-width: 0;
   }
 
+  .admin-users-page .admin-suite-table-wrap,
+  .admin-orders-page .admin-suite-table-wrap,
+  .admin-inventory-page .admin-suite-table-wrap,
+  .admin-products-page .admin-suite-table-wrap,
+  .admin-trades-page .admin-suite-table-wrap,
+  .admin-listings-page .admin-suite-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-users-page .admin-suite-table,
+  .admin-orders-page .admin-suite-table,
+  .admin-inventory-page .admin-suite-table,
+  .admin-products-page .admin-suite-table,
+  .admin-trades-page .admin-suite-table,
+  .admin-listings-page .admin-suite-table {
+    min-width: 860px;
+    table-layout: auto;
+  }
+
   .admin-suite-table {
-    min-width: 720px;
+    min-width: 860px;
   }
 }

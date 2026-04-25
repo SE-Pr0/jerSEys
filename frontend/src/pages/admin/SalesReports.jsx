@@ -656,7 +656,7 @@ const SalesReportPage = () => {
               viewBox={`0 0 ${chartGeometry.width} ${chartGeometry.height}`}
               role="img"
               aria-label={`Revenue and target chart for ${selectedPeriod.label}`}
-              preserveAspectRatio="none"
+              preserveAspectRatio="xMidYMid meet"
             >
               <defs>
                 <linearGradient id="sales-report-area-gradient" x1="0" y1="0" x2="0" y2="1">
