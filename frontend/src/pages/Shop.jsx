@@ -514,6 +514,10 @@ const Shop = () => {
                       onChange={handleMaxPriceSlider}
                     />
                   </div>
+                  <div className="shop-price-slider-values" aria-live="polite">
+                    <span>{formatPrice(minPrice)}</span>
+                    <span>{formatPrice(maxPrice)}</span>
+                  </div>
                 </div>
               </label>
             </div>

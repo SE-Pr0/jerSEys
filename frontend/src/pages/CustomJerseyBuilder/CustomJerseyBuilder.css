@@ -773,18 +773,113 @@
     padding-top: 20px;
   }
 
-  .custom-builder-summary,
-  .custom-color-grid,
+  .custom-builder-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .custom-builder-summary span {
+    padding: 10px 8px;
+    min-width: 0;
+  }
+
+  .custom-builder-summary strong {
+    font-size: 8px;
+    letter-spacing: 1.4px;
+  }
+
+  .custom-builder-summary span {
+    font-size: 12px;
+  }
+
+  .custom-color-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .custom-color-field {
+    gap: 8px;
+    padding: 10px 8px;
+  }
+
+  .custom-color-field span {
+    font-size: 8px;
+    letter-spacing: 1.4px;
+  }
+
+  .custom-color-field input {
+    height: 40px;
+    padding: 0;
+    border: 1px solid rgba(24, 20, 14, 0.1);
+    border-radius: 8px;
+    background: transparent;
+    appearance: auto;
+    -webkit-appearance: auto;
+  }
+
+  .custom-color-field input::-webkit-color-swatch-wrapper {
+    padding: 4px;
+  }
+
+  .custom-color-field input::-webkit-color-swatch {
+    border: 0;
+    border-radius: 6px;
+  }
+
+  .custom-color-field em {
+    font-size: 9px;
+    letter-spacing: 1px;
+    word-break: break-all;
+  }
+
   .preset-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    max-height: 420px;
+    padding-right: 0;
+  }
+
+  .preset-card {
     grid-template-columns: 1fr;
+    gap: 6px;
+    justify-items: center;
+    min-height: 0;
+    padding: 8px 6px;
+  }
+
+  .preset-card img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  .preset-card span {
+    width: 100%;
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-align: center;
+    white-space: nowrap;
   }
 
   .custom-builder-section-tabs {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .custom-builder-section-tab {
+    min-height: 50px;
+    padding: 8px 6px;
+    font-size: 8px;
+    letter-spacing: 1px;
   }
 
   .custom-builder-section-tab:nth-child(2) {
-    border-right: 0;
+    border-right: 1px solid var(--border);
+  }
+
+  .custom-builder-section-tab span {
+    width: 18px;
+    height: 18px;
+    font-size: 8px;
   }
 
   .custom-builder-workspace {
@@ -800,8 +895,9 @@
   }
 
   .custom-builder-preview-stage {
-    width: 125%;
-    margin-left: -12.5%;
+    width: 100%;
+    max-width: 100%;
+    margin: 24px auto 12px;
   }
 
   .custom-builder-actions .ui-button {

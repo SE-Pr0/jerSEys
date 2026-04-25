@@ -526,6 +526,18 @@
   width: 100%;
 }
 
+.shop-price-slider-values {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-accent);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--crimson);
+}
+
 .shop-price-sliders::before {
   content: '';
   position: absolute;
@@ -849,6 +861,11 @@
 
   .shop-select-group-price .shop-price-sliders {
     min-width: 0;
+  }
+
+  .shop-price-slider-values {
+    font-size: 8px;
+    letter-spacing: 1.4px;
   }
 
   .shop-load-more {

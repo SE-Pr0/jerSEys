@@ -53,38 +53,27 @@
 
   .features-grid {
     max-width: none;
-    grid-template-columns: none;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(148px, 1fr);
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x proximity;
-    border-left: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-left: 1px solid rgba(255,255,255,0.1);
   }
 
   .feature-item {
     min-height: 100%;
-    padding: 24px 18px;
+    padding: 20px 14px;
     flex-direction: column;
-    gap: 12px;
-    scroll-snap-align: start;
-    border-left: 1px solid rgba(255,255,255,0.1);
-  }
-
-  .feature-item:last-child {
-    border-right: 1px solid rgba(255,255,255,0.1);
+    gap: 10px;
   }
 
   .feature-icon {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .feature-title {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .feature-desc {
-    font-size: 11px;
-    line-height: 1.45;
+    font-size: 10px;
+    line-height: 1.4;
   }
 }

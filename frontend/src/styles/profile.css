@@ -396,12 +396,39 @@
   }
 
   .profile-section-heading,
-  .profile-member-panel,
   .profile-toggle {
     flex-direction: column;
   }
 
+  .profile-member-panel {
+    align-items: center;
+    gap: 12px;
+  }
+
+  .profile-member-panel > div:last-child {
+    min-width: 0;
+  }
+
+  .profile-member-panel h2 {
+    font-size: 24px;
+  }
+
   .profile-highlights {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .profile-highlight {
+    min-width: 0;
+    padding: 10px 8px;
+  }
+
+  .profile-highlight strong {
+    font-size: 18px;
+  }
+
+  .profile-highlight span {
+    font-size: 11px;
+    line-height: 1.3;
   }
 }

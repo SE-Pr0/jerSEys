@@ -496,18 +496,19 @@
     height: 190px;
   }
   .hero-jersey-showcase {
-    width: 140px;
-    height: 140px;
+    width: 156px;
+    height: 156px;
   }
   .jersey-card-hero {
-    width: 120px;
+    width: 136px;
   }
   .jersey-card-img {
-    height: 92px;
+    height: 108px;
   }
   .hero-jersey-image {
-    width: 104px;
-    height: 104px;
+    width: 126px;
+    height: 126px;
+    margin-top: -16px;
   }
   .jersey-card-info {
     padding: 8px 10px;
