@@ -57,6 +57,7 @@
 @media (max-width: 680px) {
   .marquee-section {
     padding: 20px 0;
+    margin-bottom: 36px;
   }
 
   .marquee-item {

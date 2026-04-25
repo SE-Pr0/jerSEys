@@ -2298,24 +2298,26 @@
 
 .admin-hub-shell {
   display: grid;
-  grid-template-columns: 228px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   height: 100%;
   max-height: 100%;
   overflow: hidden;
   align-items: stretch;
+  position: relative;
 }
 
 .admin-hub-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  height: 100%;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 18px 14px;
-  border-right: 1px solid rgba(24, 20, 14, 0.08);
-  background: rgba(251, 248, 243, 0.94);
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 5;
+  width: min(320px, calc(100% - 36px));
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  border: none;
 }
 
 .admin-hub-sidebar-head {
@@ -2323,20 +2325,27 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 4px 8px 10px;
-  border-bottom: 1px solid rgba(24, 20, 14, 0.08);
-  flex: 0 0 auto;
+  padding: 12px 14px;
+  border: 1px solid rgba(24, 20, 14, 0.08);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
   background: rgba(251, 248, 243, 0.98);
+}
+
+.admin-hub-sidebar-head-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
 
 .admin-hub-sidebar-head strong {
   font-family: var(--font-head);
-  font-size: 20px;
+  font-size: 18px;
   letter-spacing: 0.6px;
   color: var(--text-1);
 }
 
-.admin-hub-sidebar-head span {
+.admin-hub-sidebar-head-copy span {
   font-family: var(--font-accent);
   font-size: 10px;
   letter-spacing: 2px;
@@ -2344,17 +2353,47 @@
   color: var(--text-3);
 }
 
+.admin-hub-sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgba(24, 20, 14, 0.1);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--text-1);
+  font-family: var(--font-accent);
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  cursor: none;
+  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+.admin-hub-sidebar-toggle:hover,
+.admin-hub-sidebar-toggle.is-open {
+  border-color: rgba(192, 21, 42, 0.28);
+  color: var(--crimson);
+  background: rgba(192, 21, 42, 0.05);
+}
+
 .admin-hub-sidebar-menu {
   min-height: auto;
-  flex: 0 0 auto;
-  overflow: visible;
-  display: grid;
+  overflow: hidden;
+  display: none;
   align-content: start;
   gap: 2px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 0;
+  padding: 10px;
+  background: rgba(251, 248, 243, 0.98);
+  border: 1px solid rgba(24, 20, 14, 0.08);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.admin-hub-sidebar-menu.is-open {
+  display: grid;
 }
 
 .admin-hub-sidebar-option {
@@ -2419,7 +2458,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   align-content: start;
-  padding: 24px;
+  padding: 88px 24px 24px;
 }
 
 .admin-hub-toolbar-card {
@@ -2792,7 +2831,7 @@
     height: auto;
     overflow: visible;
     border-right: none;
-    border-bottom: 1px solid rgba(24, 20, 14, 0.08);
+    border-bottom: none;
   }
 
   .admin-hub-main {
@@ -2813,11 +2852,13 @@
 
 @media (max-width: 768px) {
   .admin-hub-main {
-    padding: 18px;
+    padding: 84px 18px 18px;
   }
 
   .admin-hub-sidebar {
-    padding: 18px 14px;
+    top: 14px;
+    left: 14px;
+    width: min(320px, calc(100% - 28px));
   }
 
   .admin-hub-toolbar .ui-form-field {

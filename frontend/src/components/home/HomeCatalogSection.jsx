@@ -102,7 +102,7 @@ const HomeCatalogSection = () => {
       </div>
 
       <div className="home-catalog-grid">
-        {visibleProducts.map((product) => (
+        {visibleProducts.map((product, index) => (
           <ProductCard
             key={product.id}
             sport={product.sportLabel}
@@ -114,6 +114,8 @@ const HomeCatalogSection = () => {
             image={product.image}
             actionLabel="View Listing"
             onAction={() => navigate(`/shop/${product.id}`)}
+            className="home-catalog-card"
+            style={{ '--catalog-card-delay': `${index * 90}ms` }}
           />
         ))}
       </div>

@@ -2,6 +2,8 @@ import React from 'react';
 import '../styles/product-card.css';
 
 const ProductCard = ({
+  className = '',
+  style,
   sport = 'Football',
   club = 'Club',
   name = 'Jersey Name',
@@ -41,7 +43,8 @@ const ProductCard = ({
 
   return (
     <div
-      className="jersey-card"
+      className={`jersey-card ${className}`.trim()}
+      style={style}
       role={isInteractive ? 'button' : undefined}
       tabIndex={isInteractive ? 0 : undefined}
       onClick={onAction}

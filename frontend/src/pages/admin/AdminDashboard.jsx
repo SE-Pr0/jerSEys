@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Card, PageHeader, PageShell } from '../../components/ui';
 import './AdminSuite.css';
 import { toneBadgeStyles } from './adminConstants';
@@ -164,7 +164,9 @@ const embeddedSectionIds = new Set([
 
 const AdminDashboard = () => {
   const mainRef = useRef(null);
+  const menuRef = useRef(null);
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const groupedVisibleSections = sidebarGroups
     .map((group) => ({
@@ -196,6 +198,7 @@ const AdminDashboard = () => {
 
   const handleSidebarSelect = (sectionId) => {
     setActiveSection(sectionId);
+    setIsMenuOpen(false);
 
     const mainElement = mainRef.current;
     if (!mainElement) {
@@ -248,15 +251,56 @@ const AdminDashboard = () => {
     handleSidebarSelect(mappedSection);
   };
 
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (!menuRef.current?.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
+  const activeMenuLabel = sidebarOptions.find((item) => item.id === activeSection)?.title || 'Dashboard';
+
   return (
     <PageShell className="admin-suite-page admin-hub-page">
       <div className="admin-hub-shell ui-card">
-        <aside className="admin-hub-sidebar" aria-label="Admin menu">
+        <aside className="admin-hub-sidebar" aria-label="Admin menu" ref={menuRef}>
           <div className="admin-hub-sidebar-head">
-            <strong>Admin Menu</strong>
+            <div className="admin-hub-sidebar-head-copy">
+              <strong>Admin Menu</strong>
+              <span>{activeMenuLabel}</span>
+            </div>
+            <button
+              type="button"
+              className={`admin-hub-sidebar-toggle${isMenuOpen ? ' is-open' : ''}`}
+              aria-expanded={isMenuOpen}
+              aria-controls="admin-hub-sidebar-menu"
+              onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
+            >
+              <span>Sections</span>
+              <span>{isMenuOpen ? 'Hide' : 'Show'}</span>
+            </button>
           </div>
 
-          <nav className="admin-hub-sidebar-menu" aria-label="Admin sections">
+          <nav
+            className={`admin-hub-sidebar-menu${isMenuOpen ? ' is-open' : ''}`}
+            id="admin-hub-sidebar-menu"
+            aria-label="Admin sections"
+          >
             {sidebarOptions.map((item) => (
               <button
                 type="button"

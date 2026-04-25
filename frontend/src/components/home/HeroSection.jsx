@@ -92,15 +92,18 @@ const HeroSection = () => {
         <div className="hero-text">
           <div className="hero-eyebrow">New Season Drop 2026</div>
           <h1 className="hero-title">
-            YOUR
+            <span className="hero-title-word">YOUR</span>
             <br />
-            <span className="line-red">GAME.</span>
+            <span className="hero-title-word line-red">GAME.</span>
             <br />
-            <span className="line-outline">YOUR KIT.</span>
+            <span className="hero-title-word line-outline">YOUR KIT.</span>
           </h1>
           <p className="hero-sub">
-            Browse, customize, and trade premium football and basketball jerseys. Authentic kits from top clubs,
-            styled to feel as sharp as match day.
+            <span className="hero-sub-desktop">
+              Browse, customize, and trade premium football and basketball jerseys. Authentic kits from top clubs,
+              styled to feel as sharp as match day.
+            </span>
+            <span className="hero-sub-mobile">Shop, customize, and trade standout football and basketball kits.</span>
           </p>
           <div className="hero-ctas">
             <Link to="/shop" className="cta-primary">

@@ -53,6 +53,27 @@ main {
   .section-wrap {
     padding: 0 20px;
   }
+
+  .section-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    padding: 36px 0 24px;
+  }
+
+  .section-eyebrow {
+    font-size: 9px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: clamp(30px, 10vw, 42px);
+  }
+
+  .view-all {
+    padding-bottom: 0;
+  }
 }
 
 .section-header {
@@ -122,12 +143,20 @@ main {
 .reveal {
   opacity: 0;
   transform: translateY(40px);
-  transition: opacity .7s ease, transform .7s ease;
+  transition: opacity .75s ease, transform .85s cubic-bezier(.22, 1, .36, 1);
 }
 
 .reveal.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 @keyframes fadeUp {

@@ -3,14 +3,21 @@ import HeroSection from '../components/home/HeroSection';
 import HomeCatalogSection from '../components/home/HomeCatalogSection';
 import MarqueeSection from '../components/home/MarqueeSection';
 import FeaturesStrip from '../components/home/FeaturesStrip';
+import RevealSection from '../components/home/RevealSection';
 
 const Home = () => {
   return (
     <>
       <HeroSection />
-      <MarqueeSection />
-      <HomeCatalogSection />
-      <FeaturesStrip />
+      <RevealSection as="section">
+        <MarqueeSection />
+      </RevealSection>
+      <RevealSection as="section">
+        <HomeCatalogSection />
+      </RevealSection>
+      <RevealSection as="section">
+        <FeaturesStrip />
+      </RevealSection>
     </>
   );
 };

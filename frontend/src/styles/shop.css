@@ -360,6 +360,22 @@
   padding-bottom: 4px;
 }
 
+.shop-filters-toggle {
+  display: none;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-dark);
+  background: var(--bg2);
+  color: var(--text-1);
+  font-family: var(--font-accent);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
 .shop-main-filters {
   display: flex;
   flex: 1 1 0;
@@ -659,10 +675,6 @@
 }
 
 @media (max-width: 900px) {
-  .shop-stat-row {
-    grid-template-columns: 1fr;
-  }
-
   .shop-filter-row {
     gap: 8px;
   }
@@ -705,10 +717,6 @@
 }
 
 @media (max-width: 480px) {
-  .shop-grid {
-    grid-template-columns: 1fr;
-  }
-
   .shop-filter-row {
     flex-direction: column;
   }
@@ -730,36 +738,120 @@
   }
 
   .shop-stat-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    max-width: none;
+  }
+
+  .shop-stat-card {
+    padding: 12px 10px;
+    min-width: 0;
+  }
+
+  .shop-stat-value {
+    font-size: 24px;
+  }
+
+  .shop-stat-label {
+    font-size: 8px;
+    letter-spacing: 2px;
   }
 
   .shop-hero-actions {
+    align-items: flex-start;
     flex-direction: column;
   }
 
+  .shop-hero-actions .cta-primary {
+    width: auto;
+    align-self: flex-start;
+  }
+
+  .shop-filters-toggle {
+    display: flex;
+  }
+
   .shop-filter-row {
+    display: none;
     gap: 6px;
+  }
+
+  .shop-filter-row.is-open {
+    display: flex;
   }
 
   .shop-main-filters {
+    justify-content: center;
     gap: 6px;
+    padding-top: 0;
+    width: 100%;
   }
 
   .shop-main-filter {
-    min-width: 84px;
-    padding: 10px 10px;
+    min-width: 78px;
+    padding: 10px 8px;
+    font-size: 9px;
+    letter-spacing: 1.6px;
   }
 
   .shop-select-group {
     width: auto;
   }
 
-  .shop-select-group-price {
-    width: auto;
+  .shop-subfilters {
+    row-gap: 8px;
+    width: 100%;
+    flex-wrap: wrap;
   }
 
-  .shop-load-more,
-  .shop-hero-actions .cta-primary {
+  .shop-subfilters .shop-select-group:not(.shop-select-group-price) {
+    flex: 1 1 calc(25% - 5px);
+    min-width: 0;
+  }
+
+  .shop-select-group-price {
+    flex: 1 1 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+  }
+
+  .shop-select-group span {
+    font-size: 8px;
+    letter-spacing: 1.7px;
+    min-height: 14px;
+  }
+
+  .shop-select-group select {
+    padding: 10px 8px;
+    min-height: 42px;
+    font-size: 11px;
+    text-overflow: ellipsis;
+  }
+
+  .shop-select-group-price > span {
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 0;
+    min-height: 0;
+    white-space: nowrap;
+  }
+
+  .shop-select-group-price .shop-price-range {
+    padding: 10px;
+  }
+
+  .shop-select-group-price .shop-price-inputs {
+    display: none;
+  }
+
+  .shop-select-group-price .shop-price-sliders {
+    min-width: 0;
+  }
+
+  .shop-load-more {
     width: 100%;
   }
 
@@ -767,5 +859,10 @@
   .card-footer {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .shop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 }

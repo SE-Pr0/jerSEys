@@ -631,9 +631,7 @@
 }
 
 @media (max-width: 1100px) {
-  .product-details-grid,
-  .product-details-service,
-  .product-details-related-grid {
+  .product-details-grid {
     grid-template-columns: 1fr;
   }
 
@@ -644,6 +642,14 @@
   .product-details-image-stage {
     width: min(100%, 400px);
   }
+
+  .product-details-service {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .product-details-related-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 720px) {
@@ -653,22 +659,18 @@
 
   .product-details-grid {
     padding: 0 24px 38px;
-    gap: 30px;
+    gap: 10px;
   }
 
   .product-details-image-stage {
     width: min(100%, 340px);
-    padding: 18px;
+    margin-top: 0;
+    padding: 6px 12px 0;
   }
 
   .product-details-image-stage img {
     width: min(100%, 286px);
-    max-height: 360px;
-  }
-
-  .product-details-strip,
-  .product-details-buy-row {
-    grid-template-columns: 1fr;
+    max-height: 300px;
   }
 
   .product-details-buy-row {
@@ -689,11 +691,13 @@
   }
 
   .product-details-info h1 {
-    font-size: clamp(42px, 12vw, 64px);
+    font-size: clamp(28px, 7.6vw, 38px);
+    line-height: 1.12;
+    letter-spacing: 0.4px;
   }
 
   .product-details-panel {
-    padding: 18px;
+    padding: 0;
   }
 
   .product-details-option-header,
@@ -702,7 +706,161 @@
     flex-direction: column;
   }
 
+  .product-details-rating {
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 9px;
+  }
+
+  .product-details-stars {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .product-details-kicker {
+    font-size: 8px;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+  }
+
+  .product-details-price-row {
+    gap: 4px;
+    margin-top: 10px;
+  }
+
+  .product-details-price,
+  .product-details-price-old {
+    font-size: 13px;
+  }
+
+  .product-details-sale {
+    font-size: 12px;
+  }
+
+  .product-details-stock {
+    font-size: 8px;
+    letter-spacing: 1.2px;
+    padding: 4px 7px;
+  }
+
+  .product-details-feature-list {
+    gap: 7px;
+    margin-top: 12px;
+    font-size: 12px;
+  }
+
+  .product-details-feature-list li {
+    gap: 7px;
+  }
+
+  .product-details-feature-list li::before {
+    width: 11px;
+    height: 11px;
+  }
+
+  .product-details-option-header {
+    font-size: 12px;
+  }
+
+  .product-details-size-grid {
+    gap: 6px;
+  }
+
+  .product-details-size {
+    min-width: 40px;
+    min-height: 34px;
+    padding: 7px 8px;
+    font-size: 10px;
+  }
+
+  .product-details-personalize {
+    gap: 6px;
+    padding: 4px 0;
+  }
+
+  .product-details-personalize-label,
+  .product-details-quantity-label {
+    font-size: 12px;
+  }
+
+  .product-details-personalize-toggle {
+    min-height: 40px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .product-details-personalize-fields {
+    grid-template-columns: minmax(0, 1fr) 88px;
+    gap: 8px;
+  }
+
+  .product-details-personalize-fields label span {
+    font-size: 8px;
+    letter-spacing: 1.4px;
+  }
+
+  .product-details-personalize-fields input {
+    min-height: 38px;
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .product-details-buy-row {
+    gap: 10px;
+  }
+
+  .product-details-quantity {
+    min-height: 38px;
+  }
+
+  .product-details-add {
+    min-height: 40px;
+    font-size: 10px;
+  }
+
+  .product-details-description-block {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding-top: 30px;
+  }
+
+  .product-details-description-block h2 {
+    font-size: 26px;
+  }
+
+  .product-details-description-block p:not(.product-details-kicker) {
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
   .product-details-service {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
     padding: 0 24px;
+  }
+
+  .product-details-service-item {
+    min-height: 0;
+    padding: 14px 12px;
+  }
+
+  .product-details-service-item h2 {
+    font-size: 15px;
+    line-height: 1.05;
+  }
+
+  .product-details-service-item p {
+    font-size: 10px;
+    line-height: 1.45;
+  }
+
+  .product-details-related-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .product-details-related .section-header {
+    align-items: flex-start;
+    text-align: left;
   }
 }

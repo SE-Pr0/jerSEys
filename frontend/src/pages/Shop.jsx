@@ -151,6 +151,7 @@ const Shop = () => {
   const [visibleCount, setVisibleCount] = useState(24);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
   const [spotlightVisible, setSpotlightVisible] = useState(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -399,7 +400,21 @@ const Shop = () => {
             />
           </div>
 
-          <div className="shop-filter-row">
+          <button
+            type="button"
+            className={`shop-filters-toggle${isMobileFiltersOpen ? ' is-open' : ''}`}
+            aria-expanded={isMobileFiltersOpen}
+            aria-controls="shop-filter-panel"
+            onClick={() => setIsMobileFiltersOpen((currentValue) => !currentValue)}
+          >
+            <span>Filters</span>
+            <span>{isMobileFiltersOpen ? 'Hide' : 'Show'}</span>
+          </button>
+
+          <div
+            id="shop-filter-panel"
+            className={`shop-filter-row${isMobileFiltersOpen ? ' is-open' : ''}`}
+          >
             <div className="shop-main-filters" role="group" aria-label="Sport category">
               {sportFilters.map((filter) => (
                 <button

@@ -1593,33 +1593,267 @@
   }
 
   .trade-marketplace-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
   .trade-filter-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
 
   .trade-filter-toolbar {
-    justify-content: flex-start;
+    justify-content: center;
+    gap: 10px;
   }
 
   .trade-filter-divider {
     width: 100%;
     height: 1px;
+    margin: 2px 0;
+    transform: none;
   }
 
   .trade-search-wrap {
     min-width: 0;
   }
 
+  .trade-filter-card {
+    gap: 12px;
+  }
+
+  .trade-filter-toolbar .shop-main-filters {
+    justify-content: center;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .trade-filter-toolbar .shop-main-filter {
+    min-width: 82px;
+    padding: 10px 8px;
+    font-size: 9px;
+    letter-spacing: 1.4px;
+  }
+
+  .trade-status-filters .shop-main-filter {
+    min-width: 0;
+    flex: 1 1 0;
+  }
+
+  .trade-results-label {
+    text-align: left;
+  }
+
+  .trade-marketplace-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .trade-marketplace-stat {
+    padding: 12px 10px;
+  }
+
+  .trade-marketplace-stat-value {
+    font-size: 24px;
+  }
+
+  .trade-marketplace-stat-label {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  .trade-marketplace-actions {
+    gap: 10px;
+  }
+
+  .trade-card-body {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .trade-card-visual {
+    height: 164px;
+  }
+
+  .trade-card-name {
+    font-size: 16px;
+  }
+
+  .trade-card-detail {
+    font-size: 11px;
+  }
+
+  .trade-card-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .trade-card-actions {
+    width: 100%;
+  }
+
+  .trade-card-offer-btn,
+  .trade-card-buy-btn {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .trade-details-grid {
+    gap: 12px;
+  }
+
+  .trade-details-back {
+    margin-bottom: 0;
+  }
+
+  .trade-details-emoji-wrap {
+    height: 260px;
+  }
+
+  .trade-details-img {
+    object-fit: contain;
+  }
+
+  .trade-details-badge-wrap {
+    bottom: 10px;
+  }
+
+  .trade-badge--lg {
+    padding: 5px 12px;
+    font-size: 9px;
+    letter-spacing: 1.3px;
+  }
+
+  .trade-details-visual-footer {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .trade-details-value-label {
+    font-size: 8px;
+    letter-spacing: 1.4px;
+  }
+
+  .trade-details-value {
+    font-size: 20px;
+  }
+
+  .trade-details-value-date {
+    font-size: 11px;
+  }
+
+  .trade-details-seller-card {
+    margin-top: 10px;
+  }
+
+  .trade-details-right {
+    gap: 12px;
+  }
+
+  .trade-details-right .ui-page-header {
+    gap: 0;
+  }
+
+  .trade-details-right .ui-page-eyebrow {
+    margin-bottom: 6px;
+    font-size: 8px;
+    letter-spacing: 3px;
+  }
+
+  .trade-details-right .ui-page-title {
+    font-size: clamp(28px, 8vw, 40px);
+    line-height: 1.06;
+    letter-spacing: -0.6px;
+  }
+
+  .trade-details-right .ui-card {
+    padding: 14px;
+  }
+
   .trade-details-meta-grid {
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
     grid-template-columns: 1fr 1fr;
+  }
+
+  .trade-meta-label {
+    font-size: 8px;
+    letter-spacing: 1.4px;
+  }
+
+  .trade-meta-value {
+    font-size: 15px;
+  }
+
+  .trade-details-section {
+    padding-top: 14px;
+  }
+
+  .trade-section-heading {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .trade-details-description {
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .trade-kicker {
+    font-size: 8px;
+    letter-spacing: 2.6px;
+  }
+
+  .trade-details-buynow {
+    gap: 12px;
+  }
+
+  .trade-details-buynow-price {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+
+  .trade-auth-gate-text,
+  .trade-offer-sent p,
+  .trade-pending-notice p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .trade-offer-sent,
+  .trade-pending-notice {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .trade-offer-sent strong,
+  .trade-pending-notice strong {
+    font-size: 16px;
   }
 
   .trade-offer-form-row {
     grid-template-columns: 1fr;
+  }
+
+  .trade-offer-form {
+    margin-top: 0;
+  }
+
+  .trade-offer-image-preview img {
+    height: 120px;
+  }
+
+  .trade-details-right .ui-input,
+  .trade-details-right .ui-textarea {
+    font-size: 12px;
+  }
+
+  .trade-details-right .ui-button {
+    min-height: 40px;
+    font-size: 10px;
+    letter-spacing: 1.4px;
   }
 
   .trade-request-offer-image {
@@ -1676,15 +1910,144 @@
 }
 
 @media (max-width: 480px) {
+  .trade-details-grid {
+    gap: 10px;
+  }
+
   .trade-details-meta-grid {
     grid-template-columns: 1fr;
   }
 
+  .trade-details-emoji-wrap {
+    height: 220px;
+  }
+
+  .trade-details-right .ui-page-title {
+    font-size: clamp(24px, 8.5vw, 34px);
+  }
+
+  .trade-details-visual-footer {
+    grid-template-columns: 1fr 1fr;
+    padding: 10px 12px;
+  }
+
+  .trade-details-value {
+    font-size: 18px;
+  }
+
+  .trade-details-value-date {
+    font-size: 10px;
+  }
+
+  .trade-details-right .ui-card,
+  .trade-details-seller-card {
+    padding: 12px;
+  }
+
+  .trade-meta-value {
+    font-size: 14px;
+  }
+
+  .trade-section-heading {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .trade-details-description {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .trade-user-meta {
+    font-size: 10px;
+  }
+
+  .trade-auth-gate-actions {
+    flex-direction: column;
+  }
+
+  .trade-auth-gate-actions .ui-button {
+    width: 100%;
+  }
+
   .trade-marketplace-stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .trade-chip-divider {
     display: none;
+  }
+
+  .trade-marketplace-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .trade-marketplace-summary,
+  .trade-filter-card {
+    padding: 14px;
+  }
+
+  .trade-filter-toolbar .shop-main-filter {
+    min-width: 74px;
+    font-size: 8px;
+    letter-spacing: 1.1px;
+  }
+
+  .trade-status-filters .shop-main-filter {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 8px 6px;
+    font-size: 7px;
+    letter-spacing: 0.9px;
+  }
+
+  .trade-marketplace-actions {
+    flex-wrap: nowrap;
+  }
+
+  .trade-marketplace-actions .ui-button {
+    min-height: 38px;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    padding: 10px 8px;
+  }
+
+  .trade-card-visual {
+    height: 136px;
+  }
+
+  .trade-card-price-tag {
+    left: 8px;
+    bottom: 8px;
+    font-size: 14px;
+    padding: 4px 9px;
+  }
+
+  .trade-card-badge {
+    top: 8px;
+    right: 8px;
+  }
+
+  .trade-card-name {
+    font-size: 14px;
+    line-height: 1.08;
+  }
+
+  .trade-card-detail {
+    font-size: 10px;
+  }
+
+  .trade-card-value,
+  .trade-card-price {
+    font-size: 16px;
+  }
+
+  .trade-card-offer-btn,
+  .trade-card-buy-btn {
+    min-height: 32px;
+    padding: 8px 10px;
+    font-size: 8px;
+    letter-spacing: 1.4px;
   }
 }

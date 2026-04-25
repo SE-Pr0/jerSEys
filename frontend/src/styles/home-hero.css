@@ -87,6 +87,14 @@
   color: var(--text-1);
 }
 
+.hero-title-word {
+  display: inline-block;
+}
+
+.hero-title-word + .hero-title-word {
+  margin-top: 8px;
+}
+
 .hero-title .line-red {
   color: var(--crimson);
   text-shadow: 0 0 60px rgba(192,21,42,0.18);
@@ -107,6 +115,10 @@
   margin-bottom: 0;
   opacity: 0;
   animation: fadeUp .8s ease .6s forwards;
+}
+
+.hero-sub-mobile {
+  display: none;
 }
 
 .hero-ctas {
@@ -400,13 +412,22 @@
 }
 
 @media (max-width: 680px) {
+  #hero {
+    min-height: auto;
+  }
   .hero-content {
-    padding: 16px 16px 28px;
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 28px 16px 28px;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .hero-text {
+    gap: 14px;
+    min-width: 0;
   }
   .hero-eyebrow {
-    font-size: 8px;
-    letter-spacing: 2.5px;
+    font-size: 8.5px;
+    letter-spacing: 2.8px;
     gap: 8px;
     margin-bottom: 6px;
   }
@@ -414,58 +435,79 @@
     width: 18px;
   }
   .hero-title {
-    font-size: clamp(30px, 9vw, 52px);
+    font-size: clamp(44px, 13vw, 72px);
+    line-height: 0.96;
+    letter-spacing: -1.8px;
+    margin-bottom: 6px;
+  }
+  .hero-title-word + .hero-title-word {
+    margin-top: 22px;
   }
   .hero-sub {
     max-width: 100%;
-    font-size: 12px;
-    line-height: 1.5;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .hero-sub-desktop {
+    display: none;
+  }
+  .hero-sub-mobile {
+    display: inline;
   }
   .hero-ctas {
-    gap: 6px;
-    flex-wrap: nowrap;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 2px;
   }
   .cta-primary,
   .cta-secondary {
     flex: 0 0 auto;
-    padding: 8px 8px;
-    font-size: 7.5px;
-    letter-spacing: 0.5px;
+    padding: 10px 12px;
+    font-size: 8.5px;
+    letter-spacing: 0.8px;
     white-space: nowrap;
-    gap: 5px;
+    gap: 6px;
   }
   .hero-stats {
-    gap: 12px;
+    gap: 14px;
     flex-wrap: wrap;
+    margin-top: 8px;
   }
   .stat-num {
-    font-size: 20px;
+    font-size: 22px;
   }
   .stat-label {
-    font-size: 8px;
-    letter-spacing: 1.5px;
+    font-size: 8.5px;
+    letter-spacing: 1.8px;
+  }
+  .hero-visual {
+    margin-top: 34px;
+    align-self: flex-start;
+    justify-self: end;
+    width: auto;
+    min-height: 0;
   }
   .hero-visual-ring {
-    width: 180px;
-    height: 180px;
+    width: 160px;
+    height: 160px;
   }
   .hero-visual-ring2 {
-    width: 210px;
-    height: 210px;
+    width: 190px;
+    height: 190px;
   }
   .hero-jersey-showcase {
-    width: 155px;
-    height: 155px;
+    width: 140px;
+    height: 140px;
   }
   .jersey-card-hero {
-    width: 130px;
+    width: 120px;
   }
   .jersey-card-img {
-    height: 100px;
+    height: 92px;
   }
   .hero-jersey-image {
-    width: 115px;
-    height: 115px;
+    width: 104px;
+    height: 104px;
   }
   .jersey-card-info {
     padding: 8px 10px;

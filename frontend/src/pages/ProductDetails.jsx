@@ -214,11 +214,6 @@ const ProductDetails = () => {
               <img src={product.image} alt={product.name} />
               {product.badge && <span className={`product-details-badge is-${product.badge}`}>{product.badge}</span>}
             </div>
-            <div className="product-details-strip">
-              <span>{product.sportLabel}</span>
-              <span>{product.categoryLabel}</span>
-              <span>{product.season}</span>
-            </div>
           </div>
 
           <div className="product-details-info">

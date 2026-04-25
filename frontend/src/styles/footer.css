@@ -125,8 +125,27 @@ footer {
   }
 
   .footer-inner {
-    grid-template-columns: 1fr;
-    gap: 36px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px 16px;
+  }
+
+  .footer-inner > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  .footer-col-title {
+    margin-bottom: 14px;
+    font-size: 9px;
+    letter-spacing: 2.8px;
+  }
+
+  .footer-links {
+    gap: 10px;
+  }
+
+  .footer-links a {
+    font-size: 11px;
+    line-height: 1.35;
   }
 }
 

@@ -459,7 +459,7 @@ const Cart = () => {
                     return (
                       <Card
                         key={item.cartKey || `${item.productId || item.name}-${index}`}
-                        className="cart-item-card"
+                        className={`cart-item-card${isCustomKit ? ' is-custom-kit' : ''}`}
                         padded={false}
                       >
                         <div className="cart-item-media">
