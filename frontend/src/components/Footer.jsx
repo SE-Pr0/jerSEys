@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import sizeGuideImage from '../../assets/images/SizeGuide.png';
 import '../styles/footer.css';
 
 const Footer = () => {
@@ -11,20 +12,14 @@ const Footer = () => {
           <div className="footer-tagline">
             The premier destination for authentic sports jerseys. Browse, customize, and trade with the community.
           </div>
-          <div className="footer-socials">
-            <a href="#" className="social-btn">X</a>
-            <a href="#" className="social-btn">in</a>
-            <a href="#" className="social-btn">📸</a>
-            <a href="#" className="social-btn">▶</a>
-          </div>
         </div>
         <div>
           <div className="footer-col-title">Shop</div>
           <ul className="footer-links">
-            <li><Link to="/shop">Football Kits</Link></li>
-            <li><Link to="/shop">Basketball Jerseys</Link></li>
-            <li><Link to="/shop#shop-catalog">Club Teams</Link></li>
-            <li><Link to="/shop#shop-catalog">National Teams</Link></li>
+            <li><Link to="/shop?sport=football#shop-catalog">Football Kits</Link></li>
+            <li><Link to="/shop?sport=basketball#shop-catalog">Basketball Jerseys</Link></li>
+            <li><Link to="/shop?category=club#shop-catalog">Club Teams</Link></li>
+            <li><Link to="/shop?category=national#shop-catalog">National Teams</Link></li>
           </ul>
         </div>
         <div>
@@ -40,10 +35,11 @@ const Footer = () => {
         <div>
           <div className="footer-col-title">Support</div>
           <ul className="footer-links">
-            <li><a href="#">Shipping Info</a></li>
-            <li><a href="#">Returns</a></li>
-            <li><a href="#">Size Guide</a></li>
-            <li><a href="#">Authenticity</a></li>
+            <li>
+              <a href={sizeGuideImage} download="SizeGuide.png">
+                Size Guide
+              </a>
+            </li>
           </ul>
         </div>
       </div>
@@ -56,3 +52,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

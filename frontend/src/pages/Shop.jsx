@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import ProductCard from '../components/ProductCard';
 import '../styles/shop.css';
@@ -139,6 +139,7 @@ const CountUpValue = ({ target, duration = 2200, delay = 650 }) => {
 
 const Shop = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [mainCategory, setMainCategory] = useState('all');
   const [catalogCategory, setCatalogCategory] = useState('all');
@@ -150,6 +151,39 @@ const Shop = () => {
   const [visibleCount, setVisibleCount] = useState(24);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
   const [spotlightVisible, setSpotlightVisible] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const nextSport = params.get('sport');
+    const nextCategory = params.get('category');
+
+    if (nextSport === 'football' || nextSport === 'basketball' || nextSport === 'all') {
+      setMainCategory(nextSport);
+    } else {
+      setMainCategory('all');
+    }
+
+    if (nextCategory === 'club' || nextCategory === 'national' || nextCategory === 'all') {
+      setCatalogCategory(nextCategory);
+    } else {
+      setCatalogCategory('all');
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    if (location.hash !== '#shop-catalog') {
+      return;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      const catalogSection = document.getElementById('shop-catalog');
+      if (catalogSection) {
+        catalogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [location.hash, location.search]);
 
   const minPrice = useMemo(() => {
     const parsedMin = clampPrice(parseInputPrice(minPriceInput, absoluteMinPrice));
