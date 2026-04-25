@@ -353,11 +353,10 @@
 
 .shop-filter-row {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 10px;
   align-items: flex-start;
   width: 100%;
-  overflow: hidden;
   padding-bottom: 4px;
 }
 
@@ -660,8 +659,7 @@
 }
 
 @media (max-width: 900px) {
-  .shop-stat-row,
-  .shop-grid {
+  .shop-stat-row {
     grid-template-columns: 1fr;
   }
 
@@ -697,6 +695,28 @@
 
   .shop-select-group select {
     width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .shop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .shop-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .shop-filter-row {
+    flex-direction: column;
+  }
+
+  .shop-main-filters,
+  .shop-subfilters {
+    width: 100%;
+    flex-wrap: wrap;
   }
 }
 

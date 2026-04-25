@@ -108,16 +108,24 @@
   }
 
   .home-catalog-filters {
-    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
-  .home-catalog-filter,
+  .home-catalog-filter {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 10px 8px;
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
   .home-catalog-load-more-btn {
     width: 100%;
   }
 
   .home-catalog-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .home-catalog-intro {

@@ -361,50 +361,135 @@
 }
 
 @media (max-width: 1024px) {
+  #hero {
+    min-height: auto;
+  }
   .hero-content {
-    grid-template-columns: 1fr;
-    gap: 60px;
-    padding-top: 100px;
-    padding-left: 24px;
-    padding-right: 24px;
+    grid-template-columns: 3fr 2fr;
+    gap: 20px;
+    padding: 28px 24px 40px;
+    align-items: flex-start;
   }
   .hero-visual {
-    display: none;
+    display: flex;
+    margin-top: 16px;
+    align-self: flex-start;
+  }
+  .hero-visual-ring {
+    width: 300px;
+    height: 300px;
+  }
+  .hero-visual-ring2 {
+    width: 345px;
+    height: 345px;
+  }
+  .hero-jersey-showcase {
+    width: 240px;
+    height: 240px;
+  }
+  .jersey-card-hero {
+    width: 195px;
+  }
+  .jersey-card-img {
+    height: 155px;
+  }
+  .hero-jersey-image {
+    width: 175px;
+    height: 175px;
   }
 }
 
 @media (max-width: 680px) {
   .hero-content {
-    padding: 100px 24px 0;
+    padding: 16px 16px 28px;
+    gap: 10px;
+  }
+  .hero-eyebrow {
+    font-size: 8px;
+    letter-spacing: 2.5px;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .hero-eyebrow::before {
+    width: 18px;
   }
   .hero-title {
-    font-size: clamp(48px, 12vw, 80px);
+    font-size: clamp(30px, 9vw, 52px);
   }
   .hero-sub {
     max-width: 100%;
+    font-size: 12px;
+    line-height: 1.5;
   }
   .hero-ctas {
-    flex-direction: column;
-    width: 100%;
-  }
-  .hero-ctas a {
-    width: 100%;
-    justify-content: center;
-    padding-left: 24px;
-    padding-right: 24px;
+    gap: 6px;
+    flex-wrap: nowrap;
   }
   .cta-primary,
   .cta-secondary {
-    width: 100%;
-  }
-  .cta-primary {
-    padding: 18px 28px;
-  }
-  .cta-secondary {
-    padding: 16px 24px;
+    flex: 0 0 auto;
+    padding: 8px 8px;
+    font-size: 7.5px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    gap: 5px;
   }
   .hero-stats {
-    flex-direction: column;
-    gap: 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .stat-num {
+    font-size: 20px;
+  }
+  .stat-label {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+  }
+  .hero-visual-ring {
+    width: 180px;
+    height: 180px;
+  }
+  .hero-visual-ring2 {
+    width: 210px;
+    height: 210px;
+  }
+  .hero-jersey-showcase {
+    width: 155px;
+    height: 155px;
+  }
+  .jersey-card-hero {
+    width: 130px;
+  }
+  .jersey-card-img {
+    height: 100px;
+  }
+  .hero-jersey-image {
+    width: 115px;
+    height: 115px;
+  }
+  .jersey-card-info {
+    padding: 8px 10px;
+  }
+  .jersey-card-name {
+    font-size: 11px;
+  }
+  .jersey-card-price {
+    font-size: 12px;
+    margin-top: 3px;
+  }
+  .jersey-card-sport {
+    font-size: 7px;
+    letter-spacing: 2px;
+  }
+  .floating-badge {
+    font-size: 7px;
+    padding: 3px 7px;
+  }
+  .badge-new {
+    right: -8px;
+  }
+  .badge-hot {
+    left: -8px;
+    bottom: 44px;
   }
 }

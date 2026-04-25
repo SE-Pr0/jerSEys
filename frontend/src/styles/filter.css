@@ -7,6 +7,18 @@
   margin: 0 auto;
 }
 
+@media (max-width: 1023px) {
+  .filter-bar {
+    padding: 60px 32px 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .filter-bar {
+    padding: 48px 20px 0;
+  }
+}
+
 .filter-btn {
   font-family: var(--font-accent);
   font-size: 12px;

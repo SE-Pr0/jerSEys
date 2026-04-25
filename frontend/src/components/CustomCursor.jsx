@@ -6,6 +6,14 @@ const CustomCursor = () => {
   const ringRef = useRef(null);
 
   useEffect(() => {
+    const isDesktop =
+      window.innerWidth >= 1024 &&
+      window.matchMedia('(pointer: fine)').matches &&
+      !('ontouchstart' in window) &&
+      navigator.maxTouchPoints === 0;
+
+    if (!isDesktop) return;
+
     const handleMouseMove = (event) => {
       const { clientX, clientY } = event;
       if (cursorRef.current) {
@@ -17,10 +25,7 @@ const CustomCursor = () => {
     };
 
     document.addEventListener('mousemove', handleMouseMove);
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-    };
+    return () => document.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   return (

@@ -119,6 +119,17 @@ footer {
   }
 }
 
+@media (max-width: 480px) {
+  footer {
+    padding: 40px 20px 24px;
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
 .footer-copy span {
   color: var(--orange);
 }

@@ -13,7 +13,24 @@ body {
   color: var(--text-1);
   font-family: var(--font-body);
   overflow-x: hidden;
-  cursor: none;
+}
+
+@media (min-width: 1024px) and (pointer: fine) {
+  body {
+    cursor: none;
+  }
+}
+
+@media (max-width: 1023px), (pointer: coarse) {
+  * {
+    cursor: auto;
+  }
+  a, button, [role="button"], label, select {
+    cursor: pointer;
+  }
+  input, textarea {
+    cursor: text;
+  }
 }
 
 main {
@@ -24,6 +41,18 @@ main {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 48px;
+}
+
+@media (max-width: 1023px) {
+  .section-wrap {
+    padding: 0 32px;
+  }
+}
+
+@media (max-width: 767px) {
+  .section-wrap {
+    padding: 0 20px;
+  }
 }
 
 .section-header {
