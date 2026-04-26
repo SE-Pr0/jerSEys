@@ -763,6 +763,7 @@ const CustomJerseyBuilder = () => {
   const [activeControlSection, setActiveControlSection] = useState('pattern');
   const [isSizePromptOpen, setIsSizePromptOpen] = useState(false);
   const [selectedCartSize, setSelectedCartSize] = useState('');
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [previewArtwork, setPreviewArtwork] = useState('');
   const kitPreviewRef = useRef(null);
@@ -1090,7 +1091,10 @@ const CustomJerseyBuilder = () => {
       return;
     }
 
+    setIsAddingToCart(true);
+
     let savedCustomJersey = null;
+    let saveWarning = '';
 
     try {
       savedCustomJersey = await createCustomJersey({
@@ -1103,53 +1107,36 @@ const CustomJerseyBuilder = () => {
         price: CUSTOM_KIT_PRICE,
       });
     } catch (error) {
-      setNotice(error.message || 'Failed to save custom jersey.');
-      return;
+      saveWarning = error.message || 'We could not save this custom jersey to your account, but it can still be added to cart.';
     }
 
-    const thumbnailImage = await buildCustomKitThumbnail(design, selectedPreset);
+    try {
+      const thumbnailImage = await buildCustomKitThumbnail(design, selectedPreset);
 
-    const nextCartItem = {
-      cartKey: buildCustomKitLineKey(design, selectedCartSize),
-      id: `custom-kit-${selectedPreset?.id || 'custom'}`,
-      productId: `custom-kit-${selectedPreset?.id || 'custom'}`,
-      itemType: 'custom-kit',
-      name: 'Custom jersey',
-      title: 'Custom jersey',
-      team: 'Made to order',
-      sportLabel: 'Custom kit',
-      categoryLabel: selectedPreset?.name || 'Custom build',
-      season: 'Made to order',
-      image: thumbnailImage,
-      imageFocus: 'center center',
-      badge: '',
-      price: CUSTOM_KIT_PRICE,
-      unitPrice: CUSTOM_KIT_PRICE,
-      quantity: 1,
-      customJerseyId: savedCustomJersey?.id || null,
-      size: selectedCartSize,
-      selectedSize: selectedCartSize,
-      playerName: design.textName.trim(),
-      playerNumber: design.textNumber.trim(),
-      text: [design.textName.trim(), design.textNumber.trim()].filter(Boolean).join(' # '),
-      notes: '',
-      badgeLogo: design.badgeLogo,
-      freeLogo: design.freeLogo,
-      freeLogoPosition: design.freeLogoPosition,
-      presetId: selectedPreset?.id || '',
-      presetName: selectedPreset?.name || '',
-      presetImage: selectedPreset?.src || '',
-      baseColor: design.baseColor,
-      sleeveColor: design.sleeveColor,
-      presetColor: design.presetColor,
-      collarColor: design.collarColor,
-      textColor: design.textColor,
-      textStrokeColor: design.textStrokeColor,
-      textStrokeWidth: design.textStrokeWidth,
-      customization: {
+      const nextCartItem = {
+        cartKey: buildCustomKitLineKey(design, selectedCartSize),
+        id: `custom-kit-${selectedPreset?.id || 'custom'}`,
+        productId: `custom-kit-${selectedPreset?.id || 'custom'}`,
+        itemType: 'custom-kit',
+        name: 'Custom jersey',
+        title: 'Custom jersey',
+        team: 'Made to order',
+        sportLabel: 'Custom kit',
+        categoryLabel: selectedPreset?.name || 'Custom build',
+        season: 'Made to order',
+        image: thumbnailImage,
+        imageFocus: 'center center',
+        badge: '',
+        price: CUSTOM_KIT_PRICE,
+        unitPrice: CUSTOM_KIT_PRICE,
+        quantity: 1,
+        customJerseyId: savedCustomJersey?.id || null,
+        size: selectedCartSize,
+        selectedSize: selectedCartSize,
         playerName: design.textName.trim(),
         playerNumber: design.textNumber.trim(),
-        summary: [`Size ${selectedCartSize}`, selectedPreset?.name || 'Custom build'].join(' / '),
+        text: [design.textName.trim(), design.textNumber.trim()].filter(Boolean).join(' # '),
+        notes: '',
         badgeLogo: design.badgeLogo,
         freeLogo: design.freeLogo,
         freeLogoPosition: design.freeLogoPosition,
@@ -1160,44 +1147,67 @@ const CustomJerseyBuilder = () => {
         sleeveColor: design.sleeveColor,
         presetColor: design.presetColor,
         collarColor: design.collarColor,
-        colors: {
+        textColor: design.textColor,
+        textStrokeColor: design.textStrokeColor,
+        textStrokeWidth: design.textStrokeWidth,
+        customization: {
+          playerName: design.textName.trim(),
+          playerNumber: design.textNumber.trim(),
+          summary: [`Size ${selectedCartSize}`, selectedPreset?.name || 'Custom build'].join(' / '),
+          badgeLogo: design.badgeLogo,
+          freeLogo: design.freeLogo,
+          freeLogoPosition: design.freeLogoPosition,
+          presetId: selectedPreset?.id || '',
+          presetName: selectedPreset?.name || '',
+          presetImage: selectedPreset?.src || '',
+          base: design.baseColor,
+          sleeve: design.sleeveColor,
+          secondary: design.presetColor,
+          collar: design.collarColor,
+          colors: {
+            base: design.baseColor,
+            sleeve: design.sleeveColor,
+            secondary: design.presetColor,
+            collar: design.collarColor,
+          },
+          textColor: design.textColor,
+          strokeColor: design.textStrokeColor,
+          strokeWidth: design.textStrokeWidth,
+        },
+        previewColors: {
           base: design.baseColor,
           sleeve: design.sleeveColor,
           secondary: design.presetColor,
           collar: design.collarColor,
         },
-        textColor: design.textColor,
-        strokeColor: design.textStrokeColor,
-        strokeWidth: design.textStrokeWidth,
-      },
-      previewColors: {
-        base: design.baseColor,
-        sleeve: design.sleeveColor,
-        secondary: design.presetColor,
-        collar: design.collarColor,
-      },
-    };
-
-    const currentCart = readStoredCart();
-    const existingItemIndex = currentCart.findIndex((item) => item.cartKey === nextCartItem.cartKey);
-
-    if (existingItemIndex >= 0) {
-      currentCart[existingItemIndex] = {
-        ...currentCart[existingItemIndex],
-        ...nextCartItem,
-        quantity: Number(currentCart[existingItemIndex].quantity || 1) + 1,
       };
-    } else {
-      currentCart.push(nextCartItem);
-    }
 
-    writeStoredCart(currentCart);
-    setIsSizePromptOpen(false);
-    setNotice('');
-    showToast({
-      message: 'Added to cart!',
-      subtext: `Custom jersey in ${selectedCartSize}`,
-    });
+      const currentCart = readStoredCart();
+      const existingItemIndex = currentCart.findIndex((item) => item.cartKey === nextCartItem.cartKey);
+
+      if (existingItemIndex >= 0) {
+        currentCart[existingItemIndex] = {
+          ...currentCart[existingItemIndex],
+          ...nextCartItem,
+          quantity: Number(currentCart[existingItemIndex].quantity || 1) + 1,
+        };
+      } else {
+        currentCart.push(nextCartItem);
+      }
+
+      writeStoredCart(currentCart);
+      setIsSizePromptOpen(false);
+      setSelectedCartSize('');
+      setNotice(saveWarning);
+      showToast({
+        message: 'Added to cart!',
+        subtext: saveWarning || `Custom jersey in ${selectedCartSize}`,
+      });
+    } catch (error) {
+      setNotice(error.message || 'Failed to add custom jersey to cart.');
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   const handleResetSizePrompt = () => {
@@ -1611,8 +1621,8 @@ const CustomJerseyBuilder = () => {
               <Button variant="secondary" type="button" onClick={handleResetSizePrompt}>
                 Cancel
               </Button>
-              <Button type="button" onClick={handleConfirmAddToCart} disabled={!selectedCartSize}>
-                Confirm add
+              <Button type="button" onClick={handleConfirmAddToCart} disabled={!selectedCartSize || isAddingToCart}>
+                {isAddingToCart ? 'Adding...' : 'Confirm add'}
               </Button>
             </div>
           </Card>
