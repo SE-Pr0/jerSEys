@@ -97,11 +97,25 @@ const sortSizes = (sizes) =>
 
 const rawCatalog = [...footballKits, ...basketballJerseys];
 
+const withSearchText = (product) => ({
+  ...product,
+  searchText: [
+    product.name,
+    product.team,
+    product.description,
+    product.category,
+    product.sport,
+    product.sizes.join(' '),
+  ]
+    .join(' ')
+    .toLowerCase(),
+});
+
 const fallbackCatalog = rawCatalog.map((kit, index) => {
   const category = isNationalTeam(kit) ? 'national' : 'club';
   const sizes = sortSizes(kit.sizes);
 
-  return {
+  return withSearchText({
     id: `${slugify(kit.team)}-${slugify(kit.name)}-${index}`,
     backendId: null,
     name: kit.name,
@@ -120,24 +134,10 @@ const fallbackCatalog = rawCatalog.map((kit, index) => {
     inStock: sizes.length > 0,
     stock: sizes.length > 0 ? sizes.length : 0,
     images: [],
-  };
+  });
 });
 
 let productCache = [...fallbackCatalog];
-
-const withSearchText = (product) => ({
-  ...product,
-  searchText: [
-    product.name,
-    product.team,
-    product.description,
-    product.category,
-    product.sport,
-    product.sizes.join(' '),
-  ]
-    .join(' ')
-    .toLowerCase(),
-});
 
 const resolveProductCategory = (product) => {
   const normalizedCategory = (product?.category || '').toLowerCase().trim();
