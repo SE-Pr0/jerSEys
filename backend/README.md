@@ -533,6 +533,113 @@ Example:
 DELETE /api/custom-jerseys/1
 ```
 
+## Admin API
+
+All admin routes are available under `http://localhost:5000/api/admin`.
+
+These routes are protected and require a Bearer token for a logged-in admin user.
+
+### `GET /api/admin/dashboard`
+
+Returns system dashboard totals:
+
+- `total_users`
+- `total_products`
+- `total_orders`
+- `total_sales`
+
+Example:
+
+```http
+GET /api/admin/dashboard
+```
+
+### `GET /api/admin/users`
+
+Returns all users without password hashes.
+
+Example:
+
+```http
+GET /api/admin/users
+```
+
+### `DELETE /api/admin/users/:id`
+
+Deletes one user by ID.
+
+Behavior:
+
+- Prevents an admin from deleting their own account
+
+Example:
+
+```http
+DELETE /api/admin/users/5
+```
+
+### `GET /api/admin/orders`
+
+Returns all orders with user information.
+
+Example:
+
+```http
+GET /api/admin/orders
+```
+
+### `PATCH /api/admin/orders/:id/status`
+
+Updates an order status.
+
+Allowed status values:
+
+- `pending`
+- `completed`
+- `cancelled`
+
+Example body:
+
+```json
+{
+  "status": "completed"
+}
+```
+
+### `GET /api/admin/trades`
+
+Returns all trade listings, including pending, approved, rejected, and closed.
+
+Example:
+
+```http
+GET /api/admin/trades
+```
+
+### `PATCH /api/admin/trades/:id/approve`
+
+Approves one trade listing.
+
+Example:
+
+```http
+PATCH /api/admin/trades/3/approve
+```
+
+No request body is required.
+
+### `PATCH /api/admin/trades/:id/reject`
+
+Rejects one trade listing.
+
+Example:
+
+```http
+PATCH /api/admin/trades/3/reject
+```
+
+No request body is required.
+
 ## Product Migration
 
 If your database already exists from an older schema, run:
