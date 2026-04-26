@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 
 const { pool } = require("../config/db");
-const { sendEmail } = require("../services/emailService");
+const sendEmail = require("../utils/sendEmail");
 const generateToken = require("../utils/generateToken");
 const generateVerificationCode = require("../utils/generateVerificationCode");
 
@@ -152,7 +152,15 @@ const forgotPassword = async (req, res, next) => {
 
     console.log(`Password reset code for ${user.email}: ${code}`);
 
-    await sendEmail(user.email, "Reset your password", `Your reset code is: ${code}`);
+    await sendEmail({
+      to: user.email,
+      subject: "Password Reset Code",
+      html: `
+        <h2>Password Reset Code</h2>
+        <p>Your code is: <b>${code}</b></p>
+        <p>This code expires in 10 minutes.</p>
+      `
+    });
 
     res.status(200).json({
       success: true,

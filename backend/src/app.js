@@ -10,6 +10,7 @@ const tradeRoutes = require("./routes/tradeRoutes");
 const customJerseyRoutes = require("./routes/customJerseyRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const sendEmail = require("./utils/sendEmail");
 const { errorHandler, notFoundHandler } = require("./middleware/errorMiddleware");
 
 const app = express();
@@ -22,6 +23,20 @@ app.use(express.urlencoded({ extended: true, limit: REQUEST_BODY_LIMIT }));
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} ${req.method} ${req.originalUrl}`);
   next();
+});
+
+app.post("/api/test-email", async (req, res) => {
+  try {
+    await sendEmail({
+      to: "supportjerseys@gmail.com",
+      subject: "Test Email",
+      html: "<h2>Email is working</h2>"
+    });
+
+    res.json({ message: "Email sent" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.use("/api/health", healthRoutes);
