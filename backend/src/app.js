@@ -9,6 +9,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const tradeRoutes = require("./routes/tradeRoutes");
 const customJerseyRoutes = require("./routes/customJerseyRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const { errorHandler, notFoundHandler } = require("./middleware/errorMiddleware");
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/trades", tradeRoutes);
 app.use("/api/custom-jerseys", customJerseyRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

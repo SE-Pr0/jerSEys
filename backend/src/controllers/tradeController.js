@@ -181,6 +181,32 @@ const getMyTradeListings = async (req, res, next) => {
   }
 };
 
+const getAdminTradeListings = async (req, res, next) => {
+  try {
+    const includeImageColumn = await hasTradeListingImageColumn();
+    const [rows] = await pool.execute(
+      `${buildListingSelect(includeImageColumn)}
+       ORDER BY
+         CASE
+           WHEN tl.status = 'pending' THEN 0
+           WHEN tl.status = 'approved' THEN 1
+           WHEN tl.status = 'rejected' THEN 2
+           WHEN tl.status = 'closed' THEN 3
+           ELSE 4
+         END,
+         tl.created_at DESC,
+         tl.id DESC`
+    );
+
+    res.status(200).json({
+      success: true,
+      data: rows
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getTradeListingById = async (req, res, next) => {
   try {
     const listingId = parsePositiveInteger(req.params.id, "id");
@@ -362,6 +388,44 @@ const cancelTradeListing = async (req, res, next) => {
   }
 };
 
+const updateAdminTradeListingStatus = async (req, res, next) => {
+  try {
+    const listingId = parsePositiveInteger(req.params.id, "id");
+    const nextStatus = req.params.action === "approve" ? "approved" : "rejected";
+    const listing = await getListingById(pool, listingId);
+
+    if (!listing) {
+      return next(createError("Trade listing not found", 404));
+    }
+
+    if (listing.status === "closed") {
+      return next(createError("Closed listings cannot be moderated", 400));
+    }
+
+    await pool.execute(
+      `UPDATE trade_listings
+       SET status = ?
+       WHERE id = ?`,
+      [nextStatus, listingId]
+    );
+
+    if (nextStatus === "approved") {
+      await createNotification(listing.user_id, "Your trade listing was approved and is now visible in the marketplace.");
+    } else {
+      await createNotification(listing.user_id, "Your trade listing was rejected by admin review.");
+    }
+
+    const updatedListing = await getListingById(pool, listingId);
+
+    res.status(200).json({
+      success: true,
+      data: updatedListing
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const acceptTradeRequest = async (req, res, next) => {
   let connection;
 
@@ -494,11 +558,13 @@ module.exports = {
   createTradeListing,
   getApprovedTradeListings,
   getMyTradeListings,
+  getAdminTradeListings,
   getTradeListingById,
   createTradeRequest,
   getReceivedTradeRequests,
   getSentTradeRequests,
   cancelTradeListing,
+  updateAdminTradeListingStatus,
   acceptTradeRequest,
   rejectTradeRequest
 };

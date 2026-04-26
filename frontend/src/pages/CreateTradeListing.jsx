@@ -136,7 +136,7 @@ const CreateTradeListing = () => {
               <span>Created!</span>
             </>
           }
-          description="Your jersey is now live on the marketplace. Other traders can browse it and send you offers."
+          description="Your jersey has been submitted for admin review and will appear in the marketplace once it is approved."
         />
 
         <Card>
@@ -146,7 +146,7 @@ const CreateTradeListing = () => {
               <strong>{form.jerseyName || 'Your jersey'}</strong> (Size {form.size || '—'},{' '}
               {form.condition || '—'})
               {form.price && form.listingType !== 'trade' ? ` at $${form.price}` : ''} has been
-              listed. You'll be notified when someone makes an offer or purchase.
+              submitted. You'll be notified after it is reviewed and when someone makes an offer or purchase.
             </p>
           </div>
 
