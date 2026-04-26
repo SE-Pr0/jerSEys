@@ -128,12 +128,21 @@ CREATE TABLE IF NOT EXISTS trade_requests (
 CREATE TABLE IF NOT EXISTS custom_jerseys (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,
+  name VARCHAR(150) NOT NULL,
+  base_product_id INT UNSIGNED NULL,
   design_data JSON NOT NULL,
+  price DECIMAL(10, 2) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_custom_jerseys_user_id (user_id),
+  INDEX idx_custom_jerseys_base_product_id (base_product_id),
   CONSTRAINT fk_custom_jerseys_user
     FOREIGN KEY (user_id) REFERENCES users(id)
     ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_custom_jerseys_base_product
+    FOREIGN KEY (base_product_id) REFERENCES products(id)
+    ON DELETE SET NULL
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

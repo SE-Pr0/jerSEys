@@ -439,12 +439,114 @@ PATCH /api/trades/request/7/reject
 
 No request body is required.
 
+## Custom Jerseys API
+
+All custom jersey routes are available under `http://localhost:5000/api/custom-jerseys`.
+
+These routes are protected and require a Bearer token for a logged-in user.
+
+### `POST /api/custom-jerseys`
+
+Creates a saved custom jersey design for the logged-in user.
+
+Behavior:
+
+- Saves `user_id` from the logged-in user
+- Accepts `name` and `design_data` as required fields
+- Accepts `base_product_id` and `price` as optional fields
+- Stores `design_data` as JSON
+- Verifies the base product exists when `base_product_id` is provided
+
+Example body:
+
+```json
+{
+  "name": "Bulls Red Home Remix",
+  "base_product_id": 12,
+  "design_data": {
+    "teamName": "Bulls",
+    "playerName": "KAREEM",
+    "playerNumber": "23",
+    "primaryColor": "#CE1141",
+    "secondaryColor": "#000000",
+    "patches": ["captain"]
+  },
+  "price": 94.99
+}
+```
+
+### `GET /api/custom-jerseys`
+
+Returns all saved custom jerseys for the current logged-in user, sorted by most recently updated.
+
+Example:
+
+```http
+GET /api/custom-jerseys
+```
+
+### `GET /api/custom-jerseys/:id`
+
+Returns one saved custom jersey owned by the current logged-in user.
+
+Example:
+
+```http
+GET /api/custom-jerseys/1
+```
+
+### `PUT /api/custom-jerseys/:id`
+
+Updates one saved custom jersey owned by the current logged-in user.
+
+You can send one or more of these fields:
+
+- `name`
+- `base_product_id`
+- `design_data`
+- `price`
+
+Example body:
+
+```json
+{
+  "name": "Bulls Black City Edition Remix",
+  "design_data": {
+    "teamName": "Bulls",
+    "playerName": "KAREEM",
+    "playerNumber": "45",
+    "primaryColor": "#111111",
+    "secondaryColor": "#CE1141",
+    "patches": ["finals", "captain"]
+  },
+  "price": 99.99
+}
+```
+
+### `DELETE /api/custom-jerseys/:id`
+
+Deletes one saved custom jersey owned by the current logged-in user.
+
+Example:
+
+```http
+DELETE /api/custom-jerseys/1
+```
+
 ## Product Migration
 
 If your database already exists from an older schema, run:
 
 ```bash
 mysql -u your_user -p < database/product_migration.sql
+```
+
+## Custom Jerseys Migration
+
+If your database already exists from an older schema, run:
+
+```bash
+mysql -u your_user -p < database/custom_jerseys_migration.sql
 ```
 
 ## Trade Listing Status Update

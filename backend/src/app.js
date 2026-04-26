@@ -7,6 +7,7 @@ const productRoutes = require("./routes/productRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const tradeRoutes = require("./routes/tradeRoutes");
+const customJerseyRoutes = require("./routes/customJerseyRoutes");
 const { errorHandler, notFoundHandler } = require("./middleware/errorMiddleware");
 
 const app = express();
@@ -25,6 +26,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/trades", tradeRoutes);
+app.use("/api/custom-jerseys", customJerseyRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
