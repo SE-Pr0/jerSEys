@@ -33,16 +33,26 @@ const NATIONAL_TEAM_NAMES = new Set([
 
 const SPECIAL_DROP_PATTERN = /goalkeeper|limited|special|night edition|long sleeve|reissue|slam jam|bape|dragon|anime|legends/i;
 const YEAR_PATTERN = /\b(19|20)\d{2}(?:\/\d{2,4})?\b/;
+const AVAILABLE_SIZES_PATTERN = /available sizes:\s*([^.;]+)/i;
+const SIZE_TOKEN_PATTERN = /\b(?:XS|S|M|L|XL|XXL|XXXL|2XL|3XL|4XL|5XL|XSMALL|SMALL|MEDIUM|LARGE|XLARGE|EXTRA LARGE|EXTRA EXTRA LARGE|EXTRA EXTRA EXTRA LARGE|\d{1,2}(?:-\d{1,2})?)\b/gi;
 const sizeSortOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
 
 const normalizeSize = (size) => {
   const normalizedSizes = {
+    XSmall: 'XS',
     Small: 'S',
     Medium: 'M',
     Large: 'L',
+    XLarge: 'XL',
+    'Extra Large': 'XL',
+    XXL: 'XXL',
+    '2XL': 'XXL',
+    XXXL: '3XL',
+    'Extra Extra Large': 'XXL',
+    'Extra Extra Extra Large': '3XL',
   };
 
-  return normalizedSizes[size] || size;
+  return normalizedSizes[String(size || '').trim()] || String(size || '').trim().toUpperCase();
 };
 
 const slugify = (value) =>
@@ -95,6 +105,51 @@ const sortSizes = (sizes) =>
     return leftIndex - rightIndex;
   });
 
+const splitSizeText = (value) =>
+  String(value || '')
+    .split(/[,/|]+/)
+    .map((size) => size.trim())
+    .filter(Boolean);
+
+const extractSizeTokens = (value) => String(value || '').match(SIZE_TOKEN_PATTERN) || [];
+
+const extractSizesFromDescription = (description) => {
+  const match = String(description || '').match(AVAILABLE_SIZES_PATTERN);
+  return match ? splitSizeText(match[1]) : [];
+};
+
+const resolveSizes = (product) => {
+  if (Array.isArray(product?.sizes) && product.sizes.length > 0) {
+    return sortSizes(product.sizes);
+  }
+
+  const scalarSources = [
+    product?.size,
+    product?.sizes_text,
+    product?.size_text,
+    product?.variant_size,
+  ];
+
+  for (const source of scalarSources) {
+    if (typeof source === 'string' && source.trim()) {
+      const parsedSizes = sortSizes([
+        ...splitSizeText(source),
+        ...extractSizeTokens(source),
+      ]);
+      if (parsedSizes.length > 0) {
+        return parsedSizes;
+      }
+    }
+  }
+
+  const descriptionSizes = sortSizes(extractSizesFromDescription(product?.description));
+  if (descriptionSizes.length > 0) {
+    return descriptionSizes;
+  }
+
+  return [];
+};
+
 const rawCatalog = [...footballKits, ...basketballJerseys];
 
 const withSearchText = (product) => ({
@@ -113,7 +168,7 @@ const withSearchText = (product) => ({
 
 const fallbackCatalog = rawCatalog.map((kit, index) => {
   const category = isNationalTeam(kit) ? 'national' : 'club';
-  const sizes = sortSizes(kit.sizes);
+  const sizes = resolveSizes(kit);
 
   return withSearchText({
     id: `${slugify(kit.team)}-${slugify(kit.name)}-${index}`,
@@ -158,13 +213,7 @@ const resolveProductCategory = (product) => {
 const mapBackendProduct = (product, index = 0) => {
   const sport = (product?.sport || '').toLowerCase() === 'basketball' ? 'basketball' : 'football';
   const category = resolveProductCategory(product);
-  const sizes = sortSizes(
-    typeof product?.size === 'string'
-      ? product.size.split(/[,\s/]+/)
-      : Array.isArray(product?.sizes)
-        ? product.sizes
-        : [],
-  );
+  const sizes = resolveSizes(product);
   const image = product?.image_url || product?.images?.find((item) => item?.is_primary)?.image_url || product?.images?.[0]?.image_url || '';
   const stock = Number(product?.stock) || 0;
 
