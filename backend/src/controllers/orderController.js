@@ -1,4 +1,5 @@
 const { pool } = require("../config/db");
+const createNotification = require("../utils/createNotification");
 
 const createError = (message, statusCode) => {
   const error = new Error(message);
@@ -116,6 +117,7 @@ const createOrder = async (req, res, next) => {
     );
 
     await connection.commit();
+    await createNotification(req.user.id, "Your order has been placed successfully.");
 
     const order = await getOrderByIdForUser(pool, orderResult.insertId, req.user.id);
 

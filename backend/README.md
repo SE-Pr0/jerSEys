@@ -304,6 +304,10 @@ PATCH /api/orders/1/cancel
 
 No request body is required.
 
+Successful order placement also creates a notification for the buyer:
+
+- `Your order has been placed successfully.`
+
 ## Trade Marketplace API
 
 All trade marketplace routes are available under `http://localhost:5000/api/trades`.
@@ -379,6 +383,7 @@ Behavior:
 
 - Prevents requesting your own listing
 - Prevents duplicate pending requests from the same user
+- Notifies the listing owner about the new offer
 
 Example:
 
@@ -418,6 +423,8 @@ Behavior:
 - Marks the selected request as `accepted`
 - Marks the listing as `closed`
 - Rejects any other pending requests for that listing
+- Notifies the accepted requester
+- Notifies any other requesters whose pending offers were auto-rejected
 
 Example:
 
@@ -430,6 +437,11 @@ No request body is required.
 ### `PATCH /api/trades/request/:requestId/reject`
 
 Rejects one pending trade request if the logged-in user owns the listing.
+
+Behavior:
+
+- Only the listing owner can reject
+- Notifies the requester that the trade request was rejected
 
 Example:
 
@@ -531,6 +543,52 @@ Example:
 
 ```http
 DELETE /api/custom-jerseys/1
+```
+
+## Notifications API
+
+All notification routes are available under `http://localhost:5000/api/notifications`.
+
+These routes are protected and require a Bearer token for a logged-in user.
+
+### `GET /api/notifications`
+
+Returns the current logged-in user's notifications sorted newest first.
+
+Example:
+
+```http
+GET /api/notifications
+```
+
+### `PATCH /api/notifications/:id/read`
+
+Marks one notification as read if it belongs to the logged-in user.
+
+Example:
+
+```http
+PATCH /api/notifications/5/read
+```
+
+### `PATCH /api/notifications/read-all`
+
+Marks all notifications as read for the logged-in user.
+
+Example:
+
+```http
+PATCH /api/notifications/read-all
+```
+
+### `DELETE /api/notifications/:id`
+
+Deletes one notification if it belongs to the logged-in user.
+
+Example:
+
+```http
+DELETE /api/notifications/5
 ```
 
 ## Product Migration

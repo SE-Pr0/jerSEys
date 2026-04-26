@@ -1,4 +1,5 @@
 const { pool } = require("../config/db");
+const createNotification = require("../utils/createNotification");
 
 const createError = (message, statusCode) => {
   const error = new Error(message);
@@ -210,6 +211,7 @@ const createTradeRequest = async (req, res, next) => {
     );
 
     const tradeRequest = await getTradeRequestById(pool, result.insertId);
+    await createNotification(listing.user_id, "You received a new trade offer.");
 
     res.status(201).json({
       success: true,
@@ -291,6 +293,13 @@ const acceptTradeRequest = async (req, res, next) => {
       throw createError("Only approved listings can accept trade requests", 400);
     }
 
+    const [pendingRequestsToReject] = await connection.execute(
+      `SELECT sender_id
+       FROM trade_requests
+       WHERE listing_id = ? AND id <> ? AND status = 'pending'`,
+      [tradeRequest.listing_id, requestId]
+    );
+
     await connection.execute(
       `UPDATE trade_requests
        SET status = 'accepted'
@@ -313,6 +322,12 @@ const acceptTradeRequest = async (req, res, next) => {
     );
 
     await connection.commit();
+
+    await createNotification(tradeRequest.sender_id, "Your trade request was accepted.");
+
+    for (const rejectedRequest of pendingRequestsToReject) {
+      await createNotification(rejectedRequest.sender_id, "Your trade request was rejected.");
+    }
 
     const updatedRequest = await getTradeRequestById(pool, requestId);
 
@@ -356,6 +371,8 @@ const rejectTradeRequest = async (req, res, next) => {
        WHERE id = ?`,
       [requestId]
     );
+
+    await createNotification(tradeRequest.sender_id, "Your trade request was rejected.");
 
     const updatedRequest = await getTradeRequestById(pool, requestId);
 
