@@ -35,6 +35,7 @@ const SPECIAL_DROP_PATTERN = /goalkeeper|limited|special|night edition|long slee
 const YEAR_PATTERN = /\b(19|20)\d{2}(?:\/\d{2,4})?\b/;
 const AVAILABLE_SIZES_PATTERN = /available sizes:\s*([^.;]+)/i;
 const SIZE_TOKEN_PATTERN = /\b(?:XS|S|M|L|XL|XXL|XXXL|2XL|3XL|4XL|5XL|XSMALL|SMALL|MEDIUM|LARGE|XLARGE|EXTRA LARGE|EXTRA EXTRA LARGE|EXTRA EXTRA EXTRA LARGE|\d{1,2}(?:-\d{1,2})?)\b/gi;
+const DEFAULT_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 const sizeSortOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
 
 const normalizeSize = (size) => {
@@ -147,7 +148,7 @@ const resolveSizes = (product) => {
     return descriptionSizes;
   }
 
-  return [];
+  return DEFAULT_SIZES;
 };
 
 const rawCatalog = [...footballKits, ...basketballJerseys];
