@@ -8,6 +8,8 @@ import { fetchProductById, getRelatedShopProducts } from '../services/productSer
 import { getStoredUser } from '../utils/auth';
 import '../styles/product-details.css';
 
+const DEFAULT_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+
 const formatPrice = (value) =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -55,6 +57,10 @@ const ProductDetails = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const relatedProducts = useMemo(() => getRelatedShopProducts(productId, 4), [productId]);
+  const availableSizes = useMemo(
+    () => (Array.isArray(product?.sizes) && product.sizes.length > 0 ? product.sizes : DEFAULT_SIZES),
+    [product],
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -89,13 +95,13 @@ const ProductDetails = () => {
   }, [productId]);
 
   useEffect(() => {
-    setSelectedSize(product?.sizes?.[0] || '');
+    setSelectedSize(availableSizes[0] || '');
     setQuantity(1);
     setPersonalize(false);
     setPlayerName('');
     setPlayerNumber('');
     setNotice('');
-  }, [product]);
+  }, [availableSizes, product]);
 
   if (isLoading) {
     return (
@@ -130,7 +136,7 @@ const ProductDetails = () => {
       return;
     }
 
-    if (!selectedSize && product.sizes.length > 0) {
+    if (!selectedSize && availableSizes.length > 0) {
       setNotice('Choose a size first.');
       return;
     }
@@ -212,20 +218,16 @@ const ProductDetails = () => {
               </div>
 
               <div className="product-details-size-grid">
-                {product.sizes.length > 0 ? (
-                  product.sizes.map((size) => (
-                    <button
-                      key={size}
-                      type="button"
-                      className={`product-details-size${selectedSize === size ? ' is-selected' : ''}`}
-                      onClick={() => setSelectedSize(size)}
-                    >
-                      {size}
-                    </button>
-                  ))
-                ) : (
-                  <span className="product-details-unavailable">No sizes listed right now.</span>
-                )}
+                {availableSizes.map((size) => (
+                  <button
+                    key={size}
+                    type="button"
+                    className={`product-details-size${selectedSize === size ? ' is-selected' : ''}`}
+                    onClick={() => setSelectedSize(size)}
+                  >
+                    {size}
+                  </button>
+                ))}
               </div>
 
               <div className="product-details-personalize">
