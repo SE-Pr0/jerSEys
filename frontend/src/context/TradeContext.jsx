@@ -22,6 +22,7 @@ import { getStoredUser } from '../utils/auth';
 const TradeContext = createContext(null);
 
 const tradeAvatarColor = '#1B3B8A';
+const TRADE_CHANGE_EVENT = 'jerseys-trades-change';
 
 const formatDate = (value) => {
   if (!value) {
@@ -179,9 +180,16 @@ export const TradeProvider = ({ children }) => {
     const handleAuthChange = () => {
       refreshTrades();
     };
+    const handleTradeChange = () => {
+      refreshTrades();
+    };
 
     window.addEventListener('jerseys-auth-change', handleAuthChange);
-    return () => window.removeEventListener('jerseys-auth-change', handleAuthChange);
+    window.addEventListener(TRADE_CHANGE_EVENT, handleTradeChange);
+    return () => {
+      window.removeEventListener('jerseys-auth-change', handleAuthChange);
+      window.removeEventListener(TRADE_CHANGE_EVENT, handleTradeChange);
+    };
   }, [refreshTrades]);
 
   const addListing = useCallback(async (formData) => {
@@ -203,6 +211,7 @@ export const TradeProvider = ({ children }) => {
 
     const nextListing = toListing(createdTrade);
     setListings((currentListings) => [nextListing, ...currentListings]);
+    window.dispatchEvent(new Event(TRADE_CHANGE_EVENT));
     return nextListing.id;
   }, []);
 
@@ -223,6 +232,7 @@ export const TradeProvider = ({ children }) => {
     setRequests((currentRequests) =>
       currentRequests.filter((request) => request.listingId !== String(listingId)),
     );
+    window.dispatchEvent(new Event(TRADE_CHANGE_EVENT));
   }, []);
 
   const respondToRequest = useCallback(async (requestId, response) => {
@@ -246,6 +256,8 @@ export const TradeProvider = ({ children }) => {
             : listing),
       );
     }
+
+    window.dispatchEvent(new Event(TRADE_CHANGE_EVENT));
   }, []);
 
   const value = useMemo(() => ({

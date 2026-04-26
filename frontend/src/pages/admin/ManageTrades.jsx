@@ -207,6 +207,7 @@ const ManageTrades = () => {
       setTradeRecords((currentTrades) =>
         currentTrades.map((trade) => (trade.id === tradeId ? nextRecord : trade)),
       );
+      window.dispatchEvent(new Event('jerseys-trades-change'));
     } catch (error) {
       setActionError(error.message || `Failed to ${nextStatus} listing.`);
     } finally {

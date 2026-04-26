@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import SearchBar from '../components/SearchBar';
 import { Button, Card, PageHeader, PageShell, StateBlock } from '../components/ui';
 import TradeCard from '../components/TradeCard';
@@ -14,10 +14,14 @@ const LISTING_TYPES = [
 ];
 
 const TradeMarketplace = () => {
-  const { listings: TRADE_LISTINGS, isLoading, error } = useTrade();
+  const { listings: TRADE_LISTINGS, isLoading, error, refreshTrades } = useTrade();
   const [sport, setSport] = useState('All');
   const [listingType, setListingType] = useState('all');
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    refreshTrades();
+  }, [refreshTrades]);
 
   const filtered = useMemo(() => {
     return TRADE_LISTINGS.filter((item) => {
