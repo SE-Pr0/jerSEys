@@ -44,7 +44,7 @@ const TradeMarketplace = () => {
         item.seller.name.toLowerCase().includes(q);
       return matchSport && matchListingType && matchSearch;
     });
-  }, [sport, listingType, search]);
+  }, [TRADE_LISTINGS, sport, listingType, search]);
 
   const clearFilters = () => {
     setSport('All');
