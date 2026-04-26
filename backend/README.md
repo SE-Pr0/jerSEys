@@ -304,10 +304,154 @@ PATCH /api/orders/1/cancel
 
 No request body is required.
 
+## Trade Marketplace API
+
+All trade marketplace routes are available under `http://localhost:5000/api/trades`.
+
+Public routes:
+
+- `GET /api/trades`
+- `GET /api/trades/:id`
+
+Protected routes require a Bearer token for a logged-in user:
+
+- `POST /api/trades`
+- `GET /api/trades/my-listings`
+- `POST /api/trades/:id/request`
+- `GET /api/trades/requests/received`
+- `GET /api/trades/requests/sent`
+- `PATCH /api/trades/request/:requestId/accept`
+- `PATCH /api/trades/request/:requestId/reject`
+
+### `POST /api/trades`
+
+Creates a trade listing for the logged-in user.
+
+Behavior:
+
+- Saves `user_id` from the logged-in user
+- Saves the listing with status `pending`
+
+Example body:
+
+```json
+{
+  "title": "Swap my Lakers jersey",
+  "description": "Looking to trade a size L Lakers jersey for a Bulls jersey in good condition."
+}
+```
+
+### `GET /api/trades`
+
+Returns all approved trade listings with owner information, sorted newest first.
+
+Example:
+
+```http
+GET /api/trades
+```
+
+### `GET /api/trades/my-listings`
+
+Returns all trade listings created by the logged-in user, sorted newest first.
+
+Example:
+
+```http
+GET /api/trades/my-listings
+```
+
+### `GET /api/trades/:id`
+
+Returns one approved trade listing by ID with owner information.
+
+Example:
+
+```http
+GET /api/trades/3
+```
+
+### `POST /api/trades/:id/request`
+
+Sends a trade request for an approved listing.
+
+Behavior:
+
+- Prevents requesting your own listing
+- Prevents duplicate pending requests from the same user
+
+Example:
+
+```http
+POST /api/trades/3/request
+```
+
+No request body is required.
+
+### `GET /api/trades/requests/received`
+
+Returns all trade requests received on the logged-in user's listings.
+
+Example:
+
+```http
+GET /api/trades/requests/received
+```
+
+### `GET /api/trades/requests/sent`
+
+Returns all trade requests sent by the logged-in user.
+
+Example:
+
+```http
+GET /api/trades/requests/sent
+```
+
+### `PATCH /api/trades/request/:requestId/accept`
+
+Accepts one pending trade request if the logged-in user owns the listing.
+
+Behavior:
+
+- Only the listing owner can accept
+- Marks the selected request as `accepted`
+- Marks the listing as `closed`
+- Rejects any other pending requests for that listing
+
+Example:
+
+```http
+PATCH /api/trades/request/7/accept
+```
+
+No request body is required.
+
+### `PATCH /api/trades/request/:requestId/reject`
+
+Rejects one pending trade request if the logged-in user owns the listing.
+
+Example:
+
+```http
+PATCH /api/trades/request/7/reject
+```
+
+No request body is required.
+
 ## Product Migration
 
 If your database already exists from an older schema, run:
 
 ```bash
 mysql -u your_user -p < database/product_migration.sql
+```
+
+## Trade Listing Status Update
+
+If your database already exists, update the `trade_listings.status` enum to support closed listings:
+
+```sql
+ALTER TABLE trade_listings
+MODIFY COLUMN status ENUM('pending', 'approved', 'rejected', 'closed') NOT NULL DEFAULT 'pending';
 ```
