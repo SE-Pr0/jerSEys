@@ -3,6 +3,7 @@ import { getStoredToken } from '../utils/auth';
 import { getShopProductById } from './productService';
 
 const LOCAL_CART_STORAGE_KEY = 'jerseys-local-cart';
+const REMOTE_CART_SIZE_STORAGE_KEY = 'jerseys-remote-cart-sizes';
 const CART_EVENT_NAME = 'jerseys-cart-change';
 
 const parseJson = (rawValue) => {
@@ -33,6 +34,45 @@ const dispatchCartChange = () => {
   }
 };
 
+const readRemoteCartSizes = () => {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
+  const parsed = parseJson(window.localStorage.getItem(REMOTE_CART_SIZE_STORAGE_KEY));
+  return parsed && typeof parsed === 'object' ? parsed : {};
+};
+
+const writeRemoteCartSizes = (sizesByProductId) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const entries = Object.entries(sizesByProductId || {}).filter(([, value]) => typeof value === 'string' && value.trim());
+
+  if (entries.length > 0) {
+    window.localStorage.setItem(REMOTE_CART_SIZE_STORAGE_KEY, JSON.stringify(Object.fromEntries(entries)));
+  } else {
+    window.localStorage.removeItem(REMOTE_CART_SIZE_STORAGE_KEY);
+  }
+};
+
+const persistRemoteCartSize = (productId, size) => {
+  const normalizedProductId = String(productId || '').trim();
+  const normalizedSize = String(size || '').trim();
+
+  if (!normalizedProductId || !normalizedSize) {
+    return;
+  }
+
+  const nextSizes = {
+    ...readRemoteCartSizes(),
+    [normalizedProductId]: normalizedSize,
+  };
+
+  writeRemoteCartSizes(nextSizes);
+};
+
 const getProductMetadata = (productId) => {
   if (!productId) {
     return null;
@@ -43,9 +83,15 @@ const getProductMetadata = (productId) => {
 
 const normalizeApiCartItem = (item) => {
   const product = getProductMetadata(item?.product_id);
+  const remoteCartSizes = readRemoteCartSizes();
   const unitPrice = Number(item?.price ?? product?.price ?? 0);
   const quantityValue = Number(item?.quantity ?? 1);
   const quantity = Number.isFinite(quantityValue) && quantityValue > 0 ? Math.round(quantityValue) : 1;
+  const size = firstText(
+    item?.size,
+    remoteCartSizes[String(item?.product_id ?? '')],
+    product?.sizes?.[0],
+  );
 
   return {
     cartSource: 'api',
@@ -65,8 +111,8 @@ const normalizeApiCartItem = (item) => {
     unitPrice,
     quantity,
     stock: Number(item?.stock ?? product?.stock ?? 0),
-    size: '',
-    selectedSize: '',
+    size,
+    selectedSize: size,
     product,
   };
 };
@@ -160,6 +206,7 @@ export const getCombinedCart = async () => {
 export const addCartItem = async ({
   productId,
   quantity = 1,
+  selectedSize = '',
 }) => {
   const payload = await apiRequest('/cart', {
     method: 'POST',
@@ -169,6 +216,8 @@ export const addCartItem = async ({
       quantity,
     },
   });
+
+  persistRemoteCartSize(productId, selectedSize);
 
   dispatchCartChange();
   return normalizeApiCartItem(payload?.data || {});
@@ -206,6 +255,8 @@ export const clearRemoteCart = async () => {
     method: 'DELETE',
     token,
   });
+
+  writeRemoteCartSizes({});
 
   dispatchCartChange();
   return payload?.data;
