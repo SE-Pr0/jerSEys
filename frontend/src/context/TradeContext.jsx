@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import {
   acceptTradeRequest,
+  cancelTradeListing,
   createTrade,
   getMyTradeListings,
   getReceivedTradeRequests,
@@ -76,7 +77,7 @@ const toListing = (trade) => {
 
   return {
     id: String(trade.id),
-    image: '',
+    image: trade.image_url || '',
     jerseyName: jerseyName || trade.title || 'Trade listing',
     club,
     size: 'N/A',
@@ -92,7 +93,11 @@ const toListing = (trade) => {
       initial: (trade.owner_name || 'T').charAt(0).toUpperCase(),
       color: tradeAvatarColor,
     },
-    status: trade.status === 'closed' ? 'pending' : trade.status,
+    status: trade.status === 'approved'
+      ? 'available'
+      : trade.status === 'closed'
+        ? 'pending'
+        : trade.status,
     listingType,
     price: null,
     listedDate: formatDate(trade.created_at),
@@ -109,7 +114,7 @@ const toRequest = (request, direction) => ({
   listing: {
     jerseyName: request.listing_title || 'Trade listing',
     owner: request.listing_owner_name || 'Trader',
-    image: '',
+    image: request.listing_image_url || '',
     description: request.listing_description || '',
     size: '',
     condition: '',
@@ -193,6 +198,7 @@ export const TradeProvider = ({ children }) => {
     const createdTrade = await createTrade({
       title,
       description: descriptionParts.join(' | '),
+      image_url: formData.imageDataUrl || formData.imageUrl || '',
     });
 
     const nextListing = toListing(createdTrade);
@@ -205,6 +211,18 @@ export const TradeProvider = ({ children }) => {
     const nextRequest = toRequest(createdRequest, 'outgoing');
     setRequests((currentRequests) => [nextRequest, ...currentRequests]);
     return true;
+  }, []);
+
+  const removeListing = useCallback(async (listingId) => {
+    await cancelTradeListing(listingId);
+
+    setListings((currentListings) =>
+      currentListings.filter((listing) => listing.id !== String(listingId)),
+    );
+
+    setRequests((currentRequests) =>
+      currentRequests.filter((request) => request.listingId !== String(listingId)),
+    );
   }, []);
 
   const respondToRequest = useCallback(async (requestId, response) => {
@@ -238,8 +256,9 @@ export const TradeProvider = ({ children }) => {
     refreshTrades,
     addListing,
     addRequest,
+    removeListing,
     respondToRequest,
-  }), [addListing, addRequest, error, isLoading, listings, refreshTrades, requests, respondToRequest]);
+  }), [addListing, addRequest, error, isLoading, listings, refreshTrades, removeListing, requests, respondToRequest]);
 
   return (
     <TradeContext.Provider value={value}>

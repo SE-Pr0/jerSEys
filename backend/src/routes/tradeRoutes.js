@@ -8,6 +8,7 @@ const {
   createTradeRequest,
   getReceivedTradeRequests,
   getSentTradeRequests,
+  cancelTradeListing,
   acceptTradeRequest,
   rejectTradeRequest
 } = require("../controllers/tradeController");
@@ -21,6 +22,7 @@ router.get("/requests/received", protect, getReceivedTradeRequests);
 router.get("/requests/sent", protect, getSentTradeRequests);
 router.get("/:id", getTradeListingById);
 router.post("/", protect, createTradeListing);
+router.delete("/:id", protect, cancelTradeListing);
 router.post("/:id/request", protect, createTradeRequest);
 router.patch("/request/:requestId/accept", protect, acceptTradeRequest);
 router.patch("/request/:requestId/reject", protect, rejectTradeRequest);

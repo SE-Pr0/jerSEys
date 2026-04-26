@@ -5,7 +5,7 @@ import { useTrade } from '../context/TradeContext';
 import { getStoredUser } from '../utils/auth';
 import '../styles/trade.css';
 
-const CART_STORAGE_KEY = 'jerseys-cart';
+const CART_STORAGE_KEY = 'jerseys-local-cart';
 const CART_EVENT_NAME = 'jerseys-cart-change';
 
 const readStoredCart = () => {

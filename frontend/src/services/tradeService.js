@@ -11,11 +11,11 @@ export const getTradeById = async (tradeId) => {
   return payload?.data;
 };
 
-export const createTrade = async ({ title, description }) => {
+export const createTrade = async ({ title, description, image_url }) => {
   const payload = await apiRequest('/trades', {
     method: 'POST',
     token: getStoredToken(),
-    body: { title, description },
+    body: { title, description, image_url },
   });
 
   return payload?.data;
@@ -27,6 +27,15 @@ export const getMyTradeListings = async () => {
   });
 
   return Array.isArray(payload?.data) ? payload.data : [];
+};
+
+export const cancelTradeListing = async (tradeId) => {
+  const payload = await apiRequest(`/trades/${tradeId}`, {
+    method: 'DELETE',
+    token: getStoredToken(),
+  });
+
+  return payload?.data;
 };
 
 export const requestTrade = async (tradeId) => {
@@ -71,4 +80,3 @@ export const rejectTradeRequest = async (requestId) => {
 
   return payload?.data;
 };
-

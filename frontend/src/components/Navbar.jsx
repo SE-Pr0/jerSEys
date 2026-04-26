@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import '../styles/navbar.css';
-import { readLocalCartItems } from '../services/cartService';
+import { getCombinedCart } from '../services/cartService';
 import { logoutUser } from '../services/authService';
 import { getStoredUser, isAdminUser } from '../utils/auth';
-
-const readCartItemCount = () => {
-  const localItems = readLocalCartItems();
-  return localItems.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
-};
 
 const Navbar = () => {
   const location = useLocation();
@@ -25,8 +20,9 @@ const Navbar = () => {
       setUser(getStoredUser());
     };
 
-    const syncCart = () => {
-      setCartCount(readCartItemCount());
+    const syncCart = async () => {
+      const items = await getCombinedCart().catch(() => []);
+      setCartCount(items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0));
     };
 
     syncCart();

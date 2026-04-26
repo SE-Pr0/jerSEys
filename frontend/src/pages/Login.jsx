@@ -9,6 +9,7 @@ import {
 } from '../components/ui';
 import '../styles/auth.css';
 import { loginUser } from '../services/authService';
+import { isAdminUser } from '../utils/auth';
 
 const initialValues = {
   identity: '',
@@ -93,13 +94,13 @@ const Login = () => {
     setSubmitError('');
 
     try {
-      await loginUser({
+      const result = await loginUser({
         identity: values.identity,
         password: values.password,
       });
 
       const returnPath = typeof location.state?.from === 'string' ? location.state.from : null;
-      navigate(returnPath || '/shop');
+      navigate(returnPath || (isAdminUser(result?.user) ? '/admin' : '/shop'));
     } catch (error) {
       setSubmitError(error.message || 'Login failed.');
     } finally {

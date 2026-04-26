@@ -11,6 +11,7 @@ import { getStoredToken } from './utils/auth';
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -21,13 +22,32 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (!getStoredToken()) {
-      return;
-    }
+    let isActive = true;
 
-    getCurrentUser().catch(() => {
-      logoutUser();
-    });
+    const hydrateAuth = async () => {
+      if (!getStoredToken()) {
+        if (isActive) {
+          setIsAuthReady(true);
+        }
+        return;
+      }
+
+      try {
+        await getCurrentUser();
+      } catch {
+        logoutUser();
+      } finally {
+        if (isActive) {
+          setIsAuthReady(true);
+        }
+      }
+    };
+
+    hydrateAuth();
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   return (
@@ -38,7 +58,7 @@ const App = () => {
       <BrowserRouter>
         <TradeProvider>
           <ScrollToTop />
-          <Router />
+          {isAuthReady ? <Router /> : null}
         </TradeProvider>
       </BrowserRouter>
     </>

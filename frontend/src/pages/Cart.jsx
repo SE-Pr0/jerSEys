@@ -1,12 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, FormField, StateBlock } from '../components/ui';
-import { clearRemoteCart, removeCartItem, updateCartItem, writeLocalCartItems } from '../services/cartService';
-import { getShopProductById } from '../services/productService';
+import { clearCart as clearAllCart, getCombinedCart, readLocalCartItems, removeCartItem, updateCartItem, writeLocalCartItems } from '../services/cartService';
 import './Cart.css';
 
-const CART_STORAGE_KEYS = ['jerseys-cart', 'shopping-cart', 'cartItems', 'cart'];
-const PREFERRED_CART_KEY = CART_STORAGE_KEYS[0];
 const SHIPPING_FEE = 12.95;
 const FREE_SHIPPING_THRESHOLD = 150;
 const TAX_RATE = 0.085;
@@ -20,38 +17,6 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 });
 
 const formatPrice = (value) => currencyFormatter.format(Number.isFinite(value) ? value : 0);
-
-const parseJson = (rawValue) => {
-  if (!rawValue) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(rawValue);
-  } catch {
-    return null;
-  }
-};
-
-const asArray = (value) => {
-  if (Array.isArray(value)) {
-    return value;
-  }
-
-  if (value && Array.isArray(value.items)) {
-    return value.items;
-  }
-
-  if (value && Array.isArray(value.cartItems)) {
-    return value.cartItems;
-  }
-
-  if (value && Array.isArray(value.lineItems)) {
-    return value.lineItems;
-  }
-
-  return [];
-};
 
 const firstText = (...values) => {
   for (const value of values) {
@@ -136,49 +101,6 @@ const isTradeMarketplaceLineItem = (item) =>
   firstText(item.itemType).toLowerCase() === 'trade-listing'
   || firstText(item.sportLabel).toLowerCase() === 'trade marketplace';
 
-const normalizeStoredItem = (item, index) => {
-  const rawItem = typeof item === 'string' ? { productId: item } : { ...item };
-  const rawId = firstText(rawItem.id, rawItem.productId, rawItem.slug, rawItem.cartKey) || `cart-item-${index + 1}`;
-  const product = getShopProductById(String(rawId)) || getShopProductById(String(rawItem.productId || ''));
-  const quantityValue = Number(rawItem.quantity ?? rawItem.qty ?? rawItem.count ?? 1);
-  const quantity = Number.isFinite(quantityValue) && quantityValue > 0 ? Math.round(quantityValue) : 1;
-  const unitPriceValue = Number(rawItem.price ?? rawItem.unitPrice ?? rawItem.cost ?? product?.price ?? 0);
-  const unitPrice = Number.isFinite(unitPriceValue) && unitPriceValue >= 0 ? unitPriceValue : 0;
-
-  return {
-    ...rawItem,
-    cartKey: rawItem.cartKey || `${rawId}-${index}`,
-    productId: rawItem.productId || rawItem.id || product?.id || '',
-    quantity,
-    unitPrice,
-    name: firstText(rawItem.name, rawItem.title, product?.name, 'Custom jersey'),
-    team: firstText(rawItem.team, rawItem.club, product?.team, 'Jersey'),
-    sportLabel: firstText(rawItem.sportLabel, product?.sportLabel),
-    categoryLabel: firstText(rawItem.categoryLabel, product?.categoryLabel),
-    season: firstText(rawItem.season, product?.season),
-    image: firstText(rawItem.image, rawItem.imageUrl, product?.image),
-    badge: firstText(rawItem.badge, product?.badge),
-    product,
-  };
-};
-
-const readCartFromStorage = () => {
-  if (typeof window === 'undefined') {
-    return [];
-  }
-
-  for (const key of CART_STORAGE_KEYS) {
-    const parsed = parseJson(window.localStorage.getItem(key));
-    const items = asArray(parsed);
-
-    if (items.length > 0) {
-      return items.map((item, index) => normalizeStoredItem(item, index));
-    }
-  }
-
-  return [];
-};
-
 const readStoredCoupon = () => {
   if (typeof window === 'undefined') {
     return '';
@@ -202,10 +124,6 @@ const writeStoredCoupon = (couponCode) => {
   }
 
   window.dispatchEvent(new Event('jerseys-coupon-change'));
-};
-
-const persistCart = (items) => {
-  writeLocalCartItems(items);
 };
 
 const hydrateCustomKitEditor = (item) => {
@@ -283,16 +201,35 @@ const Cart = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const closeTimerRef = useRef(null);
-  const [cartItems, setCartItems] = useState(readCartFromStorage);
+  const [cartItems, setCartItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [promoCode, setPromoCode] = useState(readStoredCoupon);
   const [promoMessage, setPromoMessage] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(readStoredCoupon);
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
+  const loadCart = useCallback(async () => {
+    setLoadError('');
+
+    try {
+      const items = await getCombinedCart();
+      setCartItems(items);
+    } catch (error) {
+      setLoadError(error.message || 'Failed to load cart.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadCart();
+  }, [loadCart]);
+
   useEffect(() => {
     const syncCart = () => {
-      setCartItems(readCartFromStorage());
+      loadCart();
     };
     const syncCoupon = () => {
       const storedCoupon = readStoredCoupon();
@@ -311,11 +248,7 @@ const Cart = () => {
       window.removeEventListener('storage', syncCoupon);
       window.removeEventListener('jerseys-coupon-change', syncCoupon);
     };
-  }, []);
-
-  useEffect(() => {
-    persistCart(cartItems);
-  }, [cartItems]);
+  }, [loadCart]);
 
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => setIsOpen(true));
@@ -332,10 +265,7 @@ const Cart = () => {
     };
   }, []);
 
-  const normalizedItems = useMemo(
-    () => cartItems.map((item, index) => normalizeStoredItem(item, index)),
-    [cartItems],
-  );
+  const normalizedItems = useMemo(() => cartItems, [cartItems]);
 
   const subtotal = useMemo(
     () => normalizedItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
@@ -358,56 +288,50 @@ const Cart = () => {
   const orderTotal = discountedSubtotal + shippingCost + taxCost;
 
   const updateItemQuantity = async (index, nextQuantity) => {
-    const selectedItem = typeof cartItems[index] === 'string'
-      ? { productId: cartItems[index] }
-      : cartItems[index];
+    const selectedItem = cartItems[index];
 
     if (isTradeMarketplaceLineItem(selectedItem)) {
       return;
     }
 
-    if (selectedItem.cartSource === 'api' && selectedItem.itemId) {
+    if (selectedItem?.cartSource === 'api' && selectedItem.itemId) {
       if (nextQuantity <= 0) {
         await removeCartItem(selectedItem.itemId);
       } else {
         await updateCartItem(selectedItem.itemId, nextQuantity);
       }
 
-      setCartItems(readCartFromStorage());
+      await loadCart();
       return;
     }
 
-    setCartItems((currentItems) =>
-      currentItems
-        .map((item, currentIndex) => {
-          if (currentIndex !== index) {
-            return item;
-          }
+    const nextLocalItems = readLocalCartItems()
+      .map((item) => (
+        item.cartKey === selectedItem.cartKey
+          ? { ...item, quantity: nextQuantity }
+          : item
+      ))
+      .filter((item) => {
+        const currentQuantity = Number(item.quantity ?? 1);
+        return Number.isFinite(currentQuantity) && currentQuantity > 0;
+      });
 
-          return {
-            ...(typeof item === 'string' ? { productId: item } : item),
-            quantity: nextQuantity,
-          };
-        })
-        .filter((item) => {
-          const currentQuantity = Number(item.quantity ?? 1);
-          return Number.isFinite(currentQuantity) && currentQuantity > 0;
-        }),
-    );
+    writeLocalCartItems(nextLocalItems);
+    await loadCart();
   };
 
   const removeItem = async (index) => {
-    const selectedItem = typeof cartItems[index] === 'string'
-      ? { productId: cartItems[index] }
-      : cartItems[index];
+    const selectedItem = cartItems[index];
 
-    if (selectedItem.cartSource === 'api' && selectedItem.itemId) {
+    if (selectedItem?.cartSource === 'api' && selectedItem.itemId) {
       await removeCartItem(selectedItem.itemId);
-      setCartItems(readCartFromStorage());
+      await loadCart();
       return;
     }
 
-    setCartItems((currentItems) => currentItems.filter((_, currentIndex) => currentIndex !== index));
+    const nextLocalItems = readLocalCartItems().filter((item) => item.cartKey !== selectedItem.cartKey);
+    writeLocalCartItems(nextLocalItems);
+    await loadCart();
   };
 
   const editCustomKit = (item) => {
@@ -416,14 +340,15 @@ const Cart = () => {
   };
 
   const clearCart = async () => {
-    await clearRemoteCart().catch(() => {});
-    setCartItems([]);
-    setPromoCode('');
-    setPromoMessage('');
-    setAppliedCoupon('');
-    writeStoredCoupon('');
-    if (typeof window !== 'undefined') {
-      CART_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key));
+    try {
+      await clearAllCart();
+      setCartItems([]);
+      setPromoCode('');
+      setPromoMessage('');
+      setAppliedCoupon('');
+      writeStoredCoupon('');
+    } catch (error) {
+      setLoadError(error.message || 'Failed to clear cart.');
     }
   };
 
@@ -495,7 +420,11 @@ const Cart = () => {
 
           <div className="cart-drawer-content">
             <div className="cart-main-column">
-              {normalizedItems.length > 0 ? (
+              {isLoading ? (
+                <StateBlock icon="..." title="Loading cart" description="Fetching the latest cart items from the backend." centered />
+              ) : loadError ? (
+                <StateBlock icon="!" title="Unable to load cart" description={loadError} centered />
+              ) : normalizedItems.length > 0 ? (
                 <div className="cart-item-list">
                   {normalizedItems.map((item, index) => {
                     const detailPairs = getDetailPairs(item, item.product);

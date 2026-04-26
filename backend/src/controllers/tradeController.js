@@ -17,12 +17,32 @@ const parsePositiveInteger = (value, fieldName) => {
   return numericValue;
 };
 
-const listingSelect = `
+let tradeListingImageColumnAvailable;
+
+const hasTradeListingImageColumn = async () => {
+  if (typeof tradeListingImageColumnAvailable === "boolean") {
+    return tradeListingImageColumnAvailable;
+  }
+
+  const [rows] = await pool.execute(
+    `SELECT COUNT(*) AS column_count
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = 'trade_listings'
+       AND COLUMN_NAME = 'image_url'`
+  );
+
+  tradeListingImageColumnAvailable = Number(rows[0]?.column_count || 0) > 0;
+  return tradeListingImageColumnAvailable;
+};
+
+const buildListingSelect = (includeImageColumn) => `
   SELECT
     tl.id,
     tl.user_id,
     tl.title,
     tl.description,
+    ${includeImageColumn ? "tl.image_url" : "NULL AS image_url"},
     tl.status,
     tl.created_at,
     u.name AS owner_name,
@@ -31,7 +51,7 @@ const listingSelect = `
   INNER JOIN users u ON u.id = tl.user_id
 `;
 
-const requestSelect = `
+const buildRequestSelect = (includeImageColumn) => `
   SELECT
     tr.id,
     tr.listing_id,
@@ -40,6 +60,7 @@ const requestSelect = `
     tr.created_at,
     tl.title AS listing_title,
     tl.description AS listing_description,
+    ${includeImageColumn ? "tl.image_url" : "NULL"} AS listing_image_url,
     tl.status AS listing_status,
     tl.user_id AS listing_owner_id,
     owner.name AS listing_owner_name,
@@ -53,6 +74,7 @@ const requestSelect = `
 `;
 
 const getListingById = async (executor, listingId, options = {}) => {
+  const includeImageColumn = await hasTradeListingImageColumn();
   const conditions = ["tl.id = ?"];
   const params = [listingId];
 
@@ -61,7 +83,7 @@ const getListingById = async (executor, listingId, options = {}) => {
   }
 
   const [rows] = await executor.execute(
-    `${listingSelect}
+    `${buildListingSelect(includeImageColumn)}
      WHERE ${conditions.join(" AND ")}
      LIMIT 1`,
     params
@@ -71,8 +93,9 @@ const getListingById = async (executor, listingId, options = {}) => {
 };
 
 const getTradeRequestById = async (executor, requestId) => {
+  const includeImageColumn = await hasTradeListingImageColumn();
   const [rows] = await executor.execute(
-    `${requestSelect}
+    `${buildRequestSelect(includeImageColumn)}
      WHERE tr.id = ?
      LIMIT 1`,
     [requestId]
@@ -83,7 +106,8 @@ const getTradeRequestById = async (executor, requestId) => {
 
 const createTradeListing = async (req, res, next) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, image_url } = req.body;
+    const includeImageColumn = await hasTradeListingImageColumn();
 
     if (!title || !description) {
       return next(createError("Title and description are required", 400));
@@ -91,16 +115,23 @@ const createTradeListing = async (req, res, next) => {
 
     const trimmedTitle = title.trim();
     const trimmedDescription = description.trim();
+    const normalizedImageUrl = typeof image_url === "string" ? image_url.trim() : "";
 
     if (!trimmedTitle || !trimmedDescription) {
       return next(createError("Title and description are required", 400));
     }
 
-    const [result] = await pool.execute(
-      `INSERT INTO trade_listings (user_id, title, description, status)
-       VALUES (?, ?, ?, 'pending')`,
-      [req.user.id, trimmedTitle, trimmedDescription]
-    );
+    const [result] = includeImageColumn
+      ? await pool.execute(
+        `INSERT INTO trade_listings (user_id, title, description, image_url, status)
+         VALUES (?, ?, ?, ?, 'pending')`,
+        [req.user.id, trimmedTitle, trimmedDescription, normalizedImageUrl || null]
+      )
+      : await pool.execute(
+        `INSERT INTO trade_listings (user_id, title, description, status)
+         VALUES (?, ?, ?, 'pending')`,
+        [req.user.id, trimmedTitle, trimmedDescription]
+      );
 
     const listing = await getListingById(pool, result.insertId);
 
@@ -115,8 +146,9 @@ const createTradeListing = async (req, res, next) => {
 
 const getApprovedTradeListings = async (req, res, next) => {
   try {
+    const includeImageColumn = await hasTradeListingImageColumn();
     const [rows] = await pool.execute(
-      `${listingSelect}
+      `${buildListingSelect(includeImageColumn)}
        WHERE tl.status = 'approved'
        ORDER BY tl.created_at DESC, tl.id DESC`
     );
@@ -132,8 +164,9 @@ const getApprovedTradeListings = async (req, res, next) => {
 
 const getMyTradeListings = async (req, res, next) => {
   try {
+    const includeImageColumn = await hasTradeListingImageColumn();
     const [rows] = await pool.execute(
-      `${listingSelect}
+      `${buildListingSelect(includeImageColumn)}
        WHERE tl.user_id = ?
        ORDER BY tl.created_at DESC, tl.id DESC`,
       [req.user.id]
@@ -224,8 +257,9 @@ const createTradeRequest = async (req, res, next) => {
 
 const getReceivedTradeRequests = async (req, res, next) => {
   try {
+    const includeImageColumn = await hasTradeListingImageColumn();
     const [rows] = await pool.execute(
-      `${requestSelect}
+      `${buildRequestSelect(includeImageColumn)}
        WHERE tl.user_id = ?
        ORDER BY tr.created_at DESC, tr.id DESC`,
       [req.user.id]
@@ -242,8 +276,9 @@ const getReceivedTradeRequests = async (req, res, next) => {
 
 const getSentTradeRequests = async (req, res, next) => {
   try {
+    const includeImageColumn = await hasTradeListingImageColumn();
     const [rows] = await pool.execute(
-      `${requestSelect}
+      `${buildRequestSelect(includeImageColumn)}
        WHERE tr.sender_id = ?
        ORDER BY tr.created_at DESC, tr.id DESC`,
       [req.user.id]
@@ -258,17 +293,87 @@ const getSentTradeRequests = async (req, res, next) => {
   }
 };
 
+const cancelTradeListing = async (req, res, next) => {
+  let connection;
+
+  try {
+    const listingId = parsePositiveInteger(req.params.id, "id");
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const [listings] = await connection.execute(
+      `SELECT id, user_id, title
+       FROM trade_listings
+       WHERE id = ?
+       LIMIT 1
+       FOR UPDATE`,
+      [listingId]
+    );
+
+    if (listings.length === 0) {
+      throw createError("Trade listing not found", 404);
+    }
+
+    const listing = listings[0];
+
+    if (listing.user_id !== req.user.id) {
+      throw createError("Not authorized to cancel this listing", 403);
+    }
+
+    const [requestSenders] = await connection.execute(
+      `SELECT DISTINCT sender_id
+       FROM trade_requests
+       WHERE listing_id = ?`,
+      [listingId]
+    );
+
+    await connection.execute(
+      `DELETE FROM trade_listings
+       WHERE id = ? AND user_id = ?`,
+      [listingId, req.user.id]
+    );
+
+    await connection.commit();
+
+    for (const requestSender of requestSenders) {
+      if (requestSender.sender_id !== req.user.id) {
+        await createNotification(requestSender.sender_id, "A trade listing you requested was cancelled.");
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: listingId,
+        title: listing.title
+      }
+    });
+  } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
+
+    next(error);
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
 const acceptTradeRequest = async (req, res, next) => {
   let connection;
 
   try {
     const requestId = parsePositiveInteger(req.params.requestId, "requestId");
+    const includeImageColumn = await hasTradeListingImageColumn();
 
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
     const [rows] = await connection.execute(
-      `${requestSelect}
+      `${buildRequestSelect(includeImageColumn)}
        WHERE tr.id = ?
        LIMIT 1
        FOR UPDATE`,
@@ -393,6 +498,7 @@ module.exports = {
   createTradeRequest,
   getReceivedTradeRequests,
   getSentTradeRequests,
+  cancelTradeListing,
   acceptTradeRequest,
   rejectTradeRequest
 };

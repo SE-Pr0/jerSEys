@@ -1,13 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, FormField, PageShell, StateBlock } from '../components/ui';
+import { clearCart as clearAllCart, getCombinedCart } from '../services/cartService';
 import { createOrder } from '../services/orderService';
-import { getShopProductById } from '../services/productService';
 import { getStoredUser } from '../utils/auth';
 import { createOrderConfirmation, writeOrderConfirmation } from '../utils/orderConfirmation';
 import '../styles/checkout.css';
 
-const CART_STORAGE_KEYS = ['jerseys-cart', 'shopping-cart', 'cartItems', 'cart'];
 const SHIPPING_FEE = 12.95;
 const FREE_SHIPPING_THRESHOLD = 150;
 const EXPRESS_SHIPPING_FEE = 18.95;
@@ -22,38 +21,6 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 });
 
 const formatPrice = (value) => currencyFormatter.format(Number.isFinite(value) ? value : 0);
-
-const parseJson = (rawValue) => {
-  if (!rawValue) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(rawValue);
-  } catch {
-    return null;
-  }
-};
-
-const asArray = (value) => {
-  if (Array.isArray(value)) {
-    return value;
-  }
-
-  if (value && Array.isArray(value.items)) {
-    return value.items;
-  }
-
-  if (value && Array.isArray(value.cartItems)) {
-    return value.cartItems;
-  }
-
-  if (value && Array.isArray(value.lineItems)) {
-    return value.lineItems;
-  }
-
-  return [];
-};
 
 const firstText = (...values) => {
   for (const value of values) {
@@ -72,50 +39,6 @@ const splitFullName = (value) => {
     firstName: parts[0] || '',
     lastName: parts.slice(1).join(' '),
   };
-};
-
-const normalizeStoredItem = (item, index) => {
-  const rawItem = typeof item === 'string' ? { productId: item } : { ...item };
-  const rawId = firstText(rawItem.id, rawItem.productId, rawItem.slug, rawItem.cartKey) || `cart-item-${index + 1}`;
-  const product = getShopProductById(String(rawId)) || getShopProductById(String(rawItem.productId || ''));
-  const quantityValue = Number(rawItem.quantity ?? rawItem.qty ?? rawItem.count ?? 1);
-  const quantity = Number.isFinite(quantityValue) && quantityValue > 0 ? Math.round(quantityValue) : 1;
-  const unitPriceValue = Number(rawItem.price ?? rawItem.unitPrice ?? rawItem.cost ?? product?.price ?? 0);
-  const unitPrice = Number.isFinite(unitPriceValue) && unitPriceValue >= 0 ? unitPriceValue : 0;
-
-  return {
-    ...rawItem,
-    cartKey: rawItem.cartKey || `${rawId}-${index}`,
-    productId: rawItem.productId || rawItem.id || product?.id || '',
-    quantity,
-    unitPrice,
-    name: firstText(rawItem.name, rawItem.title, product?.name, 'Custom jersey'),
-    team: firstText(rawItem.team, rawItem.club, product?.team, 'Jersey'),
-    sportLabel: firstText(rawItem.sportLabel, product?.sportLabel),
-    categoryLabel: firstText(rawItem.categoryLabel, product?.categoryLabel),
-    season: firstText(rawItem.season, product?.season),
-    image: firstText(rawItem.image, rawItem.imageUrl, product?.image),
-    badge: firstText(rawItem.badge, product?.badge),
-    size: firstText(rawItem.size, rawItem.selectedSize, rawItem.jerseySize, rawItem.variantSize, product?.sizes?.[0]),
-    product,
-  };
-};
-
-const readCartFromStorage = () => {
-  if (typeof window === 'undefined') {
-    return [];
-  }
-
-  for (const key of CART_STORAGE_KEYS) {
-    const parsed = parseJson(window.localStorage.getItem(key));
-    const items = asArray(parsed);
-
-    if (items.length > 0) {
-      return items.map((item, index) => normalizeStoredItem(item, index));
-    }
-  }
-
-  return [];
 };
 
 const readStoredCoupon = () => {
@@ -143,19 +66,11 @@ const writeStoredCoupon = (couponCode) => {
   window.dispatchEvent(new Event('jerseys-coupon-change'));
 };
 
-const clearCartStorage = () => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  CART_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key));
-  window.localStorage.removeItem(COUPON_STORAGE_KEY);
-  window.dispatchEvent(new Event('jerseys-cart-change'));
-};
-
 const Checkout = () => {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState(readCartFromStorage);
+  const [cartItems, setCartItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [promoCode, setPromoCode] = useState(readStoredCoupon);
   const [promoMessage, setPromoMessage] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(readStoredCoupon);
@@ -184,9 +99,26 @@ const Checkout = () => {
   });
   const [formErrors, setFormErrors] = useState({});
 
+  const loadCart = useCallback(async () => {
+    setLoadError('');
+
+    try {
+      const items = await getCombinedCart();
+      setCartItems(items);
+    } catch (error) {
+      setLoadError(error.message || 'Failed to load cart.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadCart();
+  }, [loadCart]);
+
   useEffect(() => {
     const syncCart = () => {
-      setCartItems(readCartFromStorage());
+      loadCart();
     };
     const syncCoupon = () => {
       const storedCoupon = readStoredCoupon();
@@ -207,12 +139,9 @@ const Checkout = () => {
       window.removeEventListener('storage', syncCoupon);
       window.removeEventListener('jerseys-coupon-change', syncCoupon);
     };
-  }, []);
+  }, [loadCart]);
 
-  const normalizedItems = useMemo(
-    () => cartItems.map((item, index) => normalizeStoredItem(item, index)),
-    [cartItems],
-  );
+  const normalizedItems = useMemo(() => cartItems, [cartItems]);
 
   const subtotal = useMemo(
     () => normalizedItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
@@ -368,6 +297,7 @@ const Checkout = () => {
 
     const { firstName, lastName } = splitFullName(formValues.fullName);
     const apiBackedItems = normalizedItems.filter((item) => item.cartSource === 'api');
+    const confirmationItems = apiBackedItems.length > 0 ? apiBackedItems : normalizedItems;
 
     if (apiBackedItems.length > 0) {
       try {
@@ -380,7 +310,7 @@ const Checkout = () => {
     }
 
     const confirmation = createOrderConfirmation({
-      items: normalizedItems,
+      items: confirmationItems,
       shippingAddress: {
         country: formValues.country.trim(),
         firstName,
@@ -403,7 +333,8 @@ const Checkout = () => {
     });
 
     writeOrderConfirmation(confirmation);
-    clearCartStorage();
+    await clearAllCart();
+    writeStoredCoupon('');
     setCartItems([]);
     setIsSubmitting(false);
     navigate('/order-confirmation', { state: { order: confirmation } });
@@ -457,6 +388,44 @@ const Checkout = () => {
       setCurrentStep(step);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="checkout-empty-wrap">
+        <PageShell className="checkout-page checkout-empty-page">
+          <StateBlock
+            centered
+            icon="..."
+            title="Loading cart"
+            description="Fetching the latest cart items before checkout."
+          />
+        </PageShell>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="checkout-empty-wrap">
+        <PageShell className="checkout-page checkout-empty-page">
+          <StateBlock
+            centered
+            icon="!"
+            title="Unable to load checkout"
+            description={loadError}
+            actions={(
+              <>
+                <Button variant="secondary" to="/cart">
+                  View Cart
+                </Button>
+                <Button to="/shop">Browse Jerseys</Button>
+              </>
+            )}
+          />
+        </PageShell>
+      </div>
+    );
+  }
 
   if (normalizedItems.length === 0) {
     return (

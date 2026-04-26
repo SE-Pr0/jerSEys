@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS trade_listings (
   user_id INT UNSIGNED NOT NULL,
   title VARCHAR(150) NOT NULL,
   description TEXT,
+  image_url LONGTEXT NULL,
   status ENUM('pending', 'approved', 'rejected', 'closed') NOT NULL DEFAULT 'pending',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_trade_listings_user_id (user_id),

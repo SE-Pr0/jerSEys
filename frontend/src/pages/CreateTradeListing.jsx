@@ -29,6 +29,14 @@ const defaultForm = {
   imageUrl:     '',
 };
 
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => resolve(reader.result));
+    reader.addEventListener('error', reject);
+    reader.readAsDataURL(file);
+  });
+
 const CreateTradeListing = () => {
   const { addListing } = useTrade();
   const navigate = useNavigate();
@@ -39,11 +47,26 @@ const CreateTradeListing = () => {
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const objectUrl = URL.createObjectURL(file);
-    setForm((prev) => ({ ...prev, imageUrl: objectUrl, imageFileName: file.name }));
+
+    try {
+      const imageDataUrl = await readFileAsDataUrl(file);
+      setForm((prev) => ({
+        ...prev,
+        imageUrl: String(imageDataUrl),
+        imageDataUrl: String(imageDataUrl),
+        imageFileName: file.name,
+      }));
+    } catch {
+      setForm((prev) => ({
+        ...prev,
+        imageUrl: '',
+        imageDataUrl: '',
+        imageFileName: '',
+      }));
+    }
   };
 
   useEffect(() => {

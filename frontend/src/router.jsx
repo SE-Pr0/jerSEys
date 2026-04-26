@@ -23,6 +23,8 @@ import ManageOrders from './pages/admin/ManageOrders';
 import ManageInventory from './pages/admin/ManageInventory';
 import ManageProducts from './pages/admin/ManageProducts';
 import ManageTemplates from './pages/admin/ManageTemplates';
+import ManageTrades from './pages/admin/ManageTrades';
+import ModerateListings from './pages/admin/ModerateListings';
 import SalesReports from './pages/admin/SalesReports';
 import InventoryReports from './pages/admin/InventoryReports';
 import { getStoredUser, isAdminUser } from './utils/auth';
@@ -166,6 +168,22 @@ const Router = () => {
             element={(
               <RequireAdmin>
                 <ManageTemplates />
+              </RequireAdmin>
+            )}
+          />
+          <Route
+            path="admin/manage-trades"
+            element={(
+              <RequireAdmin>
+                <ManageTrades />
+              </RequireAdmin>
+            )}
+          />
+          <Route
+            path="admin/manage-listings"
+            element={(
+              <RequireAdmin>
+                <ModerateListings />
               </RequireAdmin>
             )}
           />

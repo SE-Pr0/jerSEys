@@ -5,6 +5,13 @@ const notFoundHandler = (req, res, next) => {
 };
 
 const errorHandler = (err, req, res, next) => {
+  if (err?.type === "entity.too.large") {
+    return res.status(413).json({
+      success: false,
+      message: "Uploaded design data is too large. Try a smaller logo/image or simplify the customization."
+    });
+  }
+
   const statusCode = err.statusCode || res.statusCode || 500;
 
   if (statusCode === 200) {
