@@ -10,14 +10,12 @@ import {
 } from '../components/ui';
 import '../styles/auth.css';
 import '../styles/forgotpassword.css';
+import { forgotPassword, resetPassword } from '../services/authService';
 
 const CODE_LENGTH = 6;
 const PASSWORD_REQUIREMENTS =
   'Use at least 8 characters, including 1 uppercase, 1 lowercase, 1 number, and 1 special character from .!@#$%^&*.';
 const PASSWORD_PATTERN = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[.!@#$%^&*]).{8,}$';
-
-const createVerificationCode = () =>
-  String(Math.floor(100000 + Math.random() * 900000));
 
 const createEmptyCode = () => Array.from({ length: CODE_LENGTH }, () => '');
 
@@ -117,6 +115,7 @@ const ForgotPassword = () => {
   const [notification, setNotification] = useState(null);
   const [isVerified, setIsVerified] = useState(false);
   const [isPasswordUpdated, setIsPasswordUpdated] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (step === 'email') {
@@ -145,20 +144,19 @@ const ForgotPassword = () => {
     return () => window.clearTimeout(timer);
   }, [isPasswordUpdated, navigate]);
 
-  const resetCodeStep = (nextCode = generatedCode) => {
-    setGeneratedCode(nextCode);
+  const resetCodeStep = () => {
     setCodeDigits(createEmptyCode());
     setCodeError('');
     setIsVerified(false);
     setIsPasswordUpdated(false);
     setNotification({
       title: 'Verification code ready',
-      description: `This is a demo in-page notification for now. Your 6-digit code is ${nextCode}.`,
+      description: 'If the email exists, the backend has sent a 6-digit reset code. Enter it below to continue.',
     });
     setStep('code');
   };
 
-  const handleEmailSubmit = (event) => {
+  const handleEmailSubmit = async (event) => {
     event.preventDefault();
 
     const trimmedEmail = email.trim();
@@ -173,7 +171,21 @@ const ForgotPassword = () => {
       return;
     }
 
-    resetCodeStep(createVerificationCode());
+    setIsSubmitting(true);
+
+    try {
+      const message = await forgotPassword(trimmedEmail);
+      setGeneratedCode('');
+      resetCodeStep();
+      setNotification({
+        title: 'Verification code sent',
+        description: message,
+      });
+    } catch (error) {
+      setEmailError(error.message || 'Failed to send verification code.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCodeChange = (index, value) => {
@@ -251,22 +263,35 @@ const ForgotPassword = () => {
       return;
     }
 
-    if (enteredCode !== generatedCode) {
-      setCodeError('That code does not match the demo notification.');
-      return;
-    }
-
     setCodeError('');
+    setGeneratedCode(enteredCode);
     setIsVerified(true);
     setStep('password');
     setNotification({
       title: 'Verification complete',
-      description: 'The code matched. Now create your new password and confirm it below.',
+      description: 'Now create your new password and confirm it below.',
     });
   };
 
   const handleResendCode = () => {
-    resetCodeStep(createVerificationCode());
+    setEmailError('');
+    setIsSubmitting(true);
+
+    forgotPassword(email.trim())
+      .then((message) => {
+        setGeneratedCode('');
+        resetCodeStep();
+        setNotification({
+          title: 'Verification code resent',
+          description: message,
+        });
+      })
+      .catch((error) => {
+        setCodeError(error.message || 'Failed to resend verification code.');
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
   const handleChangeEmail = () => {
@@ -322,7 +347,7 @@ const ForgotPassword = () => {
     return nextErrors;
   };
 
-  const handlePasswordSubmit = (event) => {
+  const handlePasswordSubmit = async (event) => {
     event.preventDefault();
 
     const nextErrors = validatePasswordStep();
@@ -332,7 +357,22 @@ const ForgotPassword = () => {
       return;
     }
 
-    setIsPasswordUpdated(true);
+    setIsSubmitting(true);
+
+    try {
+      await resetPassword({
+        email: email.trim(),
+        code: generatedCode,
+        newPassword: passwordValues.password,
+      });
+      setIsPasswordUpdated(true);
+    } catch (error) {
+      setPasswordErrors({
+        confirmPassword: error.message || 'Failed to update password.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isPasswordUpdated) {
@@ -415,7 +455,7 @@ const ForgotPassword = () => {
 
             <div className="forgot-password-step-actions">
               <Button type="submit" block>
-                Update Password
+                {isSubmitting ? 'Updating Password...' : 'Update Password'}
               </Button>
               <div className="ui-inline-stack forgot-password-inline-actions">
                 <Button variant="ghost" onClick={handleChangeEmail}>
@@ -456,7 +496,7 @@ const ForgotPassword = () => {
               label="Email"
               htmlFor="forgot-password-email"
               error={emailError}
-              hint="We will show the demo verification code right here on the page."
+              hint="We will ask you for the reset code after the backend sends it."
             >
               <input
                 ref={emailInputRef}
@@ -481,7 +521,7 @@ const ForgotPassword = () => {
                 label="Verification Code"
                 htmlFor="code-0"
                 error={codeError}
-                hint={`We sent a demo code to ${email.trim()}. Enter the 6 digits below.`}
+                hint={`We sent a reset code to ${email.trim()}. Enter the 6 digits below.`}
               >
                 <div className="forgot-password-code-grid" role="group" aria-label="6 digit verification code">
                   {codeDigits.map((digit, index) => (
@@ -513,7 +553,7 @@ const ForgotPassword = () => {
                 </Button>
                 <div className="ui-inline-stack forgot-password-inline-actions">
                   <Button variant="ghost" onClick={handleResendCode}>
-                    Resend Demo Code
+                    Resend Code
                   </Button>
                   <Button variant="ghost" onClick={handleChangeEmail}>
                     Change Email
@@ -526,7 +566,7 @@ const ForgotPassword = () => {
           {step === 'email' ? (
             <div className="forgot-password-step-actions">
               <Button type="submit" block>
-                Send Verification Code
+                {isSubmitting ? 'Sending...' : 'Send Verification Code'}
               </Button>
               <div className="ui-inline-stack forgot-password-inline-actions">
                 <Button to="/login" variant="ghost">

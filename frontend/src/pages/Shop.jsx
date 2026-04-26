@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import ProductCard from '../components/ProductCard';
+import { StateBlock } from '../components/ui';
 import '../styles/shop.css';
-import { getShopProducts, getShopSummary } from '../services/productService';
+import { fetchProducts, getShopSummary } from '../services/productService';
 
 const sportFilters = [
   { key: 'all', label: 'All' },
@@ -11,30 +12,6 @@ const sportFilters = [
   { key: 'basketball', label: 'Basketball' },
 ];
 
-const products = getShopProducts();
-const summary = getShopSummary();
-const availableSizes = [...new Set(products.flatMap((product) => product.sizes))].sort((left, right) => {
-  const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
-  const leftIndex = sizeOrder.indexOf(left);
-  const rightIndex = sizeOrder.indexOf(right);
-
-  if (leftIndex === -1 && rightIndex === -1) {
-    return left.localeCompare(right);
-  }
-
-  if (leftIndex === -1) {
-    return 1;
-  }
-
-  if (rightIndex === -1) {
-    return -1;
-  }
-
-  return leftIndex - rightIndex;
-});
-const productPrices = products.map((product) => product.price);
-const absoluteMinPrice = Math.floor(Math.min(...productPrices));
-const absoluteMaxPrice = Math.ceil(Math.max(...productPrices));
 const MIN_PRICE_GAP = 1;
 
 const formatPrice = (value) =>
@@ -86,12 +63,32 @@ const interleaveBySport = (items) => {
   return mixed;
 };
 
-const clampPrice = (value) => {
-  if (Number.isNaN(value)) {
-    return absoluteMinPrice;
+const getAvailableSizes = (products) => [...new Set(products.flatMap((product) => product.sizes))].sort((left, right) => {
+  const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
+  const leftIndex = sizeOrder.indexOf(left);
+  const rightIndex = sizeOrder.indexOf(right);
+
+  if (leftIndex === -1 && rightIndex === -1) {
+    return left.localeCompare(right);
   }
 
-  return Math.min(Math.max(value, absoluteMinPrice), absoluteMaxPrice);
+  if (leftIndex === -1) {
+    return 1;
+  }
+
+  if (rightIndex === -1) {
+    return -1;
+  }
+
+  return leftIndex - rightIndex;
+});
+
+const clampPrice = (value, minValue, maxValue) => {
+  if (Number.isNaN(value)) {
+    return minValue;
+  }
+
+  return Math.min(Math.max(value, minValue), maxValue);
 };
 
 const parseInputPrice = (value, fallback) => {
@@ -140,18 +137,70 @@ const CountUpValue = ({ target, duration = 2200, delay = 650 }) => {
 const Shop = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [products, setProducts] = useState([]);
+  const [summary, setSummary] = useState({
+    totalProducts: 0,
+    clubCount: 0,
+    countryCount: 0,
+    inStockCount: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [mainCategory, setMainCategory] = useState('all');
   const [catalogCategory, setCatalogCategory] = useState('all');
   const [sizeFilter, setSizeFilter] = useState('all');
   const [stockFilter, setStockFilter] = useState('all');
-  const [minPriceInput, setMinPriceInput] = useState(String(absoluteMinPrice));
-  const [maxPriceInput, setMaxPriceInput] = useState(String(absoluteMaxPrice));
   const [sortBy, setSortBy] = useState('featured');
   const [visibleCount, setVisibleCount] = useState(24);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
   const [spotlightVisible, setSpotlightVisible] = useState(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProducts = async () => {
+      setIsLoading(true);
+      setLoadError('');
+
+      try {
+        const nextProducts = await fetchProducts();
+        if (!isMounted) {
+          return;
+        }
+
+        setProducts(nextProducts);
+        setSummary(getShopSummary());
+      } catch (error) {
+        if (isMounted) {
+          setLoadError(error.message || 'Failed to load products.');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadProducts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const availableSizes = useMemo(() => getAvailableSizes(products), [products]);
+  const productPrices = useMemo(() => products.map((product) => product.price), [products]);
+  const absoluteMinPrice = useMemo(() => Math.floor(Math.min(...productPrices, 0)), [productPrices]);
+  const absoluteMaxPrice = useMemo(() => Math.ceil(Math.max(...productPrices, 0)), [productPrices]);
+  const [minPriceInput, setMinPriceInput] = useState('0');
+  const [maxPriceInput, setMaxPriceInput] = useState('0');
+
+  useEffect(() => {
+    setMinPriceInput(String(absoluteMinPrice));
+    setMaxPriceInput(String(absoluteMaxPrice));
+  }, [absoluteMaxPrice, absoluteMinPrice]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -187,16 +236,24 @@ const Shop = () => {
   }, [location.hash, location.search]);
 
   const minPrice = useMemo(() => {
-    const parsedMin = clampPrice(parseInputPrice(minPriceInput, absoluteMinPrice));
-    const parsedMax = clampPrice(parseInputPrice(maxPriceInput, absoluteMaxPrice));
+    if (products.length === 0) {
+      return 0;
+    }
+
+    const parsedMin = clampPrice(parseInputPrice(minPriceInput, absoluteMinPrice), absoluteMinPrice, absoluteMaxPrice);
+    const parsedMax = clampPrice(parseInputPrice(maxPriceInput, absoluteMaxPrice), absoluteMinPrice, absoluteMaxPrice);
     return Math.min(parsedMin, parsedMax - MIN_PRICE_GAP);
-  }, [minPriceInput, maxPriceInput]);
+  }, [absoluteMaxPrice, absoluteMinPrice, maxPriceInput, minPriceInput, products.length]);
 
   const maxPrice = useMemo(() => {
-    const parsedMin = clampPrice(parseInputPrice(minPriceInput, absoluteMinPrice));
-    const parsedMax = clampPrice(parseInputPrice(maxPriceInput, absoluteMaxPrice));
+    if (products.length === 0) {
+      return 0;
+    }
+
+    const parsedMin = clampPrice(parseInputPrice(minPriceInput, absoluteMinPrice), absoluteMinPrice, absoluteMaxPrice);
+    const parsedMax = clampPrice(parseInputPrice(maxPriceInput, absoluteMaxPrice), absoluteMinPrice, absoluteMaxPrice);
     return Math.max(parsedMax, parsedMin + MIN_PRICE_GAP);
-  }, [minPriceInput, maxPriceInput]);
+  }, [absoluteMaxPrice, absoluteMinPrice, maxPriceInput, minPriceInput, products.length]);
 
   const spotlightProducts = useMemo(() => {
     if (mainCategory === 'football') {
@@ -208,7 +265,7 @@ const Shop = () => {
     }
 
     return interleaveBySport(products);
-  }, [mainCategory]);
+  }, [mainCategory, products]);
 
   useEffect(() => {
     setSpotlightIndex(0);
@@ -242,45 +299,18 @@ const Shop = () => {
     setVisibleCount(24);
   }, [mainCategory, catalogCategory, searchTerm, sizeFilter, stockFilter, minPrice, maxPrice, sortBy]);
 
-  const handleMinPriceInput = (event) => {
-    setMinPriceInput(event.target.value);
-  };
-
-  const handleMaxPriceInput = (event) => {
-    setMaxPriceInput(event.target.value);
-  };
-
-  const normalizeMinPriceInput = () => {
-    setMinPriceInput(String(minPrice));
-  };
-
-  const normalizeMaxPriceInput = () => {
-    setMaxPriceInput(String(maxPrice));
-  };
-
-  const handleMinPriceSlider = (event) => {
-    const nextValue = clampPrice(Number(event.target.value));
-    setMinPriceInput(String(Math.min(nextValue, maxPrice - MIN_PRICE_GAP)));
-  };
-
-  const handleMaxPriceSlider = (event) => {
-    const nextValue = clampPrice(Number(event.target.value));
-    setMaxPriceInput(String(Math.max(nextValue, minPrice + MIN_PRICE_GAP)));
-  };
-
   const filteredProducts = useMemo(() => {
     const trimmedSearch = searchTerm.trim().toLowerCase();
 
     const filtered = products.filter((product) => {
       const matchesSearch = !trimmedSearch || product.searchText.includes(trimmedSearch);
-      const matchesCatalogCategory =
-        mainCategory === 'all' || product.sport === mainCategory;
+      const matchesCatalogCategory = mainCategory === 'all' || product.sport === mainCategory;
       const matchesCategory = catalogCategory === 'all' || product.category === catalogCategory;
       const matchesSize = sizeFilter === 'all' || product.sizes.includes(sizeFilter);
       const matchesStock =
-        stockFilter === 'all' ||
-        (stockFilter === 'in-stock' && product.inStock) ||
-        (stockFilter === 'out-of-stock' && !product.inStock);
+        stockFilter === 'all'
+        || (stockFilter === 'in-stock' && product.inStock)
+        || (stockFilter === 'out-of-stock' && !product.inStock);
       const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
 
       return matchesSearch && matchesCatalogCategory && matchesCategory && matchesSize && matchesStock && matchesPrice;
@@ -293,13 +323,33 @@ const Shop = () => {
     }
 
     return sorted;
-  }, [mainCategory, catalogCategory, minPrice, maxPrice, searchTerm, sizeFilter, sortBy, stockFilter]);
+  }, [catalogCategory, mainCategory, maxPrice, minPrice, products, searchTerm, sizeFilter, sortBy, stockFilter]);
 
   const visibleProducts = filteredProducts.slice(0, visibleCount);
-  const spotlightProduct = spotlightProducts[spotlightIndex % spotlightProducts.length] || products[0];
+  const spotlightProduct = spotlightProducts[spotlightIndex % Math.max(spotlightProducts.length, 1)] || products[0];
   const priceRangeSpan = absoluteMaxPrice - absoluteMinPrice || 1;
   const minPercent = ((minPrice - absoluteMinPrice) / priceRangeSpan) * 100;
   const maxPercent = ((maxPrice - absoluteMinPrice) / priceRangeSpan) * 100;
+
+  if (isLoading) {
+    return (
+      <div className="shop-page">
+        <section className="shop-catalog section-wrap">
+          <StateBlock centered icon="..." title="Loading catalog" description="Fetching live products from the backend." />
+        </section>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="shop-page">
+        <section className="shop-catalog section-wrap">
+          <StateBlock centered icon="!" title="Unable to load products" description={loadError} />
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="shop-page">
@@ -341,47 +391,49 @@ const Shop = () => {
             </div>
           </div>
 
-          <div
-            className="shop-spotlight-card"
-            role="button"
-            tabIndex={0}
-            onClick={() => navigate(`/shop/${spotlightProduct.id}`)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                navigate(`/shop/${spotlightProduct.id}`);
-              }
-            }}
-          >
-            <div className="shop-spotlight-media">
-              <div className={`shop-spotlight-image-shell${spotlightVisible ? ' is-visible' : ''}`}>
-                <img
-                  src={spotlightProduct.image}
-                  alt={spotlightProduct.name}
-                  className="shop-spotlight-image"
-                />
-              </div>
-              {spotlightProduct.badge && (
-                <span className={`shop-spotlight-badge shop-spotlight-badge-${spotlightProduct.badge}`}>
-                  {spotlightProduct.badge}
-                </span>
-              )}
-            </div>
-            <div className="shop-spotlight-body">
-              <div className={`shop-spotlight-content${spotlightVisible ? ' is-visible' : ''}`}>
-                <div className="shop-spotlight-meta">
-                  <span>{spotlightProduct.categoryLabel}</span>
-                  <span>{spotlightProduct.season}</span>
+          {spotlightProduct ? (
+            <div
+              className="shop-spotlight-card"
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate(`/shop/${spotlightProduct.id}`)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  navigate(`/shop/${spotlightProduct.id}`);
+                }
+              }}
+            >
+              <div className="shop-spotlight-media">
+                <div className={`shop-spotlight-image-shell${spotlightVisible ? ' is-visible' : ''}`}>
+                  <img
+                    src={spotlightProduct.image}
+                    alt={spotlightProduct.name}
+                    className="shop-spotlight-image"
+                  />
                 </div>
-                <h2>{spotlightProduct.name}</h2>
-                <p>{truncateText(spotlightProduct.description, 120)}</p>
-                <div className="shop-spotlight-footer">
-                  <span className="shop-spotlight-price">{formatPrice(spotlightProduct.price)}</span>
-                  <span className="shop-spotlight-team">{spotlightProduct.team}</span>
+                {spotlightProduct.badge && (
+                  <span className={`shop-spotlight-badge shop-spotlight-badge-${spotlightProduct.badge}`}>
+                    {spotlightProduct.badge}
+                  </span>
+                )}
+              </div>
+              <div className="shop-spotlight-body">
+                <div className={`shop-spotlight-content${spotlightVisible ? ' is-visible' : ''}`}>
+                  <div className="shop-spotlight-meta">
+                    <span>{spotlightProduct.categoryLabel}</span>
+                    <span>{spotlightProduct.season}</span>
+                  </div>
+                  <h2>{spotlightProduct.name}</h2>
+                  <p>{truncateText(spotlightProduct.description, 120)}</p>
+                  <div className="shop-spotlight-footer">
+                    <span className="shop-spotlight-price">{formatPrice(spotlightProduct.price)}</span>
+                    <span className="shop-spotlight-team">{spotlightProduct.team}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </section>
 
@@ -411,10 +463,7 @@ const Shop = () => {
             <span>{isMobileFiltersOpen ? 'Hide' : 'Show'}</span>
           </button>
 
-          <div
-            id="shop-filter-panel"
-            className={`shop-filter-row${isMobileFiltersOpen ? ' is-open' : ''}`}
-          >
+          <div id="shop-filter-panel" className={`shop-filter-row${isMobileFiltersOpen ? ' is-open' : ''}`}>
             <div className="shop-main-filters" role="group" aria-label="Sport category">
               {sportFilters.map((filter) => (
                 <button
@@ -475,21 +524,11 @@ const Shop = () => {
                   <div className="shop-price-inputs">
                     <label className="shop-price-input-shell">
                       <span>$</span>
-                      <input
-                        type="number"
-                        value={minPriceInput}
-                        onChange={handleMinPriceInput}
-                        onBlur={normalizeMinPriceInput}
-                      />
+                      <input type="number" value={minPriceInput} onChange={(event) => setMinPriceInput(event.target.value)} />
                     </label>
                     <label className="shop-price-input-shell">
                       <span>$</span>
-                      <input
-                        type="number"
-                        value={maxPriceInput}
-                        onChange={handleMaxPriceInput}
-                        onBlur={normalizeMaxPriceInput}
-                      />
+                      <input type="number" value={maxPriceInput} onChange={(event) => setMaxPriceInput(event.target.value)} />
                     </label>
                   </div>
                   <div
@@ -504,14 +543,14 @@ const Shop = () => {
                       min={absoluteMinPrice}
                       max={absoluteMaxPrice}
                       value={minPrice}
-                      onChange={handleMinPriceSlider}
+                      onChange={(event) => setMinPriceInput(String(event.target.value))}
                     />
                     <input
                       type="range"
                       min={absoluteMinPrice}
                       max={absoluteMaxPrice}
                       value={maxPrice}
-                      onChange={handleMaxPriceSlider}
+                      onChange={(event) => setMaxPriceInput(String(event.target.value))}
                     />
                   </div>
                   <div className="shop-price-slider-values" aria-live="polite">

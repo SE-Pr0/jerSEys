@@ -8,7 +8,7 @@ import {
   PageShell,
 } from '../components/ui';
 import '../styles/auth.css';
-import { setStoredUser } from '../utils/auth';
+import { registerUser } from '../services/authService';
 
 const initialValues = {
   username: '',
@@ -71,6 +71,8 @@ const Register = () => {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
   const [showPasswords, setShowPasswords] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -89,6 +91,7 @@ const Register = () => {
       delete nextErrors[name];
       return nextErrors;
     });
+    setSubmitError('');
   };
 
   const validate = () => {
@@ -119,7 +122,7 @@ const Register = () => {
     return nextErrors;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const nextErrors = validate();
@@ -129,12 +132,22 @@ const Register = () => {
       return;
     }
 
-    setStoredUser({
-      username: values.username.trim(),
-      email: values.email.trim(),
-    });
+    setIsSubmitting(true);
+    setSubmitError('');
 
-    navigate('/shop');
+    try {
+      await registerUser({
+        username: values.username.trim(),
+        email: values.email.trim(),
+        password: values.password,
+      });
+
+      navigate('/login');
+    } catch (error) {
+      setSubmitError(error.message || 'Registration failed.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -231,10 +244,12 @@ const Register = () => {
           </FormField>
 
           <div className="ui-inline-stack">
-            <Button type="submit" block>
-              Register
+            <Button type="submit" block disabled={isSubmitting}>
+              {isSubmitting ? 'Creating Account...' : 'Register'}
             </Button>
           </div>
+
+          {submitError ? <p className="auth-error-message">{submitError}</p> : null}
 
           <div className="auth-alt-link">
             <Button to="/login" variant="ghost">

@@ -20,6 +20,7 @@ import voronoiFracturePreset from './Assets/Presets/Voronoi-Fracture.png';
 import zagsPreset from './Assets/Presets/Zags.png';
 import zigZagPreset from './Assets/Presets/Zig-Zag.png';
 import { Button, Card } from '../../components/ui';
+import { createCustomJersey } from '../../services/customJerseyService';
 import { showToast } from '../../services/notificationService';
 import { getStoredUser } from '../../utils/auth';
 import './CustomJerseyBuilder.css';
@@ -1089,6 +1090,23 @@ const CustomJerseyBuilder = () => {
       return;
     }
 
+    let savedCustomJersey = null;
+
+    try {
+      savedCustomJersey = await createCustomJersey({
+        name: `Custom jersey - ${selectedPreset?.name || 'Design'}`,
+        design_data: {
+          ...design,
+          selectedSize: selectedCartSize,
+          presetName: selectedPreset?.name || '',
+        },
+        price: CUSTOM_KIT_PRICE,
+      });
+    } catch (error) {
+      setNotice(error.message || 'Failed to save custom jersey.');
+      return;
+    }
+
     const thumbnailImage = await buildCustomKitThumbnail(design, selectedPreset);
 
     const nextCartItem = {
@@ -1108,6 +1126,7 @@ const CustomJerseyBuilder = () => {
       price: CUSTOM_KIT_PRICE,
       unitPrice: CUSTOM_KIT_PRICE,
       quantity: 1,
+      customJerseyId: savedCustomJersey?.id || null,
       size: selectedCartSize,
       selectedSize: selectedCartSize,
       playerName: design.textName.trim(),

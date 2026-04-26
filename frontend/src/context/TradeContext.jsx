@@ -1,124 +1,248 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
-import { TRADE_LISTINGS, TRADE_REQUESTS } from '../data/trades';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  acceptTradeRequest,
+  createTrade,
+  getMyTradeListings,
+  getReceivedTradeRequests,
+  getSentTradeRequests,
+  getTrades,
+  rejectTradeRequest,
+  requestTrade,
+} from '../services/tradeService';
 import { getStoredUser } from '../utils/auth';
 
 const TradeContext = createContext(null);
 
+const tradeAvatarColor = '#1B3B8A';
+
+const formatDate = (value) => {
+  if (!value) {
+    return '';
+  }
+
+  return new Date(value).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: '2-digit',
+  });
+};
+
+const inferListingType = (description = '') => {
+  const normalized = description.toLowerCase();
+
+  if (/buy now|for sale|sell/i.test(normalized)) {
+    return /trade/i.test(normalized) ? 'both' : 'sale';
+  }
+
+  return 'trade';
+};
+
+const inferSport = (title = '', description = '') =>
+  /nba|basketball|lakers|bulls|warriors|celtics/i.test(`${title} ${description}`.toLowerCase())
+    ? 'basketball'
+    : 'football';
+
+const inferCondition = (description = '') => {
+  const normalized = description.toLowerCase();
+
+  if (normalized.includes('brand new')) return 'Brand new';
+  if (normalized.includes('near mint')) return 'Near mint';
+  if (normalized.includes('used')) return 'Used';
+  if (normalized.includes('good')) return 'Good';
+
+  return 'Good';
+};
+
+const parseTradeTitle = (title = '') => {
+  const [club, ...rest] = String(title).split(' - ');
+  return {
+    club: rest.length > 0 ? club : 'Trade listing',
+    jerseyName: rest.length > 0 ? rest.join(' - ') : title,
+  };
+};
+
+const toListing = (trade) => {
+  const { club, jerseyName } = parseTradeTitle(trade.title || '');
+  const sport = inferSport(trade.title, trade.description);
+  const listingType = inferListingType(trade.description);
+  const condition = inferCondition(trade.description);
+
+  return {
+    id: String(trade.id),
+    image: '',
+    jerseyName: jerseyName || trade.title || 'Trade listing',
+    club,
+    size: 'N/A',
+    condition,
+    conditionDetail: condition,
+    sport,
+    type: 'club',
+    description: trade.description || '',
+    lookingFor: trade.description || 'Open to offers',
+    seller: {
+      id: trade.user_id,
+      name: trade.owner_name || 'Trader',
+      initial: (trade.owner_name || 'T').charAt(0).toUpperCase(),
+      color: tradeAvatarColor,
+    },
+    status: trade.status === 'closed' ? 'pending' : trade.status,
+    listingType,
+    price: null,
+    listedDate: formatDate(trade.created_at),
+    estimatedValue: '$--',
+    backendRecord: trade,
+  };
+};
+
+const toRequest = (request, direction) => ({
+  id: String(request.id),
+  requestId: String(request.id),
+  direction,
+  listingId: String(request.listing_id),
+  listing: {
+    jerseyName: request.listing_title || 'Trade listing',
+    owner: request.listing_owner_name || 'Trader',
+    image: '',
+    description: request.listing_description || '',
+    size: '',
+    condition: '',
+  },
+  offer: {
+    jerseyName: direction === 'incoming'
+      ? `${request.sender_name || 'Trader'} offer`
+      : `${request.sender_name || 'You'} offer`,
+    from: request.sender_name || 'Trader',
+    initial: (request.sender_name || 'T').charAt(0).toUpperCase(),
+    color: tradeAvatarColor,
+    image: '',
+    description: '',
+  },
+  message: request.listing_description || '',
+  status: request.status || 'pending',
+  date: formatDate(request.created_at),
+  backendRecord: request,
+});
+
 export const TradeProvider = ({ children }) => {
-  const [listings, setListings] = useState(TRADE_LISTINGS);
-  const [requests, setRequests] = useState(TRADE_REQUESTS);
+  const [listings, setListings] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const addListing = useCallback((formData) => {
-    const user = getStoredUser();
-    if (!user) {
-      return null;
+  const refreshTrades = useCallback(async () => {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const user = getStoredUser();
+      const [marketplaceTrades, myTrades, receivedRequests, sentRequests] = await Promise.all([
+        getTrades(),
+        user ? getMyTradeListings().catch(() => []) : Promise.resolve([]),
+        user ? getReceivedTradeRequests().catch(() => []) : Promise.resolve([]),
+        user ? getSentTradeRequests().catch(() => []) : Promise.resolve([]),
+      ]);
+
+      const marketplaceListings = marketplaceTrades.map(toListing);
+      const personalListings = myTrades
+        .map(toListing)
+        .filter((trade) => !marketplaceListings.some((listing) => listing.id === trade.id));
+
+      setListings([...personalListings, ...marketplaceListings]);
+      setRequests([
+        ...receivedRequests.map((request) => toRequest(request, 'incoming')),
+        ...sentRequests.map((request) => toRequest(request, 'outgoing')),
+      ]);
+    } catch (requestError) {
+      setError(requestError.message || 'Failed to load trade marketplace');
+    } finally {
+      setIsLoading(false);
     }
-
-    const sellerName = user.username || 'member';
-
-    const newListing = {
-      id: `trade-${Date.now()}`,
-      image: formData.imageUrl
-        || (formData.sport === 'Basketball'
-          ? 'https://cdn.shopify.com/s/files/1/0378/6653/files/08-hardwood-classics-swingman-jersey_ss5_p-203412844_pv-1_u-s6dxq83ajwg372xfm7vi_v-sdjisrq9pytimfgu7mms.avif?v=1761347616'
-          : 'https://cdn.shopify.com/s/files/1/0621/2580/1653/files/11_e419aeb1-a3fa-4c51-a03a-def2d556e732.jpg?v=1753384643'),
-      jerseyName: formData.jerseyName,
-      club: formData.club,
-      size: formData.size,
-      condition: formData.condition,
-      conditionDetail: formData.condition,
-      sport: formData.sport.toLowerCase(),
-      type: 'club',
-      description: formData.description,
-      lookingFor: formData.lookingFor,
-      seller: {
-        name: sellerName,
-        initial: sellerName[0].toUpperCase(),
-        color: '#1B3B8A',
-      },
-      status: 'available',
-      listingType: formData.listingType || 'trade',
-      price: formData.price ? Number(formData.price) : null,
-      listedDate: new Date().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: '2-digit',
-      }),
-      estimatedValue: formData.price ? `$${formData.price}` : '$--',
-    };
-
-    setListings((prev) => [newListing, ...prev]);
-    return newListing.id;
   }, []);
 
-  const setListingStatus = useCallback((id, status) => {
-    setListings((prev) => prev.map((listing) => (listing.id === id ? { ...listing, status } : listing)));
-  }, []);
+  useEffect(() => {
+    refreshTrades();
+  }, [refreshTrades]);
 
-  const addRequest = useCallback((listingId, offerJersey, message, offerImage) => {
-    const user = getStoredUser();
-    if (!user) {
-      return false;
-    }
-
-    const listing = listings.find((item) => item.id === listingId);
-    if (!listing) {
-      return false;
-    }
-
-    const requesterName = user.username || 'member';
-
-    const newRequest = {
-      id: `req-${Date.now()}`,
-      direction: 'outgoing',
-      listingId: listing.id,
-      listing: {
-        jerseyName: listing.jerseyName,
-        emoji: listing.sport === 'basketball' ? '\uD83C\uDFC0' : '\u26BD',
-        owner: listing.seller.name,
-        image: listing.image || '',
-        description: listing.description || '',
-        size: listing.size || '',
-        condition: listing.condition || '',
-      },
-      offer: {
-        jerseyName: offerJersey,
-        emoji: '\u26BD',
-        from: requesterName,
-        initial: requesterName[0].toUpperCase(),
-        color: '#1B3B8A',
-        image: offerImage || '',
-        description: message || '',
-      },
-      message,
-      status: 'pending',
-      date: new Date().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: '2-digit',
-      }),
+  useEffect(() => {
+    const handleAuthChange = () => {
+      refreshTrades();
     };
 
-    setRequests((prev) => [newRequest, ...prev]);
-    setListingStatus(listingId, 'pending');
+    window.addEventListener('jerseys-auth-change', handleAuthChange);
+    return () => window.removeEventListener('jerseys-auth-change', handleAuthChange);
+  }, [refreshTrades]);
+
+  const addListing = useCallback(async (formData) => {
+    const title = `${formData.club} - ${formData.jerseyName}`;
+    const descriptionParts = [
+      formData.description,
+      formData.lookingFor ? `Looking for: ${formData.lookingFor}` : '',
+      formData.size ? `Size: ${formData.size}` : '',
+      formData.condition ? `Condition: ${formData.condition}` : '',
+      formData.listingType ? `Listing type: ${formData.listingType}` : '',
+      formData.price ? `Price: ${formData.price}` : '',
+    ].filter(Boolean);
+
+    const createdTrade = await createTrade({
+      title,
+      description: descriptionParts.join(' | '),
+    });
+
+    const nextListing = toListing(createdTrade);
+    setListings((currentListings) => [nextListing, ...currentListings]);
+    return nextListing.id;
+  }, []);
+
+  const addRequest = useCallback(async (listingId) => {
+    const createdRequest = await requestTrade(listingId);
+    const nextRequest = toRequest(createdRequest, 'outgoing');
+    setRequests((currentRequests) => [nextRequest, ...currentRequests]);
     return true;
-  }, [listings, setListingStatus]);
-
-  const respondToRequest = useCallback((id, response) => {
-    setRequests((prev) => prev.map((request) => (request.id === id ? { ...request, status: response } : request)));
   }, []);
+
+  const respondToRequest = useCallback(async (requestId, response) => {
+    const updatedRequest = response === 'accepted'
+      ? await acceptTradeRequest(requestId)
+      : await rejectTradeRequest(requestId);
+    const nextRequest = toRequest(updatedRequest, 'incoming');
+
+    setRequests((currentRequests) =>
+      currentRequests.map((request) =>
+        request.id === String(requestId)
+          ? { ...request, ...nextRequest, direction: request.direction }
+          : request),
+    );
+
+    if (response === 'accepted') {
+      setListings((currentListings) =>
+        currentListings.map((listing) =>
+          listing.id === String(updatedRequest.listing_id)
+            ? { ...listing, status: 'pending' }
+            : listing),
+      );
+    }
+  }, []);
+
+  const value = useMemo(() => ({
+    listings,
+    requests,
+    isLoading,
+    error,
+    refreshTrades,
+    addListing,
+    addRequest,
+    respondToRequest,
+  }), [addListing, addRequest, error, isLoading, listings, refreshTrades, requests, respondToRequest]);
 
   return (
-    <TradeContext.Provider
-      value={{
-        listings,
-        requests,
-        addListing,
-        setListingStatus,
-        addRequest,
-        respondToRequest,
-      }}
-    >
+    <TradeContext.Provider value={value}>
       {children}
     </TradeContext.Provider>
   );

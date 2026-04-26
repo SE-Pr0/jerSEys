@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, FormField, PageShell, StateBlock } from '../components/ui';
+import { createOrder } from '../services/orderService';
 import { getShopProductById } from '../services/productService';
 import { getStoredUser } from '../utils/auth';
 import { createOrderConfirmation, writeOrderConfirmation } from '../utils/orderConfirmation';
@@ -160,6 +161,8 @@ const Checkout = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(readStoredCoupon);
   const [shippingMethod, setShippingMethod] = useState('standard');
   const [currentStep, setCurrentStep] = useState(1);
+  const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formValues, setFormValues] = useState(() => {
     const storedUser = getStoredUser();
     const username = storedUser?.username || '';
@@ -350,7 +353,7 @@ const Checkout = () => {
     writeStoredCoupon(normalizedCode);
   };
 
-  const handlePlaceOrder = (event) => {
+  const handlePlaceOrder = async (event) => {
     event.preventDefault();
 
     const nextErrors = validateCheckout();
@@ -360,7 +363,21 @@ const Checkout = () => {
       return;
     }
 
+    setSubmitError('');
+    setIsSubmitting(true);
+
     const { firstName, lastName } = splitFullName(formValues.fullName);
+    const apiBackedItems = normalizedItems.filter((item) => item.cartSource === 'api');
+
+    if (apiBackedItems.length > 0) {
+      try {
+        await createOrder();
+      } catch (error) {
+        setSubmitError(error.message || 'Failed to place order.');
+        setIsSubmitting(false);
+        return;
+      }
+    }
 
     const confirmation = createOrderConfirmation({
       items: normalizedItems,
@@ -388,6 +405,7 @@ const Checkout = () => {
     writeOrderConfirmation(confirmation);
     clearCartStorage();
     setCartItems([]);
+    setIsSubmitting(false);
     navigate('/order-confirmation', { state: { order: confirmation } });
   };
 
@@ -828,9 +846,10 @@ const Checkout = () => {
                     <p className="checkout-review-note">
                       By placing this order, you agree to the demo store terms and confirm the shipping details above.
                     </p>
-                    <Button type="submit" block onClick={handlePlaceOrder}>
-                      Place Secure Order
+                  <Button type="submit" block onClick={handlePlaceOrder}>
+                      {isSubmitting ? 'Placing Order...' : 'Place Secure Order'}
                     </Button>
+                    {submitError ? <p className="checkout-promo-message is-error">{submitError}</p> : null}
                   </div>
                 </div>
               ) : null}

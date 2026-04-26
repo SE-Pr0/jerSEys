@@ -36,6 +36,8 @@ const CreateTradeListing = () => {
   const [submitted, setSubmitted] = useState(false);
   const [user, setUser]           = useState(() => getStoredUser());
   const fileInputRef              = useRef(null);
+  const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -56,17 +58,26 @@ const CreateTradeListing = () => {
   const pick = (field, value) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const createdListingId = addListing(form);
-    if (!createdListingId) {
-      navigate('/login', {
-        state: { from: '/trade/create' },
-      });
-      return;
-    }
+    setSubmitError('');
+    setIsSubmitting(true);
 
-    setSubmitted(true);
+    try {
+      const createdListingId = await addListing(form);
+      if (!createdListingId) {
+        navigate('/login', {
+          state: { from: '/trade/create' },
+        });
+        return;
+      }
+
+      setSubmitted(true);
+    } catch (error) {
+      setSubmitError(error.message || 'Failed to create listing.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   /* ── Auth gate ── */
@@ -359,10 +370,11 @@ const CreateTradeListing = () => {
             <Button variant="secondary" to="/trade">
               Cancel
             </Button>
-            <Button type="submit">
-              List for Trade
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Listing...' : 'List for Trade'}
             </Button>
           </div>
+          {submitError ? <p className="trade-auth-gate-text">{submitError}</p> : null}
         </form>
       </Card>
     </PageShell>

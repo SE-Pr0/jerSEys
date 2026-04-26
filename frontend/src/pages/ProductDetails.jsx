@@ -1,13 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { getRelatedShopProducts, getShopProductById } from '../services/productService';
+import { StateBlock } from '../components/ui';
+import { addCartItem } from '../services/cartService';
 import { showToast } from '../services/notificationService';
+import { fetchProductById, getRelatedShopProducts } from '../services/productService';
 import { getStoredUser } from '../utils/auth';
 import '../styles/product-details.css';
-
-const CART_STORAGE_KEY = 'jerseys-cart';
-const CART_EVENT_NAME = 'jerseys-cart-change';
 
 const formatPrice = (value) =>
   new Intl.NumberFormat('en-US', {
@@ -40,99 +39,54 @@ const firstText = (...values) => {
   return '';
 };
 
-const readStoredCart = () => {
-  if (typeof window === 'undefined') {
-    return [];
-  }
-
-  try {
-    const parsed = JSON.parse(window.localStorage.getItem(CART_STORAGE_KEY) || '[]');
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
-
-const writeStoredCart = (items) => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-  window.dispatchEvent(new Event(CART_EVENT_NAME));
-};
-
-const buildCartLineKey = (productId, size, personalize, playerName, playerNumber) => {
-  const fields = [
-    productId,
-    size || 'no-size',
-    personalize ? 'personalized' : 'standard',
-    playerName || 'no-name',
-    playerNumber || 'no-number',
-  ];
-
-  return fields.join('|');
-};
-
-const buildCartLineItem = (product, details) => {
-  const { selectedSize, quantity, personalize, playerName, playerNumber } = details;
-  const lineKey = buildCartLineKey(product.id, selectedSize, personalize, playerName, playerNumber);
-  const summaryParts = [];
-
-  if (selectedSize) {
-    summaryParts.push(`Size ${selectedSize}`);
-  }
-
-  if (personalize && playerName) {
-    summaryParts.push(`Name ${playerName}`);
-  }
-
-  if (personalize && playerNumber) {
-    summaryParts.push(`Number ${playerNumber}`);
-  }
-
-  return {
-    cartKey: lineKey,
-    id: product.id,
-    productId: product.id,
-    name: product.name,
-    title: product.name,
-    team: product.team,
-    sportLabel: product.sportLabel,
-    categoryLabel: product.categoryLabel,
-    season: product.season,
-    image: product.image,
-    badge: product.badge,
-    price: product.price,
-    unitPrice: product.price,
-    quantity,
-    size: selectedSize,
-    selectedSize,
-    playerName: personalize ? playerName : '',
-    playerNumber: personalize ? playerNumber : '',
-    text: personalize ? [playerName, playerNumber].filter(Boolean).join(' # ') : '',
-    notes: '',
-    customization: {
-      playerName: personalize ? playerName : '',
-      playerNumber: personalize ? playerNumber : '',
-      summary: summaryParts.join(' / '),
-    },
-  };
-};
-
 const ProductDetails = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const product = getShopProductById(productId);
-  const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || '');
+  const [product, setProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [personalize, setPersonalize] = useState(false);
   const [playerName, setPlayerName] = useState('');
   const [playerNumber, setPlayerNumber] = useState('');
   const [notice, setNotice] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const relatedProducts = useMemo(() => getRelatedShopProducts(productId, 4), [productId]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProduct = async () => {
+      setIsLoading(true);
+      setLoadError('');
+
+      try {
+        const nextProduct = await fetchProductById(productId);
+        if (!isMounted) {
+          return;
+        }
+
+        setProduct(nextProduct);
+      } catch (error) {
+        if (isMounted) {
+          setLoadError(error.message || 'Failed to fetch product.');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadProduct();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [productId]);
 
   useEffect(() => {
     setSelectedSize(product?.sizes?.[0] || '');
@@ -143,13 +97,23 @@ const ProductDetails = () => {
     setNotice('');
   }, [product]);
 
-  if (!product) {
+  if (isLoading) {
+    return (
+      <div className="product-details-page">
+        <section className="product-details-empty section-wrap">
+          <StateBlock centered icon="..." title="Loading product" description="Fetching product details from the backend." />
+        </section>
+      </div>
+    );
+  }
+
+  if (loadError || !product) {
     return (
       <div className="product-details-page">
         <section className="product-details-empty section-wrap">
           <p className="product-details-kicker">Product not found</p>
           <h1>That jersey slipped past the back line.</h1>
-          <p>Try the shop catalog again and pick another listing.</p>
+          <p>{loadError || 'Try the shop catalog again and pick another listing.'}</p>
           <Link className="product-details-outline" to="/shop">
             Back To Shop
           </Link>
@@ -158,7 +122,7 @@ const ProductDetails = () => {
     );
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!getStoredUser()) {
       navigate('/login', {
         state: { from: `${location.pathname}${location.search}${location.hash}` },
@@ -171,31 +135,28 @@ const ProductDetails = () => {
       return;
     }
 
-    const nextCartItem = buildCartLineItem(product, {
-      selectedSize,
-      quantity,
-      personalize,
-      playerName: firstText(playerName),
-      playerNumber: firstText(playerNumber),
-    });
-    const currentCart = readStoredCart();
-    const existingItemIndex = currentCart.findIndex((item) => item.cartKey === nextCartItem.cartKey);
+    setIsSubmitting(true);
 
-    if (existingItemIndex >= 0) {
-      currentCart[existingItemIndex] = {
-        ...currentCart[existingItemIndex],
-        quantity: Number(currentCart[existingItemIndex].quantity || 1) + quantity,
-      };
-    } else {
-      currentCart.push(nextCartItem);
+    try {
+      await addCartItem({
+        productId: product.backendId || product.id,
+        quantity,
+        product,
+        selectedSize,
+        playerName: firstText(playerName),
+        playerNumber: firstText(playerNumber),
+      });
+
+      setNotice('');
+      showToast({
+        message: 'Added to cart!',
+        subtext: `${product.name}${selectedSize ? ` in ${selectedSize}` : ''}`,
+      });
+    } catch (error) {
+      setNotice(error.message || 'Failed to add to cart.');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    writeStoredCart(currentCart);
-    setNotice('');
-    showToast({
-      message: 'Added to cart!',
-      subtext: `${product.name}${selectedSize ? ` in ${selectedSize}` : ''}`,
-    });
   };
 
   const incrementQuantity = () => {
@@ -322,9 +283,9 @@ const ProductDetails = () => {
                   type="button"
                   className="product-details-add"
                   onClick={handleAddToCart}
-                  disabled={!product.inStock}
+                  disabled={!product.inStock || isSubmitting}
                 >
-                  {product.inStock ? 'Add to cart' : 'Unavailable'}
+                  {product.inStock ? (isSubmitting ? 'Adding...' : 'Add to cart') : 'Unavailable'}
                 </button>
               </div>
 
@@ -365,10 +326,7 @@ const ProductDetails = () => {
 
         <div className="product-details-related-grid">
           {relatedProducts.map((relatedProduct) => (
-            <div
-              key={relatedProduct.id}
-              className="product-details-related-link"
-            >
+            <div key={relatedProduct.id} className="product-details-related-link">
               <ProductCard
                 sport={relatedProduct.sportLabel}
                 club={relatedProduct.team}

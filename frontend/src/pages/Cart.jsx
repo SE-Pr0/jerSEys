@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, FormField, StateBlock } from '../components/ui';
+import { clearRemoteCart, removeCartItem, updateCartItem, writeLocalCartItems } from '../services/cartService';
 import { getShopProductById } from '../services/productService';
 import './Cart.css';
 
@@ -204,23 +205,7 @@ const writeStoredCoupon = (couponCode) => {
 };
 
 const persistCart = (items) => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  if (!items.length) {
-    CART_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key));
-    return;
-  }
-
-  CART_STORAGE_KEYS.forEach((key) => {
-    if (key !== PREFERRED_CART_KEY) {
-      window.localStorage.removeItem(key);
-    }
-  });
-
-  window.localStorage.setItem(PREFERRED_CART_KEY, JSON.stringify(items));
-  window.dispatchEvent(new Event('jerseys-cart-change'));
+  writeLocalCartItems(items);
 };
 
 const hydrateCustomKitEditor = (item) => {
@@ -372,34 +357,56 @@ const Cart = () => {
   const taxCost = discountedSubtotal * TAX_RATE;
   const orderTotal = discountedSubtotal + shippingCost + taxCost;
 
-  const updateItemQuantity = (index, nextQuantity) => {
-    setCartItems((currentItems) => {
-      const selectedItem = typeof currentItems[index] === 'string'
-        ? { productId: currentItems[index] }
-        : currentItems[index];
-      if (isTradeMarketplaceLineItem(selectedItem)) {
-        return currentItems;
+  const updateItemQuantity = async (index, nextQuantity) => {
+    const selectedItem = typeof cartItems[index] === 'string'
+      ? { productId: cartItems[index] }
+      : cartItems[index];
+
+    if (isTradeMarketplaceLineItem(selectedItem)) {
+      return;
+    }
+
+    if (selectedItem.cartSource === 'api' && selectedItem.itemId) {
+      if (nextQuantity <= 0) {
+        await removeCartItem(selectedItem.itemId);
+      } else {
+        await updateCartItem(selectedItem.itemId, nextQuantity);
       }
 
-      const nextItems = currentItems.map((item, currentIndex) => {
-        if (currentIndex !== index) {
-          return item;
-        }
+      setCartItems(readCartFromStorage());
+      return;
+    }
 
-        return {
-          ...(typeof item === 'string' ? { productId: item } : item),
-          quantity: nextQuantity,
-        };
-      });
+    setCartItems((currentItems) =>
+      currentItems
+        .map((item, currentIndex) => {
+          if (currentIndex !== index) {
+            return item;
+          }
 
-      return nextItems.filter((item) => {
-        const currentQuantity = Number(item.quantity ?? 1);
-        return Number.isFinite(currentQuantity) && currentQuantity > 0;
-      });
-    });
+          return {
+            ...(typeof item === 'string' ? { productId: item } : item),
+            quantity: nextQuantity,
+          };
+        })
+        .filter((item) => {
+          const currentQuantity = Number(item.quantity ?? 1);
+          return Number.isFinite(currentQuantity) && currentQuantity > 0;
+        }),
+    );
   };
 
-  const removeItem = (index) => {
+  const removeItem = async (index) => {
+    const selectedItem = typeof cartItems[index] === 'string'
+      ? { productId: cartItems[index] }
+      : cartItems[index];
+
+    if (selectedItem.cartSource === 'api' && selectedItem.itemId) {
+      await removeCartItem(selectedItem.itemId);
+      setCartItems(readCartFromStorage());
+      return;
+    }
+
     setCartItems((currentItems) => currentItems.filter((_, currentIndex) => currentIndex !== index));
   };
 
@@ -408,7 +415,8 @@ const Cart = () => {
     navigate('/customize');
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
+    await clearRemoteCart().catch(() => {});
     setCartItems([]);
     setPromoCode('');
     setPromoMessage('');

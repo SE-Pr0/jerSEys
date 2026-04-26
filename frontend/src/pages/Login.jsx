@@ -8,7 +8,7 @@ import {
   PageShell,
 } from '../components/ui';
 import '../styles/auth.css';
-import { getStoredUser, setStoredUser } from '../utils/auth';
+import { loginUser } from '../services/authService';
 
 const initialValues = {
   identity: '',
@@ -47,6 +47,8 @@ const Login = () => {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -65,9 +67,10 @@ const Login = () => {
       delete nextErrors[name];
       return nextErrors;
     });
+    setSubmitError('');
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const nextErrors = {};
@@ -86,19 +89,22 @@ const Login = () => {
       return;
     }
 
-    const existingUser = getStoredUser();
-    const typedIdentity = values.identity.trim();
-    const usernameFromEmail = typedIdentity.includes('@')
-      ? typedIdentity.split('@')[0]
-      : typedIdentity;
+    setIsSubmitting(true);
+    setSubmitError('');
 
-    setStoredUser({
-      username: existingUser?.username || usernameFromEmail,
-      email: existingUser?.email || (typedIdentity.includes('@') ? typedIdentity : ''),
-    });
+    try {
+      await loginUser({
+        identity: values.identity,
+        password: values.password,
+      });
 
-    const returnPath = typeof location.state?.from === 'string' ? location.state.from : null;
-    navigate(returnPath || '/shop');
+      const returnPath = typeof location.state?.from === 'string' ? location.state.from : null;
+      navigate(returnPath || '/shop');
+    } catch (error) {
+      setSubmitError(error.message || 'Login failed.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -155,10 +161,12 @@ const Login = () => {
           </FormField>
 
           <div className="ui-inline-stack">
-            <Button type="submit" block>
-              Sign In
+            <Button type="submit" block disabled={isSubmitting}>
+              {isSubmitting ? 'Signing In...' : 'Sign In'}
             </Button>
           </div>
+
+          {submitError ? <p className="auth-error-message">{submitError}</p> : null}
 
           <div className="auth-alt-link">
             <Button to="/forgot-password" variant="ghost">

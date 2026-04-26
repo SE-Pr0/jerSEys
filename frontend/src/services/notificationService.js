@@ -1,3 +1,6 @@
+import { apiRequest } from './api';
+import { getStoredToken } from '../utils/auth';
+
 const TOAST_EVENT_NAME = 'jerseys-toast';
 
 export const showToast = ({
@@ -21,3 +24,38 @@ export const showToast = ({
 };
 
 export { TOAST_EVENT_NAME };
+
+export const getNotifications = async () => {
+  const payload = await apiRequest('/notifications', {
+    token: getStoredToken(),
+  });
+
+  return Array.isArray(payload?.data) ? payload.data : [];
+};
+
+export const markNotificationAsRead = async (notificationId) => {
+  const payload = await apiRequest(`/notifications/${notificationId}/read`, {
+    method: 'PATCH',
+    token: getStoredToken(),
+  });
+
+  return payload?.data;
+};
+
+export const markAllNotificationsAsRead = async () => {
+  const payload = await apiRequest('/notifications/read-all', {
+    method: 'PATCH',
+    token: getStoredToken(),
+  });
+
+  return payload?.data;
+};
+
+export const deleteNotification = async (notificationId) => {
+  const payload = await apiRequest(`/notifications/${notificationId}`, {
+    method: 'DELETE',
+    token: getStoredToken(),
+  });
+
+  return payload?.data;
+};

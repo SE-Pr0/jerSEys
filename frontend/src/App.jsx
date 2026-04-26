@@ -6,6 +6,8 @@ import Loader from './components/Loader';
 import ScrollToTop from './components/ScrollToTop';
 import Toast from './components/Toast';
 import { TradeProvider } from './context/TradeContext';
+import { getCurrentUser, logoutUser } from './services/authService';
+import { getStoredToken } from './utils/auth';
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -16,6 +18,16 @@ const App = () => {
     }, 1700);
 
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!getStoredToken()) {
+      return;
+    }
+
+    getCurrentUser().catch(() => {
+      logoutUser();
+    });
   }, []);
 
   return (

@@ -14,7 +14,7 @@ const LISTING_TYPES = [
 ];
 
 const TradeMarketplace = () => {
-  const { listings: TRADE_LISTINGS } = useTrade();
+  const { listings: TRADE_LISTINGS, isLoading, error } = useTrade();
   const [sport, setSport] = useState('All');
   const [listingType, setListingType] = useState('all');
   const [search, setSearch] = useState('');
@@ -147,7 +147,11 @@ const TradeMarketplace = () => {
       </Card>
 
       {/* Grid or empty state */}
-      {filtered.length > 0 ? (
+      {isLoading ? (
+        <StateBlock icon="..." title="Loading trade listings" description="Fetching approved marketplace listings from the backend." centered />
+      ) : error ? (
+        <StateBlock icon="!" title="Unable to load trade listings" description={error} centered />
+      ) : filtered.length > 0 ? (
         <div className="trade-marketplace-grid">
           {filtered.map((listing) => (
             <TradeCard key={listing.id} listing={listing} />

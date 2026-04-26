@@ -5,7 +5,7 @@ import { useTrade } from '../context/TradeContext';
 import '../styles/trade.css';
 
 const TradeRequests = () => {
-  const { requests } = useTrade();
+  const { requests, isLoading, error } = useTrade();
   const [activeTab, setActiveTab] = useState('incoming');
 
   const incoming = requests.filter((r) => r.direction === 'incoming');
@@ -63,7 +63,11 @@ const TradeRequests = () => {
       </Card>
 
       {/* List or empty state */}
-      {displayed.length > 0 ? (
+      {isLoading ? (
+        <StateBlock icon="..." title="Loading requests" description="Fetching your sent and received trade requests from the backend." centered />
+      ) : error ? (
+        <StateBlock icon="!" title="Unable to load requests" description={error} centered />
+      ) : displayed.length > 0 ? (
         <div className="trade-requests-list">
           {displayed.map((request) => (
             <TradeRequestCard key={request.id} request={request} />

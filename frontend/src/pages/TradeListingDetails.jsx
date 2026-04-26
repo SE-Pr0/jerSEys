@@ -42,7 +42,7 @@ const TradeListingDetails = () => {
   const { listingId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { listings, addRequest } = useTrade();
+  const { listings, addRequest, isLoading } = useTrade();
   const listing = listings.find((l) => l.id === listingId);
 
   const [offerJersey, setOfferJersey] = useState('');
@@ -58,6 +58,14 @@ const TradeListingDetails = () => {
     window.addEventListener('jerseys-auth-change', handler);
     return () => window.removeEventListener('jerseys-auth-change', handler);
   }, []);
+
+  if (isLoading) {
+    return (
+      <PageShell className="trade-page">
+        <StateBlock icon="..." title="Loading listing" description="Fetching trade listing details from the backend." centered />
+      </PageShell>
+    );
+  }
 
   if (!listing) {
     return (
@@ -106,7 +114,7 @@ const TradeListingDetails = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) {
       redirectToLogin();
@@ -117,13 +125,17 @@ const TradeListingDetails = () => {
       return;
     }
 
-    const created = addRequest(listing.id, offerJersey, message, offerImage);
-    if (!created) {
-      redirectToLogin();
-      return;
-    }
+    try {
+      const created = await addRequest(listing.id, offerJersey, message, offerImage);
+      if (!created) {
+        redirectToLogin();
+        return;
+      }
 
-    setSent(true);
+      setSent(true);
+    } catch {
+      redirectToLogin();
+    }
   };
 
   const handleOfferImageChange = async (event) => {
