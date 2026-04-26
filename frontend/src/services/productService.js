@@ -139,9 +139,25 @@ const withSearchText = (product) => ({
     .toLowerCase(),
 });
 
+const resolveProductCategory = (product) => {
+  const normalizedCategory = (product?.category || '').toLowerCase().trim();
+
+  if (normalizedCategory === 'club' || normalizedCategory === 'national') {
+    return normalizedCategory;
+  }
+
+  return isNationalTeam({
+    team: product?.team || '',
+    name: product?.name || '',
+    description: product?.description || '',
+  })
+    ? 'national'
+    : 'club';
+};
+
 const mapBackendProduct = (product, index = 0) => {
   const sport = (product?.sport || '').toLowerCase() === 'basketball' ? 'basketball' : 'football';
-  const category = (product?.category || '').toLowerCase() || 'club';
+  const category = resolveProductCategory(product);
   const sizes = sortSizes(
     typeof product?.size === 'string'
       ? product.size.split(/[,\s/]+/)
