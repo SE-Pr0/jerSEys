@@ -50,6 +50,7 @@ const TradeListingDetails = () => {
   const [offerImage, setOfferImage] = useState('');
   const [offerImageName, setOfferImageName] = useState('');
   const [sent, setSent] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [user, setUser] = useState(() => getStoredUser());
   const [addedToCart, setAddedToCart] = useState(false);
 
@@ -125,16 +126,12 @@ const TradeListingDetails = () => {
       return;
     }
 
+    setSubmitError('');
     try {
-      const created = await addRequest(listing.id, offerJersey, message, offerImage);
-      if (!created) {
-        redirectToLogin();
-        return;
-      }
-
+      await addRequest(listing.id);
       setSent(true);
-    } catch {
-      redirectToLogin();
+    } catch (err) {
+      setSubmitError(err?.message || 'Failed to send trade offer. Please try again.');
     }
   };
 
@@ -434,6 +431,11 @@ const TradeListingDetails = () => {
                     </FormField>
                   </div>
 
+                  {submitError && (
+                    <p style={{ color: 'var(--error, #c0392b)', fontSize: '14px', marginBottom: '8px' }}>
+                      {submitError}
+                    </p>
+                  )}
                   <Button type="submit" block>
                     Send Trade Offer
                   </Button>
