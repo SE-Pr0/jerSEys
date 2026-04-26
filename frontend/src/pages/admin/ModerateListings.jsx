@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Card, FormField } from '../../components/ui';
+import AdminModalPortal from './AdminModalPortal';
 import AdminSuiteLayout from './AdminSuiteLayout';
 import {
   buildSearchBlob,
@@ -495,14 +496,15 @@ const ModerateListings = () => {
       </div>
 
       {reviewDraft && reviewedListing ? (
-        <div
-          className="admin-listing-review-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="admin-listing-review-title"
-          onClick={handleCloseReview}
-        >
-          <div className="admin-listing-review-modal ui-card" onClick={(event) => event.stopPropagation()}>
+        <AdminModalPortal>
+          <div
+            className="admin-listing-review-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-listing-review-title"
+            onClick={handleCloseReview}
+          >
+            <div className="admin-listing-review-modal ui-card" onClick={(event) => event.stopPropagation()}>
             <div className="admin-listing-review-head">
               <div>
                 <div className="admin-suite-kicker">Listing review</div>
@@ -613,8 +615,9 @@ const ModerateListings = () => {
               </Button>
               <Button onClick={handleSaveReview}>Save review</Button>
             </div>
+            </div>
           </div>
-        </div>
+        </AdminModalPortal>
       ) : null}
     </AdminSuiteLayout>
   );

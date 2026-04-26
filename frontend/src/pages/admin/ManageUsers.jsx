@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Card, FormField } from '../../components/ui';
+import AdminModalPortal from './AdminModalPortal';
 import AdminSuiteLayout from './AdminSuiteLayout';
 import {
   buildSearchBlob,
@@ -538,14 +539,15 @@ const ManageUsers = () => {
       </div>
 
       {viewingUser ? (
-        <div
-          className="admin-user-modal-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="admin-user-view-title"
-          onClick={handleCloseView}
-        >
-          <div className="admin-user-modal ui-card" onClick={(event) => event.stopPropagation()}>
+        <AdminModalPortal>
+          <div
+            className="admin-user-modal-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-user-view-title"
+            onClick={handleCloseView}
+          >
+            <div className="admin-user-modal ui-card" onClick={(event) => event.stopPropagation()}>
             <div className="admin-user-modal-head">
               <div>
                 <div className="admin-suite-kicker">Account detail</div>
@@ -609,19 +611,21 @@ const ManageUsers = () => {
                 Edit account
               </Button>
             </div>
+            </div>
           </div>
-        </div>
+        </AdminModalPortal>
       ) : null}
 
       {draftUser ? (
-        <div
-          className="admin-user-modal-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="admin-user-edit-title"
-          onClick={handleCloseEdit}
-        >
-          <div className="admin-user-modal admin-user-modal--wide ui-card" onClick={(event) => event.stopPropagation()}>
+        <AdminModalPortal>
+          <div
+            className="admin-user-modal-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-user-edit-title"
+            onClick={handleCloseEdit}
+          >
+            <div className="admin-user-modal admin-user-modal--wide ui-card" onClick={(event) => event.stopPropagation()}>
             <div className="admin-user-modal-head">
               <div>
                 <div className="admin-suite-kicker">User editor</div>
@@ -800,8 +804,9 @@ const ManageUsers = () => {
               <Button variant="ghost" onClick={handleCloseEdit}>Cancel</Button>
               <Button onClick={handleSaveUser}>Save account</Button>
             </div>
+            </div>
           </div>
-        </div>
+        </AdminModalPortal>
       ) : null}
     </AdminSuiteLayout>
   );

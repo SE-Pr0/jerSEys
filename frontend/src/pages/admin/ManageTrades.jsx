@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Card, FormField } from '../../components/ui';
+import AdminModalPortal from './AdminModalPortal';
 import AdminSuiteLayout from './AdminSuiteLayout';
 import {
   buildSearchBlob,
@@ -373,14 +374,15 @@ const ManageTrades = () => {
       </div>
 
       {reviewTrade ? (
-        <div
-          className="admin-trade-review-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="admin-trade-review-title"
-          onClick={handleCloseReview}
-        >
-          <div className="admin-trade-review-modal ui-card" onClick={(event) => event.stopPropagation()}>
+        <AdminModalPortal>
+          <div
+            className="admin-trade-review-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-trade-review-title"
+            onClick={handleCloseReview}
+          >
+            <div className="admin-trade-review-modal ui-card" onClick={(event) => event.stopPropagation()}>
             <div className="admin-trade-review-head">
               <div>
                 <div className="admin-suite-kicker">Trade review</div>
@@ -464,8 +466,9 @@ const ManageTrades = () => {
                 {reviewTrade.statusKey === 'active' || reviewTrade.statusKey === 'completed' ? 'Already approved' : 'Approve trade'}
               </Button>
             </div>
+            </div>
           </div>
-        </div>
+        </AdminModalPortal>
       ) : null}
     </AdminSuiteLayout>
   );

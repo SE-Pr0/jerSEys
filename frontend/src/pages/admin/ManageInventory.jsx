@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Card, FormField } from '../../components/ui';
+import AdminModalPortal from './AdminModalPortal';
 import AdminSuiteLayout from './AdminSuiteLayout';
 import {
   buildSearchBlob,
@@ -433,14 +434,15 @@ const ManageInventory = () => {
       </div>
 
       {draftItem ? (
-        <div
-          className="admin-inventory-editor-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="admin-inventory-editor-title"
-          onClick={handleCloseEditor}
-        >
-          <div className="admin-inventory-editor-modal ui-card" onClick={(event) => event.stopPropagation()}>
+        <AdminModalPortal>
+          <div
+            className="admin-inventory-editor-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-inventory-editor-title"
+            onClick={handleCloseEditor}
+          >
+            <div className="admin-inventory-editor-modal ui-card" onClick={(event) => event.stopPropagation()}>
             <div className="admin-inventory-editor-head">
               <div>
                 <div className="admin-suite-kicker">Inventory editor</div>
@@ -530,8 +532,9 @@ const ManageInventory = () => {
               <Button variant="ghost" onClick={handleCloseEditor}>Cancel</Button>
               <Button onClick={handleSaveItem}>Save item</Button>
             </div>
+            </div>
           </div>
-        </div>
+        </AdminModalPortal>
       ) : null}
     </AdminSuiteLayout>
   );

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Card, FormField } from '../../components/ui';
 import { getShopProducts } from '../../services/productService';
+import AdminModalPortal from './AdminModalPortal';
 import AdminSuiteLayout from './AdminSuiteLayout';
 import { buildSearchBlob, getInitials, normalizeText, toneAvatarStyles, toneBadgeStyles } from './adminConstants';
 
@@ -310,14 +311,15 @@ const ManageProducts = () => {
       </div>
 
       {draftProduct ? (
-        <div
-          className="admin-product-editor-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="admin-product-editor-title"
-          onClick={handleCloseEditor}
-        >
-          <div className="admin-product-editor-modal ui-card" onClick={(event) => event.stopPropagation()}>
+        <AdminModalPortal>
+          <div
+            className="admin-product-editor-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-product-editor-title"
+            onClick={handleCloseEditor}
+          >
+            <div className="admin-product-editor-modal ui-card" onClick={(event) => event.stopPropagation()}>
             <div className="admin-product-editor-head">
               <div>
                 <div className="admin-suite-kicker">Product editor</div>
@@ -441,14 +443,15 @@ const ManageProducts = () => {
               </div>
             </div>
 
-            <div className="admin-product-editor-actions">
-              <Button variant="secondary" onClick={handleCloseEditor}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveProduct}>Save changes</Button>
+              <div className="admin-product-editor-actions">
+                <Button variant="secondary" onClick={handleCloseEditor}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveProduct}>Save changes</Button>
+              </div>
             </div>
           </div>
-        </div>
+        </AdminModalPortal>
       ) : null}
     </AdminSuiteLayout>
   );

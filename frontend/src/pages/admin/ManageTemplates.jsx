@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Card, FormField } from '../../components/ui';
+import AdminModalPortal from './AdminModalPortal';
 import AdminSuiteLayout from './AdminSuiteLayout';
 import { buildSearchBlob, normalizeText } from './adminConstants';
 import crackedPreset from '../CustomJerseyBuilder/Assets/Presets/Cracked.png';
@@ -277,14 +278,15 @@ const ManageTemplates = () => {
       </div>
 
       {isAddOpen ? (
-        <div
-          className="admin-template-modal-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="add-template-title"
-          onClick={() => setIsAddOpen(false)}
-        >
-          <div className="admin-template-modal ui-card" onClick={(event) => event.stopPropagation()}>
+        <AdminModalPortal>
+          <div
+            className="admin-template-modal-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-template-title"
+            onClick={() => setIsAddOpen(false)}
+          >
+            <div className="admin-template-modal ui-card" onClick={(event) => event.stopPropagation()}>
             <div className="admin-template-modal-head">
               <h3 className="admin-suite-table-title" id="add-template-title">Add New Pattern</h3>
               <Button variant="ghost" onClick={() => setIsAddOpen(false)}>Close</Button>
@@ -324,19 +326,21 @@ const ManageTemplates = () => {
               <Button variant="secondary" onClick={() => setIsAddOpen(false)}>Cancel</Button>
               <Button onClick={handleAddTemplate} disabled={!hasAddValues}>Add Pattern</Button>
             </div>
+            </div>
           </div>
-        </div>
+        </AdminModalPortal>
       ) : null}
 
       {editingTemplate ? (
-        <div
-          className="admin-template-modal-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="edit-template-title"
-          onClick={closeEditTemplate}
-        >
-          <div className="admin-template-modal ui-card" onClick={(event) => event.stopPropagation()}>
+        <AdminModalPortal>
+          <div
+            className="admin-template-modal-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-template-title"
+            onClick={closeEditTemplate}
+          >
+            <div className="admin-template-modal ui-card" onClick={(event) => event.stopPropagation()}>
             <div className="admin-template-modal-head">
               <h3 className="admin-suite-table-title" id="edit-template-title">Edit Pattern</h3>
             </div>
@@ -379,8 +383,9 @@ const ManageTemplates = () => {
               <Button variant="secondary" onClick={closeEditTemplate}>Cancel</Button>
               <Button onClick={handleSaveTemplateEdit} disabled={!hasEditValues}>Save Changes</Button>
             </div>
+            </div>
           </div>
-        </div>
+        </AdminModalPortal>
       ) : null}
     </AdminSuiteLayout>
   );
