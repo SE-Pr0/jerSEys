@@ -4,7 +4,7 @@ import brazilKit from '../../../assets/images/Brazil Nike Floating.png';
 import '../../styles/home-hero.css';
 import { getShopProductById } from '../../services/productService';
 
-const heroProductId = 'brazil-brazil-2026-home-22';
+const heroProductId = '28';
 const heroProduct = getShopProductById(heroProductId);
 
 const formatPrice = (value) =>
