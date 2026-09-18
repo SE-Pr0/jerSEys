@@ -1,8 +1,17 @@
-const DEFAULT_API_URL = 'http://localhost:5000/api';
-
 const trimTrailingSlash = (value) => String(value || '').replace(/\/+$/, '');
 
-export const API_BASE_URL = trimTrailingSlash(import.meta.env.VITE_API_URL || DEFAULT_API_URL);
+const configuredApiUrl = trimTrailingSlash(import.meta.env.VITE_API_URL);
+
+if (!configuredApiUrl) {
+  throw new Error('VITE_API_URL is not configured.');
+}
+
+const parsedApiUrl = new URL(configuredApiUrl);
+if (!['http:', 'https:'].includes(parsedApiUrl.protocol)) {
+  throw new Error('VITE_API_URL must use HTTP or HTTPS.');
+}
+
+export const API_BASE_URL = configuredApiUrl;
 
 export class ApiError extends Error {
   constructor(message, status, body) {
