@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const app = require("./app");
 const { testDbConnection } = require("./config/db");
+const { validateEnvironment } = require("./config/env");
 
 const PORT = process.env.PORT || 5000;
 
@@ -15,6 +16,7 @@ process.on("unhandledRejection", (reason) => {
 
 const startServer = async () => {
   try {
+    validateEnvironment();
     await testDbConnection();
 
     app.listen(PORT, () => {

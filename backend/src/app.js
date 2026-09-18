@@ -10,33 +10,35 @@ const tradeRoutes = require("./routes/tradeRoutes");
 const customJerseyRoutes = require("./routes/customJerseyRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-const sendEmail = require("./utils/sendEmail");
 const { errorHandler, notFoundHandler } = require("./middleware/errorMiddleware");
 
 const app = express();
 const REQUEST_BODY_LIMIT = "10mb";
+const allowedOrigins = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
-app.use(cors());
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      const error = new Error("Origin is not allowed by CORS.");
+      error.statusCode = 403;
+      callback(error);
+    }
+  })
+);
 app.use(express.json({ limit: REQUEST_BODY_LIMIT }));
 app.use(express.urlencoded({ extended: true, limit: REQUEST_BODY_LIMIT }));
 
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} ${req.method} ${req.originalUrl}`);
+  console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
   next();
-});
-
-app.post("/api/test-email", async (req, res) => {
-  try {
-    await sendEmail({
-      to: "supportjerseys@gmail.com",
-      subject: "Test Email",
-      html: "<h2>Email is working</h2>"
-    });
-
-    res.json({ message: "Email sent" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
 app.use("/api/health", healthRoutes);

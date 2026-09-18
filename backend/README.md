@@ -28,6 +28,8 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
+Production requires a 32-character or longer `JWT_SECRET`, a restricted `CORS_ORIGINS` list, and the hosted MySQL settings shown in `.env.example`. Set `DB_SSL=true` for managed MySQL and keep certificate verification enabled unless the provider supplies a documented alternative.
+
 ## Health Check
 
 Once the server is running, test the health route at:
